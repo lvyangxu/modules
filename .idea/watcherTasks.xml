@@ -58,8 +58,8 @@
       <option name="workingDir" value="$FileDir$" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="false">
-      <option name="arguments" value="$FileDir$/main.js -o $FileDir$/bundle.js" />
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="main.js -o bundle.js" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" value="" />
       <option name="exitCodeBehavior" value="ERROR" />
@@ -72,9 +72,9 @@
       </option>
       <option name="outputFromStdout" value="false" />
       <option name="program" value="$USER_HOME$/AppData/Roaming/npm/browserify.cmd" />
-      <option name="scopeName" value="browserify main" />
+      <option name="scopeName" value="main" />
       <option name="trackOnlyRoot" value="false" />
-      <option name="workingDir" value="F:\MyExpress\dist" />
+      <option name="workingDir" value="F:\modules\test" />
       <envs />
     </TaskOptions>
   </component>

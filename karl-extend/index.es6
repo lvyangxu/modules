@@ -1,206 +1,183 @@
-"use strict";
-
-var stringExtend = function stringExtend(funcName, func) {
+let extend = (funcName, func)=> {
     if (!String.prototype[funcName]) {
         String.prototype[funcName] = func;
     }
+    if (!Number.prototype[funcName]) {
+        Number.prototype[funcName] = func;
+    }
 };
 
-stringExtend("includes", function (search, start) {
+extend("includes", (search, start)=> {
+    let input = this.toString();
     if (typeof start !== 'number') {
         start = 0;
     }
-    if (start + search.length > undefined.length) {
+    if (start + search.length > input.length) {
         return false;
     } else {
-        return undefined.indexOf(search, start) !== -1;
+        return input.indexOf(search, start) !== -1;
     }
 });
 
-stringExtend("utf8Encode", function () {
-    console.log(this);
-    var input = this;
-    var output = "";
+extend("utf8Encode", function () {
+    let input = this.toString();
+    let output = "";
     input = input.replace(/\r\n/g, "\n");
-    for (var n = 0; n < input.length; n++) {
-        var c = input.charCodeAt(n);
+    for (let n = 0; n < input.length; n++) {
+        let c = input.charCodeAt(n);
         if (c < 128) {
             output += String.fromCharCode(c);
-        } else if (c > 127 && c < 2048) {
-            output += String.fromCharCode(c >> 6 | 192);
-            output += String.fromCharCode(c & 63 | 128);
+        } else if ((c > 127) && (c < 2048)) {
+            output += String.fromCharCode((c >> 6) | 192);
+            output += String.fromCharCode((c & 63) | 128);
         } else {
-            output += String.fromCharCode(c >> 12 | 224);
-            output += String.fromCharCode(c >> 6 & 63 | 128);
-            output += String.fromCharCode(c & 63 | 128);
+            output += String.fromCharCode((c >> 12) | 224);
+            output += String.fromCharCode(((c >> 6) & 63) | 128);
+            output += String.fromCharCode((c & 63) | 128);
         }
     }
     return output;
 });
 
-stringExtend("utf8Decode", function () {
-    var input = this;
-    var output = "";
-    var i = 0;
-    var c = 0;
-    var c1 = 0;
-    var c2 = 0;
-    var c3 = 0;
-
+extend("utf8Decode", function () {
+    let input = this.toString();
+    let output = "";
+    let i = 0;
+    let [c,c1,c2,c3]= [0, 0, 0, 0];
     while (i < input.length) {
         c = input.charCodeAt(i);
         if (c < 128) {
             output += String.fromCharCode(c);
             i++;
-        } else if (c > 191 && c < 224) {
+        } else if ((c > 191) && (c < 224)) {
             c2 = input.charCodeAt(i + 1);
-            output += String.fromCharCode((c & 31) << 6 | c2 & 63);
+            output += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
             i += 2;
         } else {
             c2 = input.charCodeAt(i + 1);
             c3 = input.charCodeAt(i + 2);
-            output += String.fromCharCode((c & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+            output += String.fromCharCode(((c & 15) << 12)
+                | ((c2 & 63) << 6) | (c3 & 63));
             i += 3;
         }
     }
     return output;
 });
 
-stringExtend("urlEncode", function () {
-    var output = encodeURIComponent(this);
+extend("urlEncode", function () {
+    let output = encodeURIComponent(this.toString());
     return output;
 });
 
-stringExtend("urlDecode", function () {
-    var output = decodeURIComponent(this);
+extend("urlDecode", function () {
+    let output = decodeURIComponent(this.toString());
     return output;
 });
 
 //md5 32 encode lower case
-stringExtend("md5Encode", function () {
+extend("md5Encode", function () {
+    let input = this.toString().utf8Encode();
 
-    var rotateLeft = function rotateLeft(lValue, iShiftBits) {
-        return lValue << iShiftBits | lValue >>> 32 - iShiftBits;
+    let rotateLeft = function (lValue, iShiftBits) {
+        return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
     };
 
-    var addUnsigned = function addUnsigned(lX, lY) {
-        var lX4 = void 0,
-            lY4 = void 0,
-            lX8 = void 0,
-            lY8 = void 0,
-            lResult = void 0;
-        lX8 = lX & 0x80000000;
-        lY8 = lY & 0x80000000;
-        lX4 = lX & 0x40000000;
-        lY4 = lY & 0x40000000;
+    let addUnsigned = function (lX, lY) {
+        let lX4, lY4, lX8, lY8, lResult;
+        lX8 = (lX & 0x80000000);
+        lY8 = (lY & 0x80000000);
+        lX4 = (lX & 0x40000000);
+        lY4 = (lY & 0x40000000);
         lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
-        if (lX4 & lY4) return lResult ^ 0x80000000 ^ lX8 ^ lY8;
+        if (lX4 & lY4)
+            return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
         if (lX4 | lY4) {
-            if (lResult & 0x40000000) return lResult ^ 0xC0000000 ^ lX8 ^ lY8;else return lResult ^ 0x40000000 ^ lX8 ^ lY8;
+            if (lResult & 0x40000000)
+                return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
+            else
+                return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
         } else {
-            return lResult ^ lX8 ^ lY8;
+            return (lResult ^ lX8 ^ lY8);
         }
     };
 
-    var F = function F(x, y, z) {
-        return x & y | ~x & z;
+    let F = function (x, y, z) {
+        return (x & y) | ((~x) & z);
     };
 
-    var G = function G(x, y, z) {
-        return x & z | y & ~z;
+    let G = function (x, y, z) {
+        return (x & z) | (y & (~z));
     };
 
-    var H = function H(x, y, z) {
-        return x ^ y ^ z;
+    let H = function (x, y, z) {
+        return (x ^ y ^ z);
     };
 
-    var I = function I(x, y, z) {
-        return y ^ (x | ~z);
+    let I = function (x, y, z) {
+        return (y ^ (x | (~z)));
     };
 
-    var FF = function FF(a, b, c, d, x, s, ac) {
+    let FF = function (a, b, c, d, x, s, ac) {
         a = addUnsigned(a, addUnsigned(addUnsigned(F(b, c, d), x), ac));
         return addUnsigned(rotateLeft(a, s), b);
     };
 
-    var GG = function GG(a, b, c, d, x, s, ac) {
+    let GG = function (a, b, c, d, x, s, ac) {
         a = addUnsigned(a, addUnsigned(addUnsigned(G(b, c, d), x), ac));
         return addUnsigned(rotateLeft(a, s), b);
     };
 
-    var HH = function HH(a, b, c, d, x, s, ac) {
+    let HH = function (a, b, c, d, x, s, ac) {
         a = addUnsigned(a, addUnsigned(addUnsigned(H(b, c, d), x), ac));
         return addUnsigned(rotateLeft(a, s), b);
     };
 
-    var II = function II(a, b, c, d, x, s, ac) {
+    let II = function (a, b, c, d, x, s, ac) {
         a = addUnsigned(a, addUnsigned(addUnsigned(I(b, c, d), x), ac));
         return addUnsigned(rotateLeft(a, s), b);
     };
 
-    var convertToWordArray = function convertToWordArray(string) {
-        var lWordCount = void 0;
-        var lMessageLength = string.length;
-        var lNumberOfWordsTempOne = lMessageLength + 8;
-        var lNumberOfWordsTempTwo = (lNumberOfWordsTempOne - lNumberOfWordsTempOne % 64) / 64;
-        var lNumberOfWords = (lNumberOfWordsTempTwo + 1) * 16;
-        var lWordArray = Array(lNumberOfWords - 1);
-        var lBytePosition = 0;
-        var lByteCount = 0;
+    let convertToWordArray = function (string) {
+        let lWordCount;
+        let lMessageLength = string.length;
+        let lNumberOfWordsTempOne = lMessageLength + 8;
+        let lNumberOfWordsTempTwo = (lNumberOfWordsTempOne - (lNumberOfWordsTempOne % 64)) / 64;
+        let lNumberOfWords = (lNumberOfWordsTempTwo + 1) * 16;
+        let lWordArray = Array(lNumberOfWords - 1);
+        let lBytePosition = 0;
+        let lByteCount = 0;
         while (lByteCount < lMessageLength) {
-            lWordCount = (lByteCount - lByteCount % 4) / 4;
-            lBytePosition = lByteCount % 4 * 8;
-            lWordArray[lWordCount] = lWordArray[lWordCount] | string.charCodeAt(lByteCount) << lBytePosition;
+            lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+            lBytePosition = (lByteCount % 4) * 8;
+            lWordArray[lWordCount] = (lWordArray[lWordCount] | (string
+                .charCodeAt(lByteCount) << lBytePosition));
             lByteCount++;
         }
-        lWordCount = (lByteCount - lByteCount % 4) / 4;
-        lBytePosition = lByteCount % 4 * 8;
-        lWordArray[lWordCount] = lWordArray[lWordCount] | 0x80 << lBytePosition;
+        lWordCount = (lByteCount - (lByteCount % 4)) / 4;
+        lBytePosition = (lByteCount % 4) * 8;
+        lWordArray[lWordCount] = lWordArray[lWordCount] | (0x80 << lBytePosition);
         lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
         lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
         return lWordArray;
     };
 
-    var wordToHex = function wordToHex(lValue) {
-        var WordToHexValue = "",
-            WordToHexValueTemp = "",
-            lByte = void 0,
-            lCount = void 0;
+    let wordToHex = function (lValue) {
+        let WordToHexValue = "", WordToHexValueTemp = "", lByte, lCount;
         for (lCount = 0; lCount <= 3; lCount++) {
-            lByte = lValue >>> lCount * 8 & 255;
+            lByte = (lValue >>> (lCount * 8)) & 255;
             WordToHexValueTemp = "0" + lByte.toString(16);
             WordToHexValue += WordToHexValueTemp.substr(WordToHexValueTemp.length - 2, 2);
         }
         return WordToHexValue;
     };
 
-    var x = Array();
-    var k = void 0,
-        AA = void 0,
-        BB = void 0,
-        CC = void 0,
-        DD = void 0,
-        a = void 0,
-        b = void 0,
-        c = void 0,
-        d = void 0;
-    var S11 = 7,
-        S12 = 12,
-        S13 = 17,
-        S14 = 22;
-    var S21 = 5,
-        S22 = 9,
-        S23 = 14,
-        S24 = 20;
-    var S31 = 4,
-        S32 = 11,
-        S33 = 16,
-        S34 = 23;
-    var S41 = 6,
-        S42 = 10,
-        S43 = 15,
-        S44 = 21;
-    var input = this.utf8Encode();
+    let x = Array();
+    let k, AA, BB, CC, DD, a, b, c, d;
+    let S11 = 7, S12 = 12, S13 = 17, S14 = 22;
+    let S21 = 5, S22 = 9, S23 = 14, S24 = 20;
+    let S31 = 4, S32 = 11, S33 = 16, S34 = 23;
+    let S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+
     x = convertToWordArray(input);
     a = 0x67452301;
     b = 0xEFCDAB89;
@@ -280,30 +257,25 @@ stringExtend("md5Encode", function () {
         c = addUnsigned(c, CC);
         d = addUnsigned(d, DD);
     }
-    var tempValue = wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(d);
-    var output = tempValue.toLowerCase();
+    let tempValue = wordToHex(a) + wordToHex(b) + wordToHex(c)
+        + wordToHex(d);
+    let output = tempValue.toLowerCase();
     return output;
 });
 
-stringExtend("base64Encode", function () {
-    var input = this.utf8Encode();
-    var output = "";
-    var base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    var chr1 = void 0,
-        chr2 = void 0,
-        chr3 = void 0,
-        enc1 = void 0,
-        enc2 = void 0,
-        enc3 = void 0,
-        enc4 = void 0;
-    var i = 0;
+extend("base64Encode", function () {
+    let input = this.toString().utf8Encode();
+    let output = "";
+    let base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    let chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    let i = 0;
     while (i < input.length) {
         chr1 = input.charCodeAt(i++);
         chr2 = input.charCodeAt(i++);
         chr3 = input.charCodeAt(i++);
         enc1 = chr1 >> 2;
-        enc2 = (chr1 & 3) << 4 | chr2 >> 4;
-        enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
         enc4 = chr3 & 63;
         if (isNaN(chr2)) {
             enc3 = enc4 = 64;
@@ -315,26 +287,21 @@ stringExtend("base64Encode", function () {
     return output;
 });
 
-stringExtend("base64Decode", function () {
-    var input = this.replace(/[^A-Za-z0-9\+\/=]/g, "");
-    var output = "";
-    var base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    var chr1 = void 0,
-        chr2 = void 0,
-        chr3 = void 0;
-    var enc1 = void 0,
-        enc2 = void 0,
-        enc3 = void 0,
-        enc4 = void 0;
-    var i = 0;
+extend("base64Decode", function () {
+    let input = this.toString().replace(/[^A-Za-z0-9\+\/=]/g, "");
+    let output = "";
+    let base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    let chr1, chr2, chr3;
+    let enc1, enc2, enc3, enc4;
+    let i = 0;
     while (i < input.length) {
         enc1 = base64KeyStr.indexOf(input.charAt(i++));
         enc2 = base64KeyStr.indexOf(input.charAt(i++));
         enc3 = base64KeyStr.indexOf(input.charAt(i++));
         enc4 = base64KeyStr.indexOf(input.charAt(i++));
-        chr1 = enc1 << 2 | enc2 >> 4;
-        chr2 = (enc2 & 15) << 4 | enc3 >> 2;
-        chr3 = (enc3 & 3) << 6 | enc4;
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
         output += String.fromCharCode(chr1);
         if (enc3 != 64) {
             output += String.fromCharCode(chr2);
@@ -347,21 +314,20 @@ stringExtend("base64Decode", function () {
     return output;
 });
 
-stringExtend("base64UrlEncode", function () {
-    var output = this.base64Encode().urlEncode();
+extend("base64UrlEncode", function () {
+    let output = this.toString().base64Encode().urlEncode();
     return output;
 });
 
-stringExtend("urlBase64Decode", function () {
-    var output = this.urlDecode().base64Decode();
+extend("urlBase64Decode", function () {
+    let output = this.toString().urlDecode().base64Decode();
     return output;
 });
 
 //may be throw excetion
-stringExtend("toJson", function () {
+extend("toJson", function () {
     return eval('(' + this + ')');
 });
 
-module.exports = "";
 
-//# sourceMappingURL=index.js.map
+module.exports = "";

@@ -1,1 +1,0 @@
-{"version":3,"sources":["test.es6"],"names":[],"mappings":";;AAAA,IAAI,WAAW,QAAQ,qBAAR,CAAf","file":"test.js","sourcesContent":["let myString = require(\"./karl-string/index\");\r\n\r\n"]}

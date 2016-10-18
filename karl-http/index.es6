@@ -1,4 +1,5 @@
 let $ = require("jquery");
+require("karl-extend");
 
 class http {
     /**

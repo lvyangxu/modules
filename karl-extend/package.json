@@ -1,0 +1,11 @@
+{
+  "name": "karl-extend",
+  "version": "0.1.0",
+  "description": "string and number extend prototype",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lvyangxu",
+  "license": "ISC"
+}

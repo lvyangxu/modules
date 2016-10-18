@@ -1,0 +1,1 @@
+{"version":3,"sources":["main.jsx"],"names":[],"mappings":";;AAAA,IAAI,SAAS,QAAQ,sBAAR,CAAb","file":"main.js","sourcesContent":["let cookie = require(\"../karl-cookie/index\");\r\n\r\n"]}

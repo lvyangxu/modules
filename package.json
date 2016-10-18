@@ -24,6 +24,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
     "gulp-uglify": "^2.0.0",
+    "karl-extend": "file:karl-extend",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.2",
     "react-addons-transition-group": "^15.3.2",
