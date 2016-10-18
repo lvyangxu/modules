@@ -1,0 +1,11 @@
+{
+  "name": "karl-http",
+  "version": "1.1.0",
+  "description": "promise style http request with ajax",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
