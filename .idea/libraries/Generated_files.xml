@@ -3,17 +3,27 @@
     <properties>
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/test/main.js" />
+        <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/karl-http/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
         <item url="file://$PROJECT_DIR$/karl-cookie/index.js" />
+        <item url="file://$PROJECT_DIR$/test.js" />
         <item url="file://$PROJECT_DIR$/karl-extend/index.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/karl-number/index.js" />
       <root url="file://$PROJECT_DIR$/karl-number/index.js" />
+      <root url="file://$PROJECT_DIR$/component-browserify.js" />
+      <root url="file://$PROJECT_DIR$/component-browserify.js" />
+      <root url="file://$PROJECT_DIR$/webpack.js" />
+      <root url="file://$PROJECT_DIR$/webpack.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
+      <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/karl-http/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
       <root url="file://$PROJECT_DIR$/karl-cookie/index.js" />
+      <root url="file://$PROJECT_DIR$/test.js" />
       <root url="file://$PROJECT_DIR$/karl-extend/index.js" />
     </CLASSES>
     <SOURCES />

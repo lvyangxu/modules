@@ -1,0 +1,14 @@
+{
+  "name": "karl-component-radio",
+  "version": "0.1.2",
+  "description": "react component radio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lvyangxu",
+  "license": "ISC",
+  "dependencies": {
+
+  }
+}
