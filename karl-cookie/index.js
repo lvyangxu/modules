@@ -30,7 +30,7 @@ var cookie = function () {
                     if (c_end == -1) {
                         c_end = document.cookie.length;
                     }
-                    result = document.cookie.substring(c_start, c_end).urlBase64Decode();
+                    result = document.cookie.substring(c_start, c_end);
                 }
             }
             return result;
@@ -40,16 +40,17 @@ var cookie = function () {
          * set cookie
          * @param cookieName
          * @param cookieValue
-         * @param expiredays
+         * @param expiredays default 30 days
          */
 
     }, {
         key: "set",
         value: function set(cookieName, cookieValue, expiredays) {
             var exdate = new Date();
-            cookieValue = cookieValue.base64UrlEncode();
+            expiredays = expiredays || 30;
             exdate.setDate(exdate.getDate() + expiredays);
             var exdateStr = expiredays == null ? "" : ";expires=" + exdate.toGMTString();
+            cookieValue = cookieValue.md5Encode();
             document.cookie = cookieName + "=" + cookieValue + exdateStr + ";path=/";
         }
     }]);

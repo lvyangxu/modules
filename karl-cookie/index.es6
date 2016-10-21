@@ -17,7 +17,7 @@ class cookie{
                 if (c_end == -1) {
                     c_end = document.cookie.length;
                 }
-                result = document.cookie.substring(c_start, c_end).urlBase64Decode();
+                result = document.cookie.substring(c_start, c_end);
             }
         }
         return result;
@@ -27,13 +27,14 @@ class cookie{
      * set cookie
      * @param cookieName
      * @param cookieValue
-     * @param expiredays
+     * @param expiredays default 30 days
      */
     static set(cookieName, cookieValue, expiredays) {
         let exdate = new Date();
-        cookieValue = cookieValue.base64UrlEncode();
+        expiredays = expiredays || 30;
         exdate.setDate(exdate.getDate() + expiredays);
         let exdateStr = (expiredays == null) ? "" : ";expires=" + exdate.toGMTString();
+        cookieValue = cookieValue.md5Encode();
         document.cookie = cookieName + "=" + cookieValue + exdateStr+";path=/";
     }
 

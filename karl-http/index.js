@@ -5,7 +5,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var $ = require("jquery");
-require("karl-extend");
 
 var http = function () {
     function http() {
@@ -16,28 +15,23 @@ var http = function () {
         key: "doAjaxInJquery",
 
         /**
-         * do ajax with jquery,fit ie
-         * @param url
-         * @param httpRequestType
-         * @param requestTimeOutSecond
-         * @param requestParaData
-         * @param successCallback
-         * @param failureCallback
-         * @returns {*}
+         * do ajax with jquery
+         * @param param ajax option
+         * @returns {*|void}
          */
-        value: function doAjaxInJquery(url, httpRequestType, requestTimeOutSecond, requestParaData, successCallback, failureCallback) {
+        value: function doAjaxInJquery(param) {
             var request = $.ajax({
-                type: httpRequestType,
-                url: url,
+                type: param.type || "post",
+                url: param.url,
                 cache: false,
-                timeout: requestTimeOutSecond * 1000,
-                data: requestParaData,
-                contentType: "application/x-www-form-urlencoded;charset=utf-8",
-                dataType: "text"
+                timeout: (param.requestTimeOutSecond || 30) * 1000,
+                data: param.data,
+                contentType: param.contentType || "application/x-www-form-urlencoded;charset=utf-8",
+                dataType: param.dataType || "text"
             }).done(function (data) {
-                successCallback(data);
+                param.successCallback(data);
             }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
-                failureCallback(textStatus);
+                param.failureCallback(textStatus);
             });
             return request;
         }
@@ -46,72 +40,76 @@ var http = function () {
 
 
         /**
-         * do post action,all param will be base64UrlEncode
+         * do http post with json contentType and dataType
          * @param url
-         * @param requestParaData
+         * @param data
+         * @returns {Promise}
          */
-        value: function post(url, requestParaData) {
+        value: function post(url, data) {
             var promise = new Promise(function (resolve, reject) {
-                requestParaData = requestParaData == undefined ? {} : requestParaData;
-                for (var k in requestParaData) {
-                    requestParaData[k] = requestParaData[k].base64UrlEncode();
-                }
-                http.doAjaxInJquery(url, "post", 30, requestParaData, function (d) {
-                    try {
-                        d = d.toJson();
-                    } catch (e) {
-                        reject("invalid json string:" + d);
-                        return;
-                    }
-                    if (d.success == undefined || d.message == undefined) {
-                        reject("unexpected json string:" + d);
-                        return;
-                    }
-                    if (d.success == "true") {
-                        resolve(d.message);
-                    } else {
-                        if (d.message == "unauthorized") {
-                            window.location.href = "../login/";
+                data = data == undefined ? {} : data;
+                http.doAjaxInJquery({
+                    url: url,
+                    data: data,
+                    contentType: "application/json",
+                    dataType: "json",
+                    successCallback: function successCallback(d) {
+                        if (d.success == undefined || d.message == undefined) {
+                            reject("unexpected json:" + d);
                             return;
                         }
-                        reject(d.message);
+                        if (d.success == "true") {
+                            resolve(d.message);
+                        } else {
+                            if (d.message == "unauthorized") {
+                                window.location.href = "../login/";
+                                return;
+                            }
+                            reject(d.message);
+                        }
+                    }, function: function _function(result) {
+                        reject("http request error:" + result);
                     }
-                }, function (result) {
-                    reject("Client Error,Please Check Your Network:" + result);
                 });
             });
             return promise;
         }
+
+        /**
+         * do http get with json contentType and dataType
+         * @param url
+         * @param data
+         * @returns {Promise}
+         */
+
     }, {
         key: "get",
-        value: function get(url, requestParaData) {
+        value: function get(url, data) {
             var promise = new Promise(function (resolve, reject) {
-                requestParaData = requestParaData == undefined ? {} : requestParaData;
-                for (var k in requestParaData) {
-                    requestParaData[k] = requestParaData[k].base64UrlEncode();
-                }
-                http.doAjaxInJquery(url, "get", 30, requestParaData, function (d) {
-                    try {
-                        d = d.toJson();
-                    } catch (e) {
-                        reject("invalid json string:" + d);
-                        return;
-                    }
-                    if (d.success == undefined || d.message == undefined) {
-                        reject("unexpected json string:" + d);
-                        return;
-                    }
-                    if (d.success == "true") {
-                        resolve(d.message);
-                    } else {
-                        if (d.message == "unauthorized") {
-                            window.location.href = "../login/";
+                data = data == undefined ? {} : data;
+                http.doAjaxInJquery({
+                    type: "get",
+                    url: url,
+                    data: data,
+                    contentType: "application/json",
+                    dataType: "json",
+                    successCallback: function successCallback(d) {
+                        if (d.success == undefined || d.message == undefined) {
+                            reject("unexpected json:" + d);
                             return;
                         }
-                        reject(d.message);
+                        if (d.success == "true") {
+                            resolve(d.message);
+                        } else {
+                            if (d.message == "unauthorized") {
+                                window.location.href = "../login/";
+                                return;
+                            }
+                            reject(d.message);
+                        }
+                    }, function: function _function(result) {
+                        reject("http request error:" + result);
                     }
-                }, function (result) {
-                    reject("Client Error,Please Check Your Network");
                 });
             });
             return promise;

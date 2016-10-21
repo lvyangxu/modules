@@ -57,7 +57,7 @@ class radio extends React.Component {
 
     render() {
         return (
-            <div className={style.base + " react-radio-child"} tabIndex="0" onBlur={this.radioBlur}>
+            <div className={style.base + " react-radio react-radio-child"} tabIndex="0" onBlur={this.radioBlur}>
                 <div className={style.display} onClick={this.panelToggle}>
                     {this.state.value}<i className="fa fa-caret-down"></i>
                 </div>

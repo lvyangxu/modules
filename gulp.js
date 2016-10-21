@@ -8,18 +8,16 @@ var del = require('del');
 var concatCss = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var replace = require('gulp-replace');
-var browserify = require('gulp-browserify');
-var autoprefixer = require('autoprefixer');
+var webpack = require('webpack-stream');
+var gutil = require('gulp-util');
 
 gulp.task('build', function () {
-    var postcss = require('gulp-postcss');
-    // var sourcemaps   = require('gulp-sourcemaps');
-
-    return gulp.src('karl-component-radio/index.css')
-    // .pipe(sourcemaps.init())
-    .pipe(postcss([autoprefixer({ browsers: ['last 2 versions'] })]))
-    // .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('karl-component-radio/bundle.css'));
+    var config = require('./webpack.config.js');
+    gulp.src('test/main.js').pipe(webpack(config)).on('error', function (err) {
+        gutil.log('Error!', err.message);
+        this.end();
+    }).pipe(gulp.dest('test/'));
+    gulp.src('test/*.js').pipe(rename({ basename: "bundle" }));
 });
 
 //# sourceMappingURL=gulp.js.map

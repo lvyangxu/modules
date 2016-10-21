@@ -1,6 +1,3 @@
-/**
- * Created by karl on 2016/10/20.
- */
 module.exports = {
     module: {
         loaders: [
@@ -13,11 +10,7 @@ module.exports = {
             { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" }
         ]
     },
-    entry: {
-        test: './test/main.js'
-    },
-    output: {
-        path:"./test",
-        filename: 'bundle.js'
+    output:{
+        filename:"bundle.js"
     }
 };

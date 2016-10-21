@@ -81,7 +81,7 @@ var radio = function (_React$Component) {
 
             return React.createElement(
                 "div",
-                { className: style.base + " react-radio-child", tabIndex: "0", onBlur: this.radioBlur },
+                { className: style.base + " react-radio react-radio-child", tabIndex: "0", onBlur: this.radioBlur },
                 React.createElement(
                     "div",
                     { className: style.display, onClick: this.panelToggle },

@@ -1,6 +1,6 @@
 {
   "name": "karl-component-radio",
-  "version": "0.1.2",
+  "version": "0.1.10",
   "description": "react component radio",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,7 @@
   },
   "author": "lvyangxu",
   "license": "ISC",
+  "devDependencies": {},
   "dependencies": {
 
   }
