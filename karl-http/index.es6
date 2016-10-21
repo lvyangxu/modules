@@ -51,8 +51,9 @@ class http {
                         }
                         reject(d.message);
                     }
-                }, function (result) {
-                    reject("http request error:" + result);
+                },
+                failureCallback: (d)=> {
+                    reject("http request error:" + d);
                 }
             });
         });
@@ -88,8 +89,9 @@ class http {
                         }
                         reject(d.message);
                     }
-                }, function (result) {
-                    reject("http request error:" + result);
+                },
+                failureCallback: (d)=> {
+                    reject("http request error:" + d);
                 }
             });
         });

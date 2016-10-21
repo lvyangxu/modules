@@ -67,8 +67,9 @@ var http = function () {
                             }
                             reject(d.message);
                         }
-                    }, function: function _function(result) {
-                        reject("http request error:" + result);
+                    },
+                    failureCallback: function failureCallback(d) {
+                        reject("http request error:" + d);
                     }
                 });
             });
@@ -107,8 +108,9 @@ var http = function () {
                             }
                             reject(d.message);
                         }
-                    }, function: function _function(result) {
-                        reject("http request error:" + result);
+                    },
+                    failureCallback: function failureCallback(d) {
+                        reject("http request error:" + d);
                     }
                 });
             });
