@@ -9,6 +9,12 @@ var extend = function extend(funcName, func) {
     }
 };
 
+var extendNumber = function extendNumber(funcName, func) {
+    if (!Number.prototype[funcName]) {
+        Number.prototype[funcName] = func;
+    }
+};
+
 extend("includes", function (search, start) {
     var input = undefined.toString();
     if (typeof start !== 'number') {

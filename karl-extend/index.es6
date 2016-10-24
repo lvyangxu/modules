@@ -7,6 +7,12 @@ let extend = (funcName, func)=> {
     }
 };
 
+let extendNumber = (funcName, func)=> {
+    if (!Number.prototype[funcName]) {
+        Number.prototype[funcName] = func;
+    }
+};
+
 extend("includes", (search, start)=> {
     let input = this.toString();
     if (typeof start !== 'number') {

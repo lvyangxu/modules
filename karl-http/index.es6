@@ -12,7 +12,7 @@ class http {
             url: param.url,
             cache: false,
             timeout: (param.requestTimeOutSecond || 30) * 1000,
-            data: param.data,
+            data: (param.contentType == "application/json") ? JSON.stringify(param.data) : param.data,
             contentType: param.contentType || "application/x-www-form-urlencoded;charset=utf-8",
             dataType: param.dataType || "text"
         }).done(function (data) {
