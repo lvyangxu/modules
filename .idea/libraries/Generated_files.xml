@@ -3,6 +3,7 @@
     <properties>
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/test/main.js" />
+        <item url="file://$PROJECT_DIR$/karl-xml/index.js" />
         <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/karl-http/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
@@ -19,6 +20,7 @@
       <root url="file://$PROJECT_DIR$/webpack.js" />
       <root url="file://$PROJECT_DIR$/webpack.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
+      <root url="file://$PROJECT_DIR$/karl-xml/index.js" />
       <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/karl-http/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />

@@ -1,7 +1,7 @@
 {
-  "name": "karl-cookie",
-  "version": "0.1.2",
-  "description": "cookie get and set",
+  "name": "karl-xml",
+  "version": "0.1.0",
+  "description": "xml action,return promise",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,7 @@
   "author": "lvyangxu",
   "license": "ISC",
   "dependencies": {
-    "karl-extend": "latest"
+    "fs": "latest",
+    "xml2js": "latest"
   }
 }

@@ -21,7 +21,7 @@ var cookie = function () {
          * @returns {string}
          */
         value: function get(cookieName) {
-            var result = "";
+            var cookieValue = "";
             if (document.cookie.length > 0) {
                 var c_start = document.cookie.indexOf(cookieName + "=");
                 if (c_start != -1) {
@@ -30,10 +30,11 @@ var cookie = function () {
                     if (c_end == -1) {
                         c_end = document.cookie.length;
                     }
-                    result = document.cookie.substring(c_start, c_end);
+                    cookieValue = document.cookie.substring(c_start, c_end);
+                    cookieValue = cookieValue.urlBase64Decode();
                 }
             }
-            return result;
+            return cookieValue;
         }
 
         /**
@@ -50,7 +51,7 @@ var cookie = function () {
             expiredays = expiredays || 30;
             exdate.setDate(exdate.getDate() + expiredays);
             var exdateStr = expiredays == null ? "" : ";expires=" + exdate.toGMTString();
-            cookieValue = cookieValue.md5Encode();
+            cookieValue = cookieValue.base64UrlEncode();
             document.cookie = cookieName + "=" + cookieValue + exdateStr + ";path=/";
         }
     }]);

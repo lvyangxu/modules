@@ -15,7 +15,7 @@ class radio extends React.Component {
             filterValue: "",
             pageIndex: 0
         };
-        let bindArr = ["radioBlur", "panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
+        let bindArr = ["panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -45,6 +45,12 @@ class radio extends React.Component {
                 pageData: pageData
             });
         }
+
+        window.addEventListener("click", ()=> {
+            if (this.state.panelShow) {
+                this.setState({panelShow: false});
+            }
+        }, false);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -57,15 +63,18 @@ class radio extends React.Component {
 
     render() {
         return (
-            <div className={style.base + " react-radio react-radio-child"} tabIndex="0" onBlur={this.radioBlur}>
+            <div className={style.base + " react-radio"}>
                 <div className={style.display} onClick={this.panelToggle}>
                     {this.state.value}<i className="fa fa-caret-down"></i>
                 </div>
-                <div className={style.panel + " react-radio-child"}
+                <div className={style.panel}
+                     onClick={(e)=>{
+                         e.stopPropagation();
+                     }}
                      style={(this.state.panelShow) ? {} : {display: "none"}}>
                     <div className={style.filter}>
                         <i className="fa fa-search"></i>
-                        <input className="react-radio-child" onChange={this.filterChange}
+                        <input onChange={this.filterChange}
                                value={this.state.filterValue}
                                placeholder="filter"/>
                     </div>
@@ -78,14 +87,14 @@ class radio extends React.Component {
                             })
                         }
                         <div className={style.page}>
-                            <button className={style.pageLeft + "react-radio-child"} onClick={()=> {
+                            <button className={style.pageLeft} onClick={()=> {
                                 this.pageLeft();
                             }}>
                                 <i className="fa fa-angle-left"></i>
                             </button>
                             {(this.state.pageIndex + 1) + "/" + ((Math.ceil(this.state.filterData.length / 10) == 0)
                                 ? 1 : Math.ceil(this.state.filterData.length / 10))}
-                            <button className={style.pageRight + "react-radio-child"} onClick={()=> {
+                            <button className={style.pageRight} onClick={()=> {
                                 this.pageRight();
                             }}>
                                 <i className="fa fa-angle-right"></i>
@@ -97,15 +106,8 @@ class radio extends React.Component {
         );
     }
 
-    radioBlur(e) {
-        if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
-            this.setState({
-                panelShow: false
-            });
-        }
-    }
-
-    panelToggle() {
+    panelToggle(e) {
+        e.stopPropagation();
         this.setState({
             panelShow: !this.state.panelShow
         });

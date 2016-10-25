@@ -8,7 +8,7 @@ class cookie{
      * @returns {string}
      */
     static get(cookieName) {
-        let result = "";
+        let cookieValue = "";
         if (document.cookie.length > 0) {
             let c_start = document.cookie.indexOf(cookieName + "=");
             if (c_start != -1) {
@@ -17,10 +17,11 @@ class cookie{
                 if (c_end == -1) {
                     c_end = document.cookie.length;
                 }
-                result = document.cookie.substring(c_start, c_end);
+                cookieValue = document.cookie.substring(c_start, c_end);
+                cookieValue = cookieValue.urlBase64Decode();
             }
         }
-        return result;
+        return cookieValue;
     }
 
     /**
@@ -34,7 +35,7 @@ class cookie{
         expiredays = expiredays || 30;
         exdate.setDate(exdate.getDate() + expiredays);
         let exdateStr = (expiredays == null) ? "" : ";expires=" + exdate.toGMTString();
-        cookieValue = cookieValue.md5Encode();
+        cookieValue = cookieValue.base64UrlEncode();
         document.cookie = cookieName + "=" + cookieValue + exdateStr+";path=/";
     }
 

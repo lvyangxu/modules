@@ -30,7 +30,7 @@ var radio = function (_React$Component) {
             filterValue: "",
             pageIndex: 0
         };
-        var bindArr = ["radioBlur", "panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
+        var bindArr = ["panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -64,6 +64,12 @@ var radio = function (_React$Component) {
                     pageData: pageData
                 });
             }
+
+            window.addEventListener("click", function () {
+                if (_this2.state.panelShow) {
+                    _this2.setState({ panelShow: false });
+                }
+            }, false);
         }
     }, {
         key: "componentWillReceiveProps",
@@ -81,7 +87,7 @@ var radio = function (_React$Component) {
 
             return React.createElement(
                 "div",
-                { className: style.base + " react-radio react-radio-child", tabIndex: "0", onBlur: this.radioBlur },
+                { className: style.base + " react-radio" },
                 React.createElement(
                     "div",
                     { className: style.display, onClick: this.panelToggle },
@@ -90,13 +96,16 @@ var radio = function (_React$Component) {
                 ),
                 React.createElement(
                     "div",
-                    { className: style.panel + " react-radio-child",
+                    { className: style.panel,
+                        onClick: function onClick(e) {
+                            e.stopPropagation();
+                        },
                         style: this.state.panelShow ? {} : { display: "none" } },
                     React.createElement(
                         "div",
                         { className: style.filter },
                         React.createElement("i", { className: "fa fa-search" }),
-                        React.createElement("input", { className: "react-radio-child", onChange: this.filterChange,
+                        React.createElement("input", { onChange: this.filterChange,
                             value: this.state.filterValue,
                             placeholder: "filter" })
                     ),
@@ -113,7 +122,7 @@ var radio = function (_React$Component) {
                             { className: style.page },
                             React.createElement(
                                 "button",
-                                { className: style.pageLeft + "react-radio-child", onClick: function onClick() {
+                                { className: style.pageLeft, onClick: function onClick() {
                                         _this3.pageLeft();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-left" })
@@ -121,7 +130,7 @@ var radio = function (_React$Component) {
                             this.state.pageIndex + 1 + "/" + (Math.ceil(this.state.filterData.length / 10) == 0 ? 1 : Math.ceil(this.state.filterData.length / 10)),
                             React.createElement(
                                 "button",
-                                { className: style.pageRight + "react-radio-child", onClick: function onClick() {
+                                { className: style.pageRight, onClick: function onClick() {
                                         _this3.pageRight();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-right" })
@@ -132,17 +141,9 @@ var radio = function (_React$Component) {
             );
         }
     }, {
-        key: "radioBlur",
-        value: function radioBlur(e) {
-            if (e.relatedTarget == null || !e.relatedTarget.className.includes("react-radio-child")) {
-                this.setState({
-                    panelShow: false
-                });
-            }
-        }
-    }, {
         key: "panelToggle",
-        value: function panelToggle() {
+        value: function panelToggle(e) {
+            e.stopPropagation();
             this.setState({
                 panelShow: !this.state.panelShow
             });
