@@ -1,8 +1,14 @@
 let http = require("karl-http");
 let React = require("react");
-let style = require("./index.css");
+let css = require("./index.css");
 require("font-awesome-webpack");
 
+/**
+ * radio component,props means:
+ * data:an array,element can be string or number
+ * defaultBlank:if this props exits,then default value is "",else default value is the first option
+ * callback:function after value change,param is current select value
+ */
 class radio extends React.Component {
     constructor(props) {
         super(props);
@@ -63,38 +69,38 @@ class radio extends React.Component {
 
     render() {
         return (
-            <div className={style.base + " react-radio"}>
-                <div className={style.display} onClick={this.panelToggle}>
+            <div className={css.base + " react-radio"}>
+                <div className={css.display} onClick={this.panelToggle}>
                     {this.state.value}<i className="fa fa-caret-down"></i>
                 </div>
-                <div className={style.panel}
+                <div className={css.panel}
                      onClick={(e)=>{
                          e.stopPropagation();
                      }}
                      style={(this.state.panelShow) ? {} : {display: "none"}}>
-                    <div className={style.filter}>
+                    <div className={css.filter}>
                         <i className="fa fa-search"></i>
                         <input onChange={this.filterChange}
                                value={this.state.filterValue}
                                placeholder="filter"/>
                     </div>
-                    <div className={style.options}>
+                    <div className={css.options}>
                         {
                             this.state.pageData.map((d, i)=> {
-                                return <div key={i} className={style.option} onClick={()=> {
+                                return <div key={i} className={css.option} onClick={()=> {
                                     this.select(d)
                                 }} dangerouslySetInnerHTML={this.setOptionHtml(d)}></div>
                             })
                         }
-                        <div className={style.page}>
-                            <button className={style.pageLeft} onClick={()=> {
+                        <div className={css.page}>
+                            <button className={css.pageLeft} onClick={()=> {
                                 this.pageLeft();
                             }}>
                                 <i className="fa fa-angle-left"></i>
                             </button>
                             {(this.state.pageIndex + 1) + "/" + ((Math.ceil(this.state.filterData.length / 10) == 0)
                                 ? 1 : Math.ceil(this.state.filterData.length / 10))}
-                            <button className={style.pageRight} onClick={()=> {
+                            <button className={css.pageRight} onClick={()=> {
                                 this.pageRight();
                             }}>
                                 <i className="fa fa-angle-right"></i>
@@ -132,8 +138,8 @@ class radio extends React.Component {
             value: d
         });
 
-        if (this.props.selectCallback) {
-            this.props.selectCallback(d);
+        if (this.props.callback) {
+            this.props.callback(d);
         }
     }
 

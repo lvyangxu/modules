@@ -1,7 +1,7 @@
 {
-  "name": "karl-component-radio",
-  "version": "0.1.19",
-  "description": "react component radio",
+  "name": "karl-component-select",
+  "version": "0.1.7",
+  "description": "react component select",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

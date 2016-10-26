@@ -1,0 +1,30 @@
+.base {
+  display: inline-block;
+  position: relative; }
+  .base .menu {
+    position: absolute;
+    width: 200px;
+    height: 100%;
+    background-color: #f4f4f4; }
+    .base .menu .li {
+      padding-left: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer; }
+    .base .menu .li:hover {
+      color: rgba(51, 186, 200, 0.8); }
+    .base .menu .liActive {
+      padding-left: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #33ba95 !important; }
+  .base .content {
+    display: inline-block;
+    margin-left: 250px; }
+
+/*# sourceMappingURL=index.css.map */

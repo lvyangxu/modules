@@ -10,8 +10,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var http = require("karl-http");
 var React = require("react");
-var style = require("./index.css");
+var css = require("./index.css");
 require("font-awesome-webpack");
+
+/**
+ * radio component,props means:
+ * data:an array,element can be string or number
+ * defaultBlank:if this props exits,then default value is "",else default value is the first option
+ * callback:function after value change,param is current select value
+ */
 
 var radio = function (_React$Component) {
     _inherits(radio, _React$Component);
@@ -87,23 +94,23 @@ var radio = function (_React$Component) {
 
             return React.createElement(
                 "div",
-                { className: style.base + " react-radio" },
+                { className: css.base + " react-radio" },
                 React.createElement(
                     "div",
-                    { className: style.display, onClick: this.panelToggle },
+                    { className: css.display, onClick: this.panelToggle },
                     this.state.value,
                     React.createElement("i", { className: "fa fa-caret-down" })
                 ),
                 React.createElement(
                     "div",
-                    { className: style.panel,
+                    { className: css.panel,
                         onClick: function onClick(e) {
                             e.stopPropagation();
                         },
                         style: this.state.panelShow ? {} : { display: "none" } },
                     React.createElement(
                         "div",
-                        { className: style.filter },
+                        { className: css.filter },
                         React.createElement("i", { className: "fa fa-search" }),
                         React.createElement("input", { onChange: this.filterChange,
                             value: this.state.filterValue,
@@ -111,18 +118,18 @@ var radio = function (_React$Component) {
                     ),
                     React.createElement(
                         "div",
-                        { className: style.options },
+                        { className: css.options },
                         this.state.pageData.map(function (d, i) {
-                            return React.createElement("div", { key: i, className: style.option, onClick: function onClick() {
+                            return React.createElement("div", { key: i, className: css.option, onClick: function onClick() {
                                     _this3.select(d);
                                 }, dangerouslySetInnerHTML: _this3.setOptionHtml(d) });
                         }),
                         React.createElement(
                             "div",
-                            { className: style.page },
+                            { className: css.page },
                             React.createElement(
                                 "button",
-                                { className: style.pageLeft, onClick: function onClick() {
+                                { className: css.pageLeft, onClick: function onClick() {
                                         _this3.pageLeft();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-left" })
@@ -130,7 +137,7 @@ var radio = function (_React$Component) {
                             this.state.pageIndex + 1 + "/" + (Math.ceil(this.state.filterData.length / 10) == 0 ? 1 : Math.ceil(this.state.filterData.length / 10)),
                             React.createElement(
                                 "button",
-                                { className: style.pageRight, onClick: function onClick() {
+                                { className: css.pageRight, onClick: function onClick() {
                                         _this3.pageRight();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-right" })
@@ -170,8 +177,8 @@ var radio = function (_React$Component) {
                 value: d
             });
 
-            if (this.props.selectCallback) {
-                this.props.selectCallback(d);
+            if (this.props.callback) {
+                this.props.callback(d);
             }
         }
     }, {
