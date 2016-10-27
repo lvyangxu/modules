@@ -4,11 +4,11 @@ var React = require("react");
 var ReactDom = require("react-dom");
 // let Radio = require("karl-component-radio");
 // let Select = require("karl-component-select");
-var Nav = require("../karl-component-nav/index");
+var Carousel = require("../karl-component-carousel/index");
 require("font-awesome-webpack");
 
 ReactDom.render(React.createElement(
-    Nav,
+    Carousel,
     { data: ["a", "b", "c"] },
     React.createElement(
         "div",

@@ -10,6 +10,7 @@
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^6.5.1",
+    "autoprefixer-loader": "^3.2.0",
     "babel-cli": "^6.14.0",
     "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-polyfill": "^6.13.0",
@@ -37,6 +38,7 @@
     "karl-http": "latest",
     "less": "^2.7.1",
     "postcss": "^5.2.4",
+    "postcss-loader": "^1.0.0",
     "react": "^15.3.1",
     "react-addons-css-transition-group": "^15.3.2",
     "react-addons-transition-group": "^15.3.2",

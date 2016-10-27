@@ -2,10 +2,10 @@ let React = require("react");
 let ReactDom = require("react-dom");
 // let Radio = require("karl-component-radio");
 // let Select = require("karl-component-select");
-let Nav = require("../karl-component-nav/index");
+let Carousel = require("../karl-component-carousel/index");
 require("font-awesome-webpack");
 
-ReactDom.render(<Nav data={["a", "b", "c"]}>
+ReactDom.render(<Carousel data={["a", "b", "c"]}>
     <div className="a">
         <div>1</div>
         <div>2</div>
@@ -15,7 +15,7 @@ ReactDom.render(<Nav data={["a", "b", "c"]}>
         <div>4</div>
     </div>
     <div className="c">5</div>
-</Nav>, document.getElementById("test"));
+</Carousel>, document.getElementById("test"));
 
 // ReactDom.render(<Select data={[{id:"a",name:"1",checked:true}]}/>,document.getElementById("test1"));
 

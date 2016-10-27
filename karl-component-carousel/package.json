@@ -1,0 +1,15 @@
+{
+  "name": "karl-component-carousel",
+  "version": "0.1.0",
+  "description": "react component carousel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lvyangxu",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+
+  }
+}
