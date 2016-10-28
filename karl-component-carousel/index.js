@@ -11,6 +11,40 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var React = require("react");
 var css = require("./index.css");
 require("font-awesome-webpack");
+// var ReactTransitionGroup = require('react-addons-transition-group')
+
+var ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+
+// class TransitionItem extends React.Component{
+//     constructor(props) {
+//         super(props);
+//     }
+//
+//     componentWillAppear(done) {
+//         console.log('componentWillAppear', arguments);
+//         done();
+//     }
+//
+//     componentDidAppear() {
+//         console.log('componentDidAppear', arguments);
+//     }
+//
+//     componentDidEnter() {
+//         console.log('componentDidEnter', arguments);
+//     }
+//
+//     componentDidLeave() {
+//         console.log('componentDidLeave', arguments);
+//     }
+//
+//     render() {
+//         return (
+//             <div style={this.state}>
+//                 {this.props.children}
+//             </div>
+//         );
+//     }
+// }
 
 var carousel = function (_React$Component) {
     _inherits(carousel, _React$Component);
@@ -42,6 +76,9 @@ var carousel = function (_React$Component) {
     }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {}
+
+        //                    {/*marginLeft: -this.state.index * 100 + "%"*/}
+
     }, {
         key: "render",
         value: function render() {
@@ -53,21 +90,34 @@ var carousel = function (_React$Component) {
                 React.createElement(
                     "div",
                     { style: {
-                            width: 100 * this.state.content.length + "%",
-                            marginLeft: -this.state.index * 100 + "%"
+                            width: 100 * this.state.content.length + "%"
                         }, className: css.container },
-                    this.state.content.map(function (d, i) {
-                        return React.createElement(
-                            "div",
-                            { style: { width: 100 / _this2.state.content.length + "%" }, key: i,
-                                className: css.item },
-                            React.createElement(
+                    React.createElement(
+                        ReactCSSTransitionGroup,
+                        { transitionAppearTimeout: 5000,
+                            transitionEnterTimeout: 5000,
+                            transitionLeaveTimeout: 5000,
+                            transitionName: {
+                                enter: css.enter,
+                                enterActive: css.enterActive,
+                                leave: css.leave,
+                                leaveActive: css.leaveActive
+                            } },
+                        this.state.content.filter(function (d, i) {
+                            return i == _this2.state.index;
+                        }).map(function (d, i) {
+                            return React.createElement(
                                 "div",
-                                { className: css.inner },
-                                d
-                            )
-                        );
-                    })
+                                { key: i, style: { width: 100 / _this2.state.content.length + "%" },
+                                    className: css.item },
+                                React.createElement(
+                                    "div",
+                                    { className: css.inner },
+                                    d
+                                )
+                            );
+                        })
+                    )
                 ),
                 React.createElement(
                     "div",

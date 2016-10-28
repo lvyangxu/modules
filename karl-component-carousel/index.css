@@ -9,6 +9,21 @@
     .base .container .item .inner {
       background-color: white;
       margin: 10px; }
+  .base .container .enter {
+    opacity: 0;
+    transition: opacity 5s ease-in; }
+  .base .container .enter.enterActive {
+    opacity: 0.5; }
+  .base .container .leave {
+    margin-left: -100%;
+    transition: marginLeft 5s ease-in; }
+  .base .container .leave.leaveActive {
+    margin-left: -100%; }
+  .base .container .appear {
+    margin-left: 100%; }
+  .base .container .appear.appearActive {
+    margin-left: 0;
+    transition: marginLeft 5s ease-in; }
   .base .dots {
     height: 10px;
     background-color: transparent;
