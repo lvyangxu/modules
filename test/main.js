@@ -13,35 +13,17 @@ ReactDom.render(React.createElement(
     React.createElement(
         "div",
         { className: "a" },
-        React.createElement(
-            "div",
-            null,
-            "1"
-        ),
-        React.createElement(
-            "div",
-            null,
-            "2"
-        )
+        React.createElement("img", { style: { width: "100%" }, src: "1.png" })
     ),
     React.createElement(
         "div",
         { className: "b" },
-        React.createElement(
-            "div",
-            null,
-            "3"
-        ),
-        React.createElement(
-            "div",
-            null,
-            "4"
-        )
+        React.createElement("img", { style: { width: "100%" }, src: "2.png" })
     ),
     React.createElement(
         "div",
         { className: "c" },
-        "5"
+        React.createElement("img", { style: { width: "100%" }, src: "3.png" })
     )
 ), document.getElementById("test"));
 

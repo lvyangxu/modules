@@ -14,28 +14,6 @@
             }
         }
 
-        .enter {
-            opacity: 0;
-            transition: opacity 5s ease-in;
-        }
-        .enter.enterActive {
-            opacity: 0.5;
-        }
-        .leave {
-            margin-left: -100%;
-            transition: marginLeft 5s ease-in;
-        }
-        .leave.leaveActive {
-            margin-left: -100%;
-        }
-        .appear {
-            margin-left: 100%;
-        }
-        .appear.appearActive {
-            margin-left: 0;
-            transition: marginLeft 5s ease-in;
-        }
-
     }
 
     .dots {
