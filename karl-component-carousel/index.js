@@ -27,7 +27,7 @@ var carousel = function (_React$Component) {
             index: 1,
             isMouseDown: false
         };
-        var bindArr = ["touch", "switchTo", "switchRemain"];
+        var bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -37,10 +37,8 @@ var carousel = function (_React$Component) {
     _createClass(carousel, [{
         key: "componentDidMount",
         value: function componentDidMount() {
-
-            // this.touch();
-            this.mouse();
-
+            this.delegateMouse();
+            this.delegateTouch();
             var content = this.props.children.concat();
             var firstElement = content[0];
             var lastElement = content[content.length - 1];
@@ -63,7 +61,8 @@ var carousel = function (_React$Component) {
                 React.createElement(
                     "div",
                     { style: {
-                            width: 100 * this.state.content.length + "%"
+                            width: 100 * this.state.content.length + "%",
+                            marginLeft: "-100%"
                         }, className: css.container, ref: function ref(d) {
                             _this2.container = d;
                         } },
@@ -95,118 +94,59 @@ var carousel = function (_React$Component) {
                         return React.createElement("div", { key: i,
                             className: _this2.state.index - 1 == i ? css.dot + " " + css.active : css.dot,
                             onClick: function onClick() {
-                                _this2.switchTo(i + 1);
+                                _this2.animateTo(i + 1);
                             } });
                     })
                 )
             );
         }
     }, {
-        key: "switchTo",
-        value: function switchTo(i) {
-            var _this3 = this;
-
-            $(this.container).animate({ marginLeft: -i * 100 + "%" }, function () {
-                //left to the start
-                if (i == 0) {
-                    i = _this3.state.content.length - 2;
-                    $(_this3.container).css({ marginLeft: -i * 100 + "%" });
-                    _this3.setState({
-                        index: i
-                    });
-                }
-
-                //right to the end
-                if (i == _this3.state.content.length - 1) {
-                    i = 1;
-                    $(_this3.container).css({ marginLeft: -i * 100 + "%" });
-                    _this3.setState({
-                        index: i
-                    });
-                }
-            });
+        key: "animateTo",
+        value: function animateTo(i) {
+            $(this.container).animate({ marginLeft: -i * 100 + "%" });
             this.setState({
                 index: i,
                 isMouseDown: false
             });
         }
     }, {
-        key: "touch",
-        value: function touch() {
-            var _this4 = this;
-
-            //touch
-            this.container.addEventListener('touchstart', function (e) {
-                var _e$touches$ = e.touches[0];
-                var x = _e$touches$.pageX;
-                var y = _e$touches$.pageY;
-
-                _this4.onMoveStart(x, y);
-            }, false);
-            this.container.addEventListener('touchmove', function (e) {
-                var _e$touches$2 = e.touches[0];
-                var x = _e$touches$2.pageX;
-                var y = _e$touches$2.pageY;
-
-                _this4.onMove(x, y);
-            }, false);
-            this.container.addEventListener('touchend', this.onMoveEnd);
+        key: "cssTo",
+        value: function cssTo(i, offset) {
+            offset = offset == undefined ? 0 : offset;
+            $(this.container).css({ marginLeft: -i * 100 + offset + "%" });
+            this.setState({
+                index: i
+            });
         }
     }, {
-        key: "mouse",
-        value: function mouse() {
-            var _this5 = this;
-
-            // mouse
-            this.container.addEventListener('mousedown', function (e) {
-                e.preventDefault();
-                _this5.setState({
-                    startX: e.pageX,
-                    isMouseDown: true
+        key: "startMove",
+        value: function startMove(x) {
+            this.setState({
+                startX: x,
+                isMouseDown: true
+            });
+        }
+    }, {
+        key: "doMove",
+        value: function doMove(x) {
+            if (this.state.startX && this.state.isMouseDown) {
+                this.setState({
+                    endX: x
                 });
-            }, false);
-            this.container.addEventListener('mousemove', function (e) {
-                e.preventDefault();
-                if (_this5.state.startX && _this5.state.isMouseDown) {
-                    _this5.setState({
-                        endX: e.pageX
-                    });
 
-                    var deltaX = e.pageX - _this5.state.startX;
-                    var isChangeIndex = -1;
-                    if ($(_this5.container).is(":animated")) {
-                        //if right to the end,then switch like film
-                        if (deltaX < 0 && _this5.state.index == _this5.state.content.length - 2) {
-                            isChangeIndex = 1;
-                        }
-                        //if left to the start,then switch like film
-                        if (deltaX > 0 && _this5.state.index == 1) {
-                            isChangeIndex = _this5.state.content.length - 2;
-                        }
-                        $(_this5.container).stop();
-                    }
-                    var endMarginLeft = void 0;
-                    var deltaXPercent = deltaX * _this5.state.content.length / $(_this5.container).width();
-                    if (isChangeIndex != -1) {
-                        endMarginLeft = (-isChangeIndex + deltaXPercent) * 100 + "%";
-                    } else {
-                        endMarginLeft = (-_this5.state.index + deltaXPercent) * 100 + "%";
-                    }
-                    $(_this5.container).css({ marginLeft: endMarginLeft });
+                var deltaX = x - this.state.startX;
+                if ($(this.container).is(":animated")) {
+                    $(this.container).stop();
                 }
-            }, false);
-            this.container.addEventListener('mouseleave', function (e) {
-                _this5.switchRemain(e);
-            }, false);
-            this.container.addEventListener('mouseup', function (e) {
-                _this5.switchRemain(e);
-            }, false);
+                var endMarginLeft = void 0;
+                var deltaXPercent = deltaX * this.state.content.length / $(this.container).width();
+                endMarginLeft = (-this.state.index + deltaXPercent) * 100 + "%";
+                $(this.container).css({ marginLeft: endMarginLeft });
+            }
         }
     }, {
-        key: "switchRemain",
-        value: function switchRemain(e) {
-            e.preventDefault();
-
+        key: "endMove",
+        value: function endMove() {
             var deltaX = this.state.endX - this.state.startX;
             this.setState({
                 startX: undefined,
@@ -214,7 +154,7 @@ var carousel = function (_React$Component) {
             });
 
             if (Math.abs(deltaX) < 30) {
-                this.switchTo(this.state.index);
+                this.animateTo(this.state.index);
                 return;
             }
             var endIndex = void 0;
@@ -225,13 +165,72 @@ var carousel = function (_React$Component) {
                 //drag right
                 endIndex = this.state.index - 1;
                 endIndex = Math.max(endIndex, endMin);
+                if (endIndex == 0) {
+                    endIndex = this.state.content.length - 1;
+                    var offset = $(this.container).css("marginLeft");
+                    offset = Number.parseFloat(offset) * this.state.content.length / $(this.container).width();
+                    offset = offset + 1;
+                    offset = offset * 100;
+                    this.cssTo(endIndex, offset);
+                    endIndex--;
+                }
             } else if (deltaX <= -30) {
                 //drag left
                 endIndex = this.state.index + 1;
                 endIndex = Math.min(endIndex, endMax);
+                if (endIndex == this.state.content.length - 1) {
+                    endIndex = 0;
+                    var _offset = $(this.container).css("marginLeft");
+                    _offset = Number.parseFloat(_offset) * this.state.content.length / $(this.container).width();
+                    _offset = _offset + this.state.content.length - 2;
+                    _offset = _offset * 100;
+                    this.cssTo(endIndex, _offset);
+                    endIndex++;
+                }
             }
             endIndex = endIndex == undefined ? this.state.index : endIndex;
-            this.switchTo(endIndex);
+            this.animateTo(endIndex);
+        }
+    }, {
+        key: "delegateTouch",
+        value: function delegateTouch() {
+            var _this3 = this;
+
+            //touch
+            this.container.addEventListener('touchstart', function (e) {
+                e.preventDefault();
+                _this3.startMove(e.touches[0].x);
+            }, false);
+            this.container.addEventListener('touchmove', function (e) {
+                e.preventDefault();
+                _this3.doMove(e.touches[0].x);
+            }, false);
+            this.container.addEventListener('touchend', function (e) {
+                e.preventDefault();
+                _this3.endMove();
+            });
+        }
+    }, {
+        key: "delegateMouse",
+        value: function delegateMouse() {
+            var _this4 = this;
+
+            this.container.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                _this4.startMove(e.pageX);
+            }, false);
+            this.container.addEventListener('mousemove', function (e) {
+                e.preventDefault();
+                _this4.doMove(e.pageX);
+            }, false);
+            this.container.addEventListener('mouseleave', function (e) {
+                e.preventDefault();
+                _this4.endMove();
+            }, false);
+            this.container.addEventListener('mouseup', function (e) {
+                e.preventDefault();
+                _this4.endMove();
+            }, false);
         }
     }]);
 

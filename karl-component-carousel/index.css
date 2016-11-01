@@ -5,6 +5,7 @@
     vertical-align: top;
     user-select: none;
     display: inline-block;
+    font-size: 0;
     background-color: transparent; }
     .base .container .item .inner {
       background-color: white;
