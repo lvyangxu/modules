@@ -10,7 +10,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require("react");
 var css = require("./index.css");
-require("font-awesome-webpack");
 var $ = require("jquery");
 
 var carousel = function (_React$Component) {
@@ -27,7 +26,7 @@ var carousel = function (_React$Component) {
             index: 1,
             isMouseDown: false
         };
-        var bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove"];
+        var bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove", "autoPlay"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -44,8 +43,15 @@ var carousel = function (_React$Component) {
             var lastElement = content[content.length - 1];
             content = [lastElement].concat(content, firstElement);
             this.setState({
-                content: content
+                content: content,
+                dots: !(this.props.dots == false || this.props.dots == "false"),
+                arrows: !(this.props.arrows == false || this.props.arrows == "false"),
+                auto: !(this.props.auto == false || this.props.auto == "false")
             });
+
+            if (!(this.props.auto == false || this.props.auto == "false")) {
+                this.autoPlay();
+            }
         }
     }, {
         key: "componentWillReceiveProps",
@@ -83,7 +89,7 @@ var carousel = function (_React$Component) {
                 ),
                 React.createElement(
                     "div",
-                    { className: css.dots },
+                    { className: css.dots, style: this.state.dots ? {} : { display: "none" } },
                     this.state.content.filter(function (d, i) {
                         if (i == 0 || i == _this2.state.content.length - 1) {
                             return false;
@@ -99,6 +105,26 @@ var carousel = function (_React$Component) {
                     })
                 )
             );
+        }
+    }, {
+        key: "autoPlay",
+        value: function autoPlay() {
+            var _this3 = this;
+
+            setTimeout(function () {
+                if (_this3.state.manual) {
+                    return;
+                }
+                if (!_this3.state.isHover) {
+                    if (_this3.state.index == _this3.state.content.length - 2) {
+                        _this3.cssTo(0);
+                        _this3.animateTo(1);
+                    } else {
+                        _this3.animateTo(_this3.state.index + 1);
+                    }
+                }
+                _this3.autoPlay();
+            }, 5000);
         }
     }, {
         key: "animateTo",
@@ -123,7 +149,8 @@ var carousel = function (_React$Component) {
         value: function startMove(x) {
             this.setState({
                 startX: x,
-                isMouseDown: true
+                isMouseDown: true,
+                manual: true
             });
         }
     }, {
@@ -194,42 +221,50 @@ var carousel = function (_React$Component) {
     }, {
         key: "delegateTouch",
         value: function delegateTouch() {
-            var _this3 = this;
+            var _this4 = this;
 
-            //touch
             this.container.addEventListener('touchstart', function (e) {
                 e.preventDefault();
-                _this3.startMove(e.touches[0].x);
+                _this4.startMove(e.touches[0].pageX);
             }, false);
             this.container.addEventListener('touchmove', function (e) {
                 e.preventDefault();
-                _this3.doMove(e.touches[0].x);
+                _this4.doMove(e.touches[0].pageX);
             }, false);
             this.container.addEventListener('touchend', function (e) {
                 e.preventDefault();
-                _this3.endMove();
+                _this4.endMove();
             });
         }
     }, {
         key: "delegateMouse",
         value: function delegateMouse() {
-            var _this4 = this;
+            var _this5 = this;
 
+            this.container.addEventListener('mouseover', function (e) {
+                e.preventDefault();
+                _this5.setState({
+                    isHover: true
+                });
+            }, false);
             this.container.addEventListener('mousedown', function (e) {
                 e.preventDefault();
-                _this4.startMove(e.pageX);
+                _this5.startMove(e.pageX);
             }, false);
             this.container.addEventListener('mousemove', function (e) {
                 e.preventDefault();
-                _this4.doMove(e.pageX);
+                _this5.doMove(e.pageX);
             }, false);
             this.container.addEventListener('mouseleave', function (e) {
                 e.preventDefault();
-                _this4.endMove();
+                _this5.setState({
+                    isHover: false
+                });
+                _this5.endMove();
             }, false);
             this.container.addEventListener('mouseup', function (e) {
                 e.preventDefault();
-                _this4.endMove();
+                _this5.endMove();
             }, false);
         }
     }]);

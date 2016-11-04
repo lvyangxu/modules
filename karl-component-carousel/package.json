@@ -1,6 +1,6 @@
 {
   "name": "karl-component-carousel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "react component carousel",
   "main": "index.js",
   "scripts": {

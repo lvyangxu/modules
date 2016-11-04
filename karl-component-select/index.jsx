@@ -4,6 +4,7 @@ require("font-awesome-webpack");
 
 /**
  * select component,props means:
+ * text:display text
  * data:a json array,json struct is {id:*,name:*,checked:*}
  * optionNumPerColumn:how many options display in one column
  * lang:ui language,default en

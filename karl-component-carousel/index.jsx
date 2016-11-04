@@ -1,6 +1,5 @@
 let React = require("react");
 let css = require("./index.css");
-require("font-awesome-webpack");
 let $ = require("jquery");
 
 
@@ -13,7 +12,7 @@ class carousel extends React.Component {
             index: 1,
             isMouseDown: false
         };
-        let bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove"];
+        let bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove", "autoPlay"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -27,9 +26,15 @@ class carousel extends React.Component {
         let lastElement = content[content.length - 1];
         content = [lastElement].concat(content, firstElement);
         this.setState({
-            content: content
+            content: content,
+            dots: !(this.props.dots == false || this.props.dots == "false"),
+            arrows: !(this.props.arrows == false || this.props.arrows == "false"),
+            auto: !(this.props.auto == false || this.props.auto == "false"),
         });
 
+        if (!(this.props.auto == false || this.props.auto == "false")) {
+            this.autoPlay();
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -56,7 +61,7 @@ class carousel extends React.Component {
                         })
                     }
                 </div>
-                <div className={css.dots}>
+                <div className={css.dots} style={this.state.dots ? {} : {display: "none"}}>
                     {
                         this.state.content.filter((d, i)=> {
                             if (i == 0 || i == this.state.content.length - 1) {
@@ -75,6 +80,23 @@ class carousel extends React.Component {
                 </div>
             </div>
         );
+    }
+
+    autoPlay() {
+        setTimeout(()=> {
+            if (this.state.manual) {
+                return;
+            }
+            if(!this.state.isHover){
+                if (this.state.index == this.state.content.length - 2) {
+                    this.cssTo(0);
+                    this.animateTo(1);
+                } else {
+                    this.animateTo(this.state.index + 1);
+                }
+            }
+            this.autoPlay();
+        }, 5000)
     }
 
     animateTo(i) {
@@ -96,7 +118,8 @@ class carousel extends React.Component {
     startMove(x) {
         this.setState({
             startX: x,
-            isMouseDown: true
+            isMouseDown: true,
+            manual: true
         });
     }
 
@@ -167,14 +190,13 @@ class carousel extends React.Component {
     }
 
     delegateTouch() {
-        //touch
         this.container.addEventListener('touchstart', e => {
             e.preventDefault();
-            this.startMove(e.touches[0].x);
+            this.startMove(e.touches[0].pageX);
         }, false);
         this.container.addEventListener('touchmove', e => {
             e.preventDefault();
-            this.doMove(e.touches[0].x);
+            this.doMove(e.touches[0].pageX);
         }, false);
         this.container.addEventListener('touchend', e=> {
             e.preventDefault();
@@ -183,6 +205,12 @@ class carousel extends React.Component {
     }
 
     delegateMouse() {
+        this.container.addEventListener('mouseover', e => {
+            e.preventDefault();
+            this.setState({
+                isHover:true
+            });
+        }, false);
         this.container.addEventListener('mousedown', e => {
             e.preventDefault();
             this.startMove(e.pageX);
@@ -193,6 +221,9 @@ class carousel extends React.Component {
         }, false);
         this.container.addEventListener('mouseleave', e => {
             e.preventDefault();
+            this.setState({
+                isHover:false
+            });
             this.endMove();
         }, false);
         this.container.addEventListener('mouseup', e => {

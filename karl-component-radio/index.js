@@ -130,6 +130,13 @@ var radio = function (_React$Component) {
                             React.createElement(
                                 "button",
                                 { className: css.pageLeft, onClick: function onClick() {
+                                        _this3.pageToStart();
+                                    } },
+                                React.createElement("i", { className: "fa fa-angle-double-left" })
+                            ),
+                            React.createElement(
+                                "button",
+                                { className: css.pageLeft, onClick: function onClick() {
                                         _this3.pageLeft();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-left" })
@@ -141,6 +148,13 @@ var radio = function (_React$Component) {
                                         _this3.pageRight();
                                     } },
                                 React.createElement("i", { className: "fa fa-angle-right" })
+                            ),
+                            React.createElement(
+                                "button",
+                                { className: css.pageRight, onClick: function onClick() {
+                                        _this3.pageToEnd();
+                                    } },
+                                React.createElement("i", { className: "fa fa-angle-double-right" })
                             )
                         )
                     )
@@ -226,6 +240,25 @@ var radio = function (_React$Component) {
             if (i < end - 1) {
                 i++;
             }
+            this.setState({
+                pageIndex: i,
+                pageData: this.slicePageData(this.state.filterData, i)
+            });
+        }
+    }, {
+        key: "pageToStart",
+        value: function pageToStart() {
+            var i = 0;
+            this.setState({
+                pageIndex: i,
+                pageData: this.slicePageData(this.state.filterData, i)
+            });
+        }
+    }, {
+        key: "pageToEnd",
+        value: function pageToEnd() {
+            var end = Math.ceil(this.state.filterData.length / 10);
+            var i = end - 1;
             this.setState({
                 pageIndex: i,
                 pageData: this.slicePageData(this.state.filterData, i)

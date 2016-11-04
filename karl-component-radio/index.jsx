@@ -94,6 +94,11 @@ class radio extends React.Component {
                         }
                         <div className={css.page}>
                             <button className={css.pageLeft} onClick={()=> {
+                                this.pageToStart();
+                            }}>
+                                <i className="fa fa-angle-double-left"></i>
+                            </button>
+                            <button className={css.pageLeft} onClick={()=> {
                                 this.pageLeft();
                             }}>
                                 <i className="fa fa-angle-left"></i>
@@ -104,6 +109,11 @@ class radio extends React.Component {
                                 this.pageRight();
                             }}>
                                 <i className="fa fa-angle-right"></i>
+                            </button>
+                            <button className={css.pageRight} onClick={()=> {
+                                this.pageToEnd();
+                            }}>
+                                <i className="fa fa-angle-double-right"></i>
                             </button>
                         </div>
                     </div>
@@ -183,6 +193,23 @@ class radio extends React.Component {
         if (i < end - 1) {
             i++;
         }
+        this.setState({
+            pageIndex: i,
+            pageData: this.slicePageData(this.state.filterData, i)
+        });
+    }
+
+    pageToStart(){
+        let i = 0;
+        this.setState({
+            pageIndex: i,
+            pageData: this.slicePageData(this.state.filterData, i)
+        });
+    }
+
+    pageToEnd(){
+        let end = Math.ceil(this.state.filterData.length / 10);
+        let i = end - 1;
         this.setState({
             pageIndex: i,
             pageData: this.slicePageData(this.state.filterData, i)
