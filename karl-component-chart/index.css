@@ -4,45 +4,53 @@
     font-family: Arial; }
   .base svg .title {
     font-size: 3px;
-    stroke-width: 0.1px;
+    stroke-width: 0.1;
     stroke: #333333;
     text-anchor: middle; }
   .base svg .xAxis {
-    stroke-width: 0.2px; }
+    stroke-width: 0.2; }
     .base svg .xAxis path {
       stroke: #ccd6eb; }
     .base svg .xAxis text {
       text-anchor: middle;
       font-size: 1px; }
   .base svg .yAxis {
-    stroke-width: 0.2px; }
+    stroke-width: 0.2; }
     .base svg .yAxis text {
       text-anchor: end;
       font-size: 1px; }
   .base svg .yAxisText {
-    stroke-width: 0.2px; }
+    stroke-width: 0.2; }
     .base svg .yAxisText text {
       text-anchor: middle;
       font-size: 2px; }
   .base svg .xGrid {
-    stroke-width: 0.2px; }
+    stroke-width: 0.2; }
     .base svg .xGrid path {
       stroke: #e6e6e6; }
   .base svg .curve path {
     stroke-linejoin: round;
-    stroke-width: 0.2px;
+    stroke-width: 0.2;
     fill: transparent;
-    stroke-dasharray: 100%;
-    stroke-dashoffset: 100%;
     animation: dash 1s linear forwards; }
 @keyframes dash {
   to {
     stroke-dashoffset: 0; } }
   .base svg .dots {
-    stroke-width: 0.3px; }
+    stroke-width: 0.3; }
   .base svg .declare {
-    stroke-width: 0.3px;
+    stroke-width: 0.3;
     font-size: 0.5px;
     text-anchor: start; }
+  .base svg .resetColor {
+    user-select: none;
+    cursor: pointer;
+    opacity: 0.8; }
+    .base svg .resetColor text {
+      display: none; }
+  .base svg .resetColor:hover text {
+    display: block; }
+  .base svg .resetColor:hover {
+    opacity: 1; }
 
 /*# sourceMappingURL=index.css.map */

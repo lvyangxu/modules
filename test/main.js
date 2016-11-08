@@ -33,8 +33,8 @@ var App = function (_React$Component) {
                 "div",
                 null,
                 React.createElement(Com, { title: "chart", yAxisText: "dollor", x: "date",
-                    y: [{ id: "m", name: "发生" }, { id: "n", name: "飞洒方式" }, { id: "o", name: "飞洒afs方式" }, { id: "p", name: "11" }, { id: "q", name: "22" }],
-                    data: [{ date: "2016-9-11", m: 4, o: 1, p: 2, q: 3 }, { date: "2016-9-12", m: 4, n: 3, o: 3, p: 2 }, { date: "2016-9-13", m: 7, o: 5, p: 8 }, { date: "2016-9-14", n: 5, o: 7, p: 4, q: 5 }, { date: "2016-9-15", m: 2, n: 8, p: 6 }] })
+                    y: [{ id: "m", name: "m" }, { id: "n", name: "n" }, { id: "o", name: "o" }, { id: "p", name: "p" }, { id: "q", name: "q" }, { id: "r", name: "r" }],
+                    data: [{ date: "2016-9-11", m: 4, o: 1, p: 2, q: 3 }, { date: "2016-9-13", m: 4, n: 3, o: 3, p: 2 }, { date: "2016-9-12", m: 7, o: 5, p: 8 }, { date: "2016-9-14", n: 5, o: 7, p: 4, q: 5 }, { date: "2016-9-15", m: 2, n: 8, p: 6 }] })
             );
         }
     }]);
