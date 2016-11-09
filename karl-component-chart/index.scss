@@ -27,8 +27,8 @@
         .yAxis{
             stroke-width: 0.2;
             text{
-                text-anchor: end;
                 font-size: 1px;
+                text-anchor: end;
             }
         }
 
@@ -72,7 +72,7 @@
             text-anchor: start;
         }
 
-        .resetColor{
+        .setColor{
             user-select: none;
             cursor: pointer;
             opacity: 0.8;
@@ -81,10 +81,10 @@
             }
         }
 
-        .resetColor:hover text{
+        .setColor:hover text{
             display: block;
         }
-        .resetColor:hover{
+        .setColor:hover{
             opacity: 1;
         }
 

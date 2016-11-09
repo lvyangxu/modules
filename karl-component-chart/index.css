@@ -17,8 +17,8 @@
   .base svg .yAxis {
     stroke-width: 0.2; }
     .base svg .yAxis text {
-      text-anchor: end;
-      font-size: 1px; }
+      font-size: 1px;
+      text-anchor: end; }
   .base svg .yAxisText {
     stroke-width: 0.2; }
     .base svg .yAxisText text {
@@ -42,15 +42,15 @@
     stroke-width: 0.3;
     font-size: 0.5px;
     text-anchor: start; }
-  .base svg .resetColor {
+  .base svg .setColor {
     user-select: none;
     cursor: pointer;
     opacity: 0.8; }
-    .base svg .resetColor text {
+    .base svg .setColor text {
       display: none; }
-  .base svg .resetColor:hover text {
+  .base svg .setColor:hover text {
     display: block; }
-  .base svg .resetColor:hover {
+  .base svg .setColor:hover {
     opacity: 1; }
 
 /*# sourceMappingURL=index.css.map */

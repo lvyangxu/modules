@@ -11,16 +11,9 @@ class chart extends React.Component {
         super(props);
 
         let data = this.sortData(this.props.data);
-        let yDataMax = this.getYDataMax(this.props.y, data);
-        let yAxisNumArr = this.getYAxisNumArr(yDataMax);
-        let y = this.props.y.map(d=> {
-            let max = 230;
-            let r = Math.floor(Math.random() * max);
-            let g = Math.floor(Math.random() * max);
-            let b = Math.floor(Math.random() * max);
-            d.color = `rgba(${r},${g},${b},1)`;
-            return d;
-        });
+        data = this.fillData(data, this.props.y);
+        let yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
+        let y = this.setColor(this.props.y);
 
         this.state = {
             x: this.props.x,
@@ -32,13 +25,12 @@ class chart extends React.Component {
             lineDots: [],
             yAxisNumArr: yAxisNumArr,
             xUnitLength: 100 * 0.8 / data.length,
-            yUnitLength: 50 * 0.8 / 10,
-            yDataMax: yDataMax,
+            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
             angleNum: this.props.angleNum ? this.props.angleNum : 12,
             endPointLineLength: this.props.endPointLineLength ? this.props.endPointLineLength : 0.1
         };
-        let bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
-            "getYAxisNumArr", "setActive", "getNearestSeries", "resetColor"];
+        let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
+            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
@@ -57,12 +49,7 @@ class chart extends React.Component {
             let vectors = this.state.data.map((d1, j)=> {
                 let id = d.id;
                 let x = this.xTransformToSvg(j);
-                let y;
-                if (d1.hasOwnProperty(id)) {
-                    y = this.yTransformToSvg(d1[id]);
-                } else {
-                    y = this.yTransformToSvg(0);
-                }
+                let y = this.yTransformToSvg(d1[id]);
                 let vector = {x: x, y: y};
                 return vector;
             });
@@ -109,8 +96,8 @@ class chart extends React.Component {
                         {
                             this.state.yAxisNumArr.map((d, i)=> {
                                 let y = 55 - i * this.state.yUnitLength;
-                                let yTextDelta = 1;
-                                return <text key={i} x={6} y={y - this.state.yUnitLength + yTextDelta}>{d}</text>
+                                let yTextDelta = 0;
+                                return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
                             })
                         }
                     </g>
@@ -123,7 +110,7 @@ class chart extends React.Component {
                     <g className={css.xGrid}>
                         {
                             this.state.yAxisNumArr.map((d, i)=> {
-                                let y = 55 - (i + 1) * this.state.yUnitLength;
+                                let y = 55 - i * this.state.yUnitLength;
                                 return <path key={i} d={`M10 ${y} h 80`}/>
                             })
                         }
@@ -138,13 +125,8 @@ class chart extends React.Component {
                                         let path = this.state.data.map((d1, j)=> {
                                             let id = d.id;
                                             let x = this.xTransformToSvg(j);
-                                            let y;
+                                            let y = this.yTransformToSvg(d1[id]);
                                             let p = "";
-                                            if (d1.hasOwnProperty(id)) {
-                                                y = this.yTransformToSvg(d1[id]);
-                                            } else {
-                                                y = this.yTransformToSvg(0);
-                                            }
                                             if (j == 0) {
                                                 p = `M ${x} ${y}`;
                                             } else {
@@ -158,7 +140,7 @@ class chart extends React.Component {
                                         let color = d.color;
                                         return <path stroke={color} key={i} d={path} ref={curve=> {
                                             this["curve" + d.id] = curve;
-                                        }}/>
+                                        }} style={this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {}}/>
                                     })
                                 }
                             </g>
@@ -169,8 +151,8 @@ class chart extends React.Component {
                         {
 
                             this.state.lineDots.map((d, i)=> {
-                                return d.vectors.map((d1, j)=> {
-                                    let dots = this.getDotsSymbol(i, d1.x, d1.y, "dot" + d.id + j);
+                                return d.vectors.map(d1=> {
+                                    let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
                                     return dots;
                                 })
                             })
@@ -183,17 +165,18 @@ class chart extends React.Component {
                                 let y = 15 + (40 - this.state.y.length * this.state.yUnitLength) / 2 + i * this.state.yUnitLength;
                                 let color = d.color;
                                 return <g key={i}>
-                                    <path stroke={color} d={`M${x} ${y} h3`}/>
+                                    <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
+                                          stroke={color} d={`M${x} ${y} h3`}/>
                                     {
-                                        this.getDotsSymbol(i, 92.5, y)
+                                        this.getDotsSymbol(i, 92.5, y, d.id)
                                     }
                                     <text x="94.5" y={y + 1}>{d.name}</text>
                                 </g>
                             })
                         }
                         <g>
-                            <g title="reset color" className={css.resetColor} onClick={()=> {
-                                this.resetColor();
+                            <g title="reset color" className={css.setColor} onClick={()=> {
+                                this.setColor();
                             }}>
                                 {
                                     this.state.y.map((d, i)=> {
@@ -216,7 +199,11 @@ class chart extends React.Component {
         );
     }
 
-    //sort data by x axis value
+    /**
+     * sort data by x axis value
+     * @param d
+     * @returns {Array.<T>|string|Buffer|*|{options, browsertest, dist, rhino, rhinolessc}}
+     */
     sortData(d) {
         let data = d.concat();
         let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
@@ -241,84 +228,247 @@ class chart extends React.Component {
         return data;
     }
 
-    //get max y num
-    getYDataMax(y, data) {
-        let yDataMax = 0;
-        y.forEach(d=> {
-            data.filter(d1=> {
-                return d1.hasOwnProperty(d.id);
-            }).forEach(d1=> {
-                let d2 = d1[d.id];
-                yDataMax = Math.max(d2, yDataMax);
-            })
+    /**
+     * fill 0 if y don't have value
+     * @param data
+     * @param y
+     * @returns {*}
+     */
+    fillData(data, y) {
+        data = data.map(d=> {
+            y.forEach(d1=> {
+                if (!d.hasOwnProperty(d1.id)) {
+                    d[d1.id] = 0;
+                }
+            });
+            return d;
         });
-        return yDataMax;
+        return data;
     }
 
-    getYAxisNumArr(yDataMax) {
-        let p = 0;
-        if (yDataMax > 1) {
-            //from 10 to bigger
-            p++;
-            while (yDataMax / 10 > 1) {
-                yDataMax = yDataMax / 10;
-                p++;
+    /**
+     *
+     * @param yData this.props.y
+     * @param data this.props.data
+     * @returns {Array}
+     */
+    getYAxisNumArr(yData, data) {
+        //get max y num and min y num
+        let max, min;
+        yData.forEach(d=> {
+            data.forEach(d1=> {
+                let d2 = d1[d.id];
+                if (max == undefined) {
+                    max = d2;
+                } else {
+                    max = Math.max(d2, max);
+                }
+                if (min == undefined) {
+                    min = d2;
+                } else {
+                    min = Math.min(d2, min);
+                }
+            })
+        });
+
+        let yStart = Math.abs(min);
+        let yEnd = Math.abs(max);
+        let pStart, pEnd = 0;
+        if (yStart < 1 && yEnd < 1) {
+            //from 0 to lower
+            if (yStart != 0) {
+                pStart = 0;
+                while (yStart * 10 <= 1) {
+                    yStart = yStart * 10;
+                    pStart--;
+                }
+            }
+            while (yEnd * 10 <= 1) {
+                yEnd = yEnd * 10;
+                pEnd--;
             }
         } else {
-            //from 0 to lower
-            while (yDataMax * 10 <= 1) {
-                yDataMax = yDataMax * 10;
-                p--;
+            //from 10 to bigger
+            pStart = 0;
+            pStart++;
+            pEnd++;
+            while (yStart / 10 > 1) {
+                yStart = yStart / 10;
+                pStart++;
+            }
+            while (yEnd / 10 > 1) {
+                yEnd = yEnd / 10;
+                pEnd++;
             }
         }
 
-        let yAxisMax = Math.pow(10, p);
-        let yAxisNumArr = [];
-        for (let i = 1; i <= 10; i++) {
-            let y = i * yAxisMax * 0.1;
+        //get calibration start and end
+        let p;
+        if (pStart == undefined) {
+            p = pEnd;
+        } else {
+            p = Math.max(pStart, pEnd);
+        }
+        let yAixsStart, yAixsEnd;
+        let calibration = Math.pow(10, p - 1);
+        if (min < 0 && max < 0) {
+            yAixsStart = -Math.pow(10, p);
+            yAixsEnd = 0;
+        } else if (min < 0 && max >= 0) {
+            yAixsStart = -Math.pow(10, p);
+            yAixsEnd = Math.pow(10, p);
+            calibration = calibration * 2;
+        } else if (min >= 0 && max >= 0) {
+            yAixsStart = 0;
+            yAixsEnd = Math.pow(10, p);
+        }
+        let calibrationStart, calibrationEnd;
+        for (let i = yAixsStart; i <= yAixsEnd; i = i + calibration) {
             if (p <= 0) {
-                y = y.toFixed(-p + 1);
+                let scale = Math.pow(10, -p + 1);
+                if ((i * scale + calibration * scale) >= min * scale) {
+                    calibrationStart = i;
+                    break;
+                }
+            } else {
+                if ((i + calibration) >= min) {
+                    calibrationStart = i;
+                    break;
+                }
             }
-            y = Number.parseFloat(y);
-            yAxisNumArr.push(y);
+
+        }
+        for (let i = yAixsStart; i <= yAixsEnd; i = i + calibration) {
+            if (p <= 0) {
+                let scale = Math.pow(10, -p + 1);
+                if ((i * scale + calibration * scale) >= max * scale) {
+                    calibrationEnd = (i * scale + calibration * scale) / scale;
+                    break;
+                }
+            } else {
+                if ((i + calibration) >= max) {
+                    calibrationEnd = i + calibration;
+                    break;
+                }
+            }
+        }
+
+        let yAxisNumArr = [];
+        let n;
+        if (p <= 0) {
+            let scale = Math.pow(10, -p + 1);
+            n = (calibrationEnd * scale - calibrationStart * scale) / (calibration * scale);
+        } else {
+            n = (calibrationEnd - calibrationStart) / calibration;
+        }
+        let step = calibration;
+        let fixedNum = -p + 1;
+        switch (n) {
+            case 1:
+            case 2:
+                step = (calibrationEnd - calibrationStart) / 10;
+                fixedNum++;
+                break;
+            case 3:
+                step = (calibrationEnd - calibrationStart) / 6;
+                fixedNum++;
+                break;
+            case 4:
+                step = (calibrationEnd - calibrationStart) / 8;
+                fixedNum++;
+                break;
+        }
+
+        for (let i = calibrationStart; i <= calibrationEnd; i = i + step) {
+            let d = i;
+            if (p <= 0) {
+                d = d.toFixed(fixedNum);
+            }
+            yAxisNumArr.push(d);
         }
         return yAxisNumArr;
     }
 
-    //transform vector x,y coordinates to svg coordinates
+    /**
+     * transform vector x,y to svg coordinates
+     * @param vector
+     * @returns {{x: *, y: *}}
+     */
     vectorTransformToSvg(vector) {
         let {x, y} = vector;
-        let w = this.state.xUnitLength;
-        x = x * w + 10 + w / 2;
-        let yMax = this.state.yAxisNumArr[0] * 10;
-        y = (1 - y / yMax) * 10 * 4 + 5;
-        y = y + 10;
+        x = this.xTransformToSvg(x);
+        y = this.yTransformToSvg(y);
         return {x: x, y: y};
     }
 
-    //transform x coordinates to svg coordinates
+    /**
+     * transform x to svg coordinates
+     * @param x
+     * @returns {number|*}
+     */
     xTransformToSvg(x) {
         let w = this.state.xUnitLength;
         x = x * w + 10 + w / 2;
         return x;
     }
 
-    //transform y coordinates to svg coordinates
+    /**
+     * transform y to svg coordinates
+     * @param y
+     * @returns {*}
+     */
     yTransformToSvg(y) {
-        let yMax = this.state.yAxisNumArr[0] * 10;
-        y = (1 - y / yMax) * 10 * 4 + 5;
-        y = y + 10;
+        let min, max;
+        this.state.yAxisNumArr.forEach(d=> {
+            if (min == undefined) {
+                min = d;
+            } else {
+                min = Math.min(min, d);
+            }
+            if (max == undefined) {
+                max = d;
+            } else {
+                max = Math.max(max, d);
+            }
+        });
+        let yPercent = (y - min) / (max - min);
+        yPercent = 1 - yPercent;
+        y = 15 + yPercent * 40;
         return y;
     }
 
+    /**
+     * transform y to natural coordinates
+     * @param y
+     * @returns {number|*}
+     */
     yTransformToNatural(y) {
-        let yMax = this.state.yAxisNumArr[0] * 10;
-        y = y - 10;
-        y = (1 - (y - 5) / (10 * 4)) * yMax;
+        let min, max;
+        this.state.yAxisNumArr.forEach(d=> {
+            if (min == undefined) {
+                min = d;
+            } else {
+                min = Math.min(min, d);
+            }
+            if (max == undefined) {
+                max = d;
+            } else {
+                max = Math.max(max, d);
+            }
+        });
+        let yPercent = (55 - y) / 55;
+        y = (max - min) * yPercent + min;
         return y;
     }
 
-    //get bezier curve point x1,y1 and x2,y2
+    /**
+     * get bezier curve point x1,y1 and x2,y2
+     * @param lastX
+     * @param lastY
+     * @param x
+     * @param y
+     * @returns {{x1: (number|*), y1: *, x2: (number|*), y2: *}}
+     */
     getBezierCurvesVector(lastX, lastY, x, y) {
         let angleNum = this.state.angleNum;
         angleNum = angleNum / 180 * Math.PI;
@@ -355,66 +505,58 @@ class chart extends React.Component {
         return vector;
     }
 
-    //get dots symbol
-    getDotsSymbol(index, x, y, ref) {
+    /**
+     * get dots symbol
+     * @param index
+     * @param x
+     * @param y
+     * @param id
+     * @returns {*}
+     */
+    getDotsSymbol(index, x, y, id) {
         let dots, r;
         let color = this.state.y[index].color;
         switch (index % 5) {
             //circle
             case 0:
                 r = 0.3;
-                dots = (ref == undefined) ?
-                    <circle stroke={color} fill={color} cx={x} cy={y} r={r}/> :
-                    <circle stroke={color} fill={color} cx={x} cy={y} r={r} ref={d=> {
-                        this[ref] = d;
-                    }}/>;
+                dots = <circle stroke={color} fill={color} cx={x} cy={y} r={r}
+                               style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
             //square
             case 1:
                 r = 0.4;
-                dots = (ref == undefined) ?
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}/> :
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`} ref={d=> {
-                        this[ref] = d;
-                    }}/>;
+                dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}
+                             style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
             //square rotate -45 angle
             case 2:
                 r = 0.4;
-                dots = (ref == undefined) ?
-                    <path stroke={color} fill={color} transform={`rotate(-45,${x},${y})`}
-                          d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}/> :
-                    <path stroke={color} fill={color} transform={`rotate(-45,${x},${y})`}
-                          d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`} ref={d=> {
-                        this[ref] = d;
-                    }}/>;
+                dots = <path stroke={color} fill={color} transform={`rotate(-45,${x},${y})`}
+                             d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}
+                             style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
             //triangle
             case 3:
                 r = 0.4;
-                dots = (ref == undefined) ?
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y + r / 2} h${r} L${x} ${y - r / 2} z`}/> :
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y + r / 2} h${r} L${x} ${y - r / 2} z`}
-                          ref={d=> {
-                              this[ref] = d;
-                          }}/>;
+                dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y + r / 2} h${r} L${x} ${y - r / 2} z`}
+                             style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
             //inverted triangle
             case 4:
                 r = 0.4;
-                dots = (ref == undefined) ?
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} L${x} ${y + r / 2} z`}/> :
-                    <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} L${x} ${y + r / 2} z`}
-                          ref={d=> {
-                              this[ref] = d;
-                          }}/>;
+                dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} L${x} ${y + r / 2} z`}
+                             style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
 
         }
         return dots;
     }
 
-    //set active when mouse hover
+    /**
+     * set active when mouse hover
+     * @param e
+     */
     setActive(e) {
         let offset = $(this.svg).offset();
         let x = e.pageX - offset.left;
@@ -423,22 +565,23 @@ class chart extends React.Component {
         y = y / this.svg.clientHeight * 60;
         let series = this.getNearestSeries(x, y);
         if (series) {
-            $(this["curve" + series]).css({
-                "stroke-width": 0.4
-            });
+            let json = {};
+            json["dot-" + series + "-active"] = true;
+            json["curve-" + series + "-active"] = true;
             this.state.y.filter(d=> {
                 return d.id != series;
             }).forEach(d=> {
-                $(this["curve" + d.id]).css({
-                    "stroke-width": 0.2
-                });
-            })
+                json["dot-" + d.id + "-active"] = false;
+                json["curve-" + d.id + "-active"] = false;
+            });
+            this.setState(json);
         } else {
+            let json = {};
             this.state.y.forEach(d=> {
-                $(this["curve" + d.id]).css({
-                    "stroke-width": 0.2
-                });
-            })
+                json["dot-" + d.id + "-active"] = false;
+                json["curve-" + d.id + "-active"] = false;
+            });
+            this.setState(json);
         }
 
     }
@@ -455,12 +598,12 @@ class chart extends React.Component {
             let w = 80 / this.state.data.length;
             //find the corresponding y by x and slope
             let yMap = [];
-            if (x < 10 + w / 2) {
+            if (x <= 10 + w / 2) {
                 yMap = this.state.lineDots.map(d=> {
                     let lineY = d.vectors[0].y;
                     return {id: d.id, y: lineY};
                 });
-            } else if (x > 90 - w / 2) {
+            } else if (x >= 90 - w / 2) {
                 yMap = this.state.lineDots.map(d=> {
                     let lineY = d.vectors[d.vectors.length - 1].y;
                     return {id: d.id, y: lineY};
@@ -494,8 +637,8 @@ class chart extends React.Component {
             } else if (y > yMap[yMap.length - 1].y) {
                 series = yMap[yMap.length - 1].id;
             } else {
-                series = yMap[0].id;
-                for (let i = 0; i < yMap.length - 2; i++) {
+
+                for (let i = 0; i < yMap.length - 1; i++) {
                     let startY = yMap[i].y;
                     let endY = yMap[i + 1].y;
                     if (y >= startY && y <= endY) {
@@ -513,8 +656,12 @@ class chart extends React.Component {
         return series;
     }
 
-    resetColor() {
-        let y = this.state.y.map(d=> {
+    /**
+     *
+     */
+    setColor(propsY) {
+        let y = (propsY == undefined) ? this.state.y : propsY;
+        y = y.map(d=> {
             let max = 230;
             let r = Math.floor(Math.random() * max);
             let g = Math.floor(Math.random() * max);
@@ -522,9 +669,13 @@ class chart extends React.Component {
             d.color = `rgba(${r},${g},${b},1)`;
             return d;
         });
-        this.setState({
-            y: y
-        })
+        if (propsY != undefined) {
+            return y;
+        } else {
+            this.setState({
+                y: y
+            })
+        }
     }
 
 }

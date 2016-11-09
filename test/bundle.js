@@ -79,8 +79,8 @@
 	                "div",
 	                null,
 	                React.createElement(Com, { title: "chart", yAxisText: "dollor", x: "date",
-	                    y: [{ id: "m", name: "m" }, { id: "n", name: "n" }, { id: "o", name: "o" }, { id: "p", name: "p" }, { id: "q", name: "q" }, { id: "r", name: "r" }],
-	                    data: [{ date: "2016-9-11", m: 4, o: 1, p: 2, q: 3 }, { date: "2016-9-13", m: 4, n: 3, o: 3, p: 2 }, { date: "2016-9-12", m: 7, o: 5, p: 8 }, { date: "2016-9-14", n: 5, o: 7, p: 4, q: 5 }, { date: "2016-9-15", m: 2, n: 8, p: 6 }] })
+	                    y: [{ id: "p", name: "p" }, { id: "q", name: "q" }],
+	                    data: [{ date: "2016-9-11", m: 0.04, o: 1, p: 2, q: 3 }, { date: "2016-9-13", m: 0.04, n: 0.03, o: 3, p: 2 }, { date: "2016-9-12", m: 0.07, o: 5, p: -47 }, { date: "2016-9-14", m: 0.61, n: 0.05, o: 7, p: 4, q: 5 }, { date: "2016-9-15", m: 0.02, n: 0.08, p: 6 }] })
 	            );
 	        }
 	    }]);
@@ -91,6 +91,10 @@
 	ReactDom.render(React.createElement(App, null), document.getElementById("test"));
 
 	// ReactDom.render(<Com data={[1,2,3]}/>,document.getElementById("test"));
+	// {id: "o", name: "o"},
+	// {id: "p", name: "p"},
+	// {id: "q", name: "q"},
+	// {id: "r", name: "r"}
 
 	//# sourceMappingURL=main.js.map
 
@@ -21506,16 +21510,9 @@
 	        var _this = _possibleConstructorReturn(this, (chart.__proto__ || Object.getPrototypeOf(chart)).call(this, props));
 
 	        var data = _this.sortData(_this.props.data);
-	        var yDataMax = _this.getYDataMax(_this.props.y, data);
-	        var yAxisNumArr = _this.getYAxisNumArr(yDataMax);
-	        var y = _this.props.y.map(function (d) {
-	            var max = 230;
-	            var r = Math.floor(Math.random() * max);
-	            var g = Math.floor(Math.random() * max);
-	            var b = Math.floor(Math.random() * max);
-	            d.color = "rgba(" + r + "," + g + "," + b + ",1)";
-	            return d;
-	        });
+	        data = _this.fillData(data, _this.props.y);
+	        var yAxisNumArr = _this.getYAxisNumArr(_this.props.y, data);
+	        var y = _this.setColor(_this.props.y);
 
 	        _this.state = {
 	            x: _this.props.x,
@@ -21527,12 +21524,11 @@
 	            lineDots: [],
 	            yAxisNumArr: yAxisNumArr,
 	            xUnitLength: 100 * 0.8 / data.length,
-	            yUnitLength: 50 * 0.8 / 10,
-	            yDataMax: yDataMax,
+	            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
 	            angleNum: _this.props.angleNum ? _this.props.angleNum : 12,
 	            endPointLineLength: _this.props.endPointLineLength ? _this.props.endPointLineLength : 0.1
 	        };
-	        var bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "resetColor"];
+	        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor"];
 	        bindArr.forEach(function (d) {
 	            _this[d] = _this[d].bind(_this);
 	        });
@@ -21556,12 +21552,7 @@
 	                var vectors = _this2.state.data.map(function (d1, j) {
 	                    var id = d.id;
 	                    var x = _this2.xTransformToSvg(j);
-	                    var y = void 0;
-	                    if (d1.hasOwnProperty(id)) {
-	                        y = _this2.yTransformToSvg(d1[id]);
-	                    } else {
-	                        y = _this2.yTransformToSvg(0);
-	                    }
+	                    var y = _this2.yTransformToSvg(d1[id]);
 	                    var vector = { x: x, y: y };
 	                    return vector;
 	                });
@@ -21625,10 +21616,10 @@
 	                        { className: css.yAxis },
 	                        this.state.yAxisNumArr.map(function (d, i) {
 	                            var y = 55 - i * _this3.state.yUnitLength;
-	                            var yTextDelta = 1;
+	                            var yTextDelta = 0;
 	                            return React.createElement(
 	                                "text",
-	                                { key: i, x: 6, y: y - _this3.state.yUnitLength + yTextDelta },
+	                                { key: i, x: 9, y: y + yTextDelta },
 	                                d
 	                            );
 	                        })
@@ -21646,7 +21637,7 @@
 	                        "g",
 	                        { className: css.xGrid },
 	                        this.state.yAxisNumArr.map(function (d, i) {
-	                            var y = 55 - (i + 1) * _this3.state.yUnitLength;
+	                            var y = 55 - i * _this3.state.yUnitLength;
 	                            return React.createElement("path", { key: i, d: "M10 " + y + " h 80" });
 	                        }),
 	                        React.createElement("path", { d: "M90 55 v1" })
@@ -21660,13 +21651,8 @@
 	                            var path = _this3.state.data.map(function (d1, j) {
 	                                var id = d.id;
 	                                var x = _this3.xTransformToSvg(j);
-	                                var y = void 0;
+	                                var y = _this3.yTransformToSvg(d1[id]);
 	                                var p = "";
-	                                if (d1.hasOwnProperty(id)) {
-	                                    y = _this3.yTransformToSvg(d1[id]);
-	                                } else {
-	                                    y = _this3.yTransformToSvg(0);
-	                                }
 	                                if (j == 0) {
 	                                    p = "M " + x + " " + y;
 	                                } else {
@@ -21686,7 +21672,7 @@
 	                            var color = d.color;
 	                            return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
 	                                    _this3["curve" + d.id] = curve;
-	                                } });
+	                                }, style: _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {} });
 	                        })
 	                    ) : "",
 	                    React.createElement(
@@ -21694,7 +21680,7 @@
 	                        { className: css.dots },
 	                        this.state.lineDots.map(function (d, i) {
 	                            return d.vectors.map(function (d1) {
-	                                var dots = _this3.getDotsSymbol(i, d.id, d1.x, d1.y);
+	                                var dots = _this3.getDotsSymbol(i, d1.x, d1.y, d.id);
 	                                return dots;
 	                            });
 	                        })
@@ -21709,8 +21695,9 @@
 	                            return React.createElement(
 	                                "g",
 	                                { key: i },
-	                                React.createElement("path", { stroke: color, d: "M" + x + " " + y + " h3" }),
-	                                _this3.getDotsSymbol(i, d.id, 92.5, y),
+	                                React.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+	                                    stroke: color, d: "M" + x + " " + y + " h3" }),
+	                                _this3.getDotsSymbol(i, 92.5, y, d.id),
 	                                React.createElement(
 	                                    "text",
 	                                    { x: "94.5", y: y + 1 },
@@ -21723,8 +21710,8 @@
 	                            null,
 	                            React.createElement(
 	                                "g",
-	                                { title: "reset color", className: css.resetColor, onClick: function onClick() {
-	                                        _this3.resetColor();
+	                                { title: "reset color", className: css.setColor, onClick: function onClick() {
+	                                        _this3.setColor();
 	                                    } },
 	                                this.state.y.map(function (d, i) {
 	                                    var color = d.color;
@@ -21746,7 +21733,11 @@
 	            );
 	        }
 
-	        //sort data by x axis value
+	        /**
+	         * sort data by x axis value
+	         * @param d
+	         * @returns {Array.<T>|string|Buffer|*|{options, browsertest, dist, rhino, rhinolessc}}
+	         */
 
 	    }, {
 	        key: "sortData",
@@ -21776,55 +21767,182 @@
 	            return data;
 	        }
 
-	        //get max y num
+	        /**
+	         * fill 0 if y don't have value
+	         * @param data
+	         * @param y
+	         * @returns {*}
+	         */
 
 	    }, {
-	        key: "getYDataMax",
-	        value: function getYDataMax(y, data) {
-	            var yDataMax = 0;
-	            y.forEach(function (d) {
-	                data.filter(function (d1) {
-	                    return d1.hasOwnProperty(d.id);
-	                }).forEach(function (d1) {
-	                    var d2 = d1[d.id];
-	                    yDataMax = Math.max(d2, yDataMax);
+	        key: "fillData",
+	        value: function fillData(data, y) {
+	            data = data.map(function (d) {
+	                y.forEach(function (d1) {
+	                    if (!d.hasOwnProperty(d1.id)) {
+	                        d[d1.id] = 0;
+	                    }
 	                });
+	                return d;
 	            });
-	            return yDataMax;
+	            return data;
 	        }
+
+	        /**
+	         *
+	         * @param yData this.props.y
+	         * @param data this.props.data
+	         * @returns {Array}
+	         */
+
 	    }, {
 	        key: "getYAxisNumArr",
-	        value: function getYAxisNumArr(yDataMax) {
-	            var p = 0;
-	            if (yDataMax > 1) {
-	                //from 10 to bigger
-	                p++;
-	                while (yDataMax / 10 > 1) {
-	                    yDataMax = yDataMax / 10;
-	                    p++;
+	        value: function getYAxisNumArr(yData, data) {
+	            //get max y num and min y num
+	            var max = void 0,
+	                min = void 0;
+	            yData.forEach(function (d) {
+	                data.forEach(function (d1) {
+	                    var d2 = d1[d.id];
+	                    if (max == undefined) {
+	                        max = d2;
+	                    } else {
+	                        max = Math.max(d2, max);
+	                    }
+	                    if (min == undefined) {
+	                        min = d2;
+	                    } else {
+	                        min = Math.min(d2, min);
+	                    }
+	                });
+	            });
+
+	            var yStart = Math.abs(min);
+	            var yEnd = Math.abs(max);
+	            var pStart = void 0,
+	                pEnd = 0;
+	            if (yStart < 1 && yEnd < 1) {
+	                //from 0 to lower
+	                if (yStart != 0) {
+	                    pStart = 0;
+	                    while (yStart * 10 <= 1) {
+	                        yStart = yStart * 10;
+	                        pStart--;
+	                    }
+	                }
+	                while (yEnd * 10 <= 1) {
+	                    yEnd = yEnd * 10;
+	                    pEnd--;
 	                }
 	            } else {
-	                //from 0 to lower
-	                while (yDataMax * 10 <= 1) {
-	                    yDataMax = yDataMax * 10;
-	                    p--;
+	                //from 10 to bigger
+	                pStart = 0;
+	                pStart++;
+	                pEnd++;
+	                while (yStart / 10 > 1) {
+	                    yStart = yStart / 10;
+	                    pStart++;
+	                }
+	                while (yEnd / 10 > 1) {
+	                    yEnd = yEnd / 10;
+	                    pEnd++;
 	                }
 	            }
 
-	            var yAxisMax = Math.pow(10, p);
-	            var yAxisNumArr = [];
-	            for (var i = 1; i <= 10; i++) {
-	                var y = i * yAxisMax * 0.1;
+	            //get calibration start and end
+	            var p = void 0;
+	            if (pStart == undefined) {
+	                p = pEnd;
+	            } else {
+	                p = Math.max(pStart, pEnd);
+	            }
+	            var yAixsStart = void 0,
+	                yAixsEnd = void 0;
+	            var calibration = Math.pow(10, p - 1);
+	            if (min < 0 && max < 0) {
+	                yAixsStart = -Math.pow(10, p);
+	                yAixsEnd = 0;
+	            } else if (min < 0 && max >= 0) {
+	                yAixsStart = -Math.pow(10, p);
+	                yAixsEnd = Math.pow(10, p);
+	                calibration = calibration * 2;
+	            } else if (min >= 0 && max >= 0) {
+	                yAixsStart = 0;
+	                yAixsEnd = Math.pow(10, p);
+	            }
+	            var calibrationStart = void 0,
+	                calibrationEnd = void 0;
+	            for (var i = yAixsStart; i <= yAixsEnd; i = i + calibration) {
 	                if (p <= 0) {
-	                    y = y.toFixed(-p + 1);
+	                    var scale = Math.pow(10, -p + 1);
+	                    if (i * scale + calibration * scale >= min * scale) {
+	                        calibrationStart = i;
+	                        break;
+	                    }
+	                } else {
+	                    if (i + calibration >= min) {
+	                        calibrationStart = i;
+	                        break;
+	                    }
 	                }
-	                y = Number.parseFloat(y);
-	                yAxisNumArr.push(y);
+	            }
+	            for (var _i = yAixsStart; _i <= yAixsEnd; _i = _i + calibration) {
+	                if (p <= 0) {
+	                    var _scale = Math.pow(10, -p + 1);
+	                    if (_i * _scale + calibration * _scale >= max * _scale) {
+	                        calibrationEnd = (_i * _scale + calibration * _scale) / _scale;
+	                        break;
+	                    }
+	                } else {
+	                    if (_i + calibration >= max) {
+	                        calibrationEnd = _i + calibration;
+	                        break;
+	                    }
+	                }
+	            }
+
+	            var yAxisNumArr = [];
+	            var n = void 0;
+	            if (p <= 0) {
+	                var _scale2 = Math.pow(10, -p + 1);
+	                n = (calibrationEnd * _scale2 - calibrationStart * _scale2) / (calibration * _scale2);
+	            } else {
+	                n = (calibrationEnd - calibrationStart) / calibration;
+	            }
+	            var step = calibration;
+	            var fixedNum = -p + 1;
+	            console.log(n);
+	            switch (n) {
+	                case 1:
+	                case 2:
+	                    step = (calibrationEnd - calibrationStart) / 10;
+	                    fixedNum++;
+	                    break;
+	                case 3:
+	                    step = (calibrationEnd - calibrationStart) / 6;
+	                    fixedNum++;
+	                    break;
+	                case 4:
+	                    step = (calibrationEnd - calibrationStart) / 8;
+	                    fixedNum++;
+	                    break;
+	            }
+
+	            for (var _i2 = calibrationStart; _i2 <= calibrationEnd; _i2 = _i2 + step) {
+	                var d = _i2;
+	                if (p <= 0) {
+	                    d = d.toFixed(fixedNum);
+	                }
+	                yAxisNumArr.push(d);
 	            }
 	            return yAxisNumArr;
 	        }
 
-	        //transform vector x,y coordinates to svg coordinates
+	        /**
+	         * transform vector x,y to svg coordinates
+	         * @param vector
+	         * @returns {{x: *, y: *}}
+	         */
 
 	    }, {
 	        key: "vectorTransformToSvg",
@@ -21832,15 +21950,16 @@
 	            var x = vector.x;
 	            var y = vector.y;
 
-	            var w = this.state.xUnitLength;
-	            x = x * w + 10 + w / 2;
-	            var yMax = this.state.yAxisNumArr[0] * 10;
-	            y = (1 - y / yMax) * 10 * 4 + 5;
-	            y = y + 10;
+	            x = this.xTransformToSvg(x);
+	            y = this.yTransformToSvg(y);
 	            return { x: x, y: y };
 	        }
 
-	        //transform x coordinates to svg coordinates
+	        /**
+	         * transform x to svg coordinates
+	         * @param x
+	         * @returns {number|*}
+	         */
 
 	    }, {
 	        key: "xTransformToSvg",
@@ -21850,26 +21969,71 @@
 	            return x;
 	        }
 
-	        //transform y coordinates to svg coordinates
+	        /**
+	         * transform y to svg coordinates
+	         * @param y
+	         * @returns {*}
+	         */
 
 	    }, {
 	        key: "yTransformToSvg",
 	        value: function yTransformToSvg(y) {
-	            var yMax = this.state.yAxisNumArr[0] * 10;
-	            y = (1 - y / yMax) * 10 * 4 + 5;
-	            y = y + 10;
-	            return y;
-	        }
-	    }, {
-	        key: "yTransformToNatural",
-	        value: function yTransformToNatural(y) {
-	            var yMax = this.state.yAxisNumArr[0] * 10;
-	            y = y - 10;
-	            y = (1 - (y - 5) / (10 * 4)) * yMax;
+	            var min = void 0,
+	                max = void 0;
+	            this.state.yAxisNumArr.forEach(function (d) {
+	                if (min == undefined) {
+	                    min = d;
+	                } else {
+	                    min = Math.min(min, d);
+	                }
+	                if (max == undefined) {
+	                    max = d;
+	                } else {
+	                    max = Math.max(max, d);
+	                }
+	            });
+	            var yPercent = (y - min) / (max - min);
+	            yPercent = 1 - yPercent;
+	            y = 15 + yPercent * 40;
 	            return y;
 	        }
 
-	        //get bezier curve point x1,y1 and x2,y2
+	        /**
+	         * transform y to natural coordinates
+	         * @param y
+	         * @returns {number|*}
+	         */
+
+	    }, {
+	        key: "yTransformToNatural",
+	        value: function yTransformToNatural(y) {
+	            var min = void 0,
+	                max = void 0;
+	            this.state.yAxisNumArr.forEach(function (d) {
+	                if (min == undefined) {
+	                    min = d;
+	                } else {
+	                    min = Math.min(min, d);
+	                }
+	                if (max == undefined) {
+	                    max = d;
+	                } else {
+	                    max = Math.max(max, d);
+	                }
+	            });
+	            var yPercent = (55 - y) / 55;
+	            y = (max - min) * yPercent + min;
+	            return y;
+	        }
+
+	        /**
+	         * get bezier curve point x1,y1 and x2,y2
+	         * @param lastX
+	         * @param lastY
+	         * @param x
+	         * @param y
+	         * @returns {{x1: (number|*), y1: *, x2: (number|*), y2: *}}
+	         */
 
 	    }, {
 	        key: "getBezierCurvesVector",
@@ -21911,53 +22075,62 @@
 	            return vector;
 	        }
 
-	        //get dots symbol
+	        /**
+	         * get dots symbol
+	         * @param index
+	         * @param x
+	         * @param y
+	         * @param id
+	         * @returns {*}
+	         */
 
 	    }, {
 	        key: "getDotsSymbol",
-	        value: function getDotsSymbol(index, id, x, y) {
+	        value: function getDotsSymbol(index, x, y, id) {
 	            var dots = void 0,
 	                r = void 0;
-	            var color = this.state.y.find(function (d) {
-	                return d.id == id;
-	            }).color;
+	            var color = this.state.y[index].color;
 	            switch (index % 5) {
 	                //circle
 	                case 0:
 	                    r = 0.3;
-	                    dots = React.createElement("circle", { stroke: color, fill: color, cx: x, cy: y, r: r });
+	                    dots = React.createElement("circle", { stroke: color, fill: color, cx: x, cy: y, r: r,
+	                        style: this.state["dot-" + id + "-active"] ? { strokeWidth: 0.6 } : {} });
 	                    break;
 	                //square
 	                case 1:
 	                    r = 0.4;
-	                    dots = React.createElement("path", { stroke: color, fill: color,
-	                        d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " v" + r + " h-" + r + " z" });
+	                    dots = React.createElement("path", { stroke: color, fill: color, d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " v" + r + " h-" + r + " z",
+	                        style: this.state["dot-" + id + "-active"] ? { strokeWidth: 0.6 } : {} });
 	                    break;
 	                //square rotate -45 angle
 	                case 2:
 	                    r = 0.4;
-	                    dots = React.createElement("path", { stroke: color, fill: color,
-	                        transform: "rotate(-45," + x + "," + y + ")",
-	                        d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " v" + r + " h-" + r + " z" });
+	                    dots = React.createElement("path", { stroke: color, fill: color, transform: "rotate(-45," + x + "," + y + ")",
+	                        d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " v" + r + " h-" + r + " z",
+	                        style: this.state["dot-" + id + "-active"] ? { strokeWidth: 0.6 } : {} });
 	                    break;
 	                //triangle
 	                case 3:
 	                    r = 0.4;
-	                    dots = React.createElement("path", { stroke: color, fill: color,
-	                        d: "M" + (x - r / 2) + " " + (y + r / 2) + " h" + r + " L" + x + " " + (y - r / 2) + " z" });
+	                    dots = React.createElement("path", { stroke: color, fill: color, d: "M" + (x - r / 2) + " " + (y + r / 2) + " h" + r + " L" + x + " " + (y - r / 2) + " z",
+	                        style: this.state["dot-" + id + "-active"] ? { strokeWidth: 0.6 } : {} });
 	                    break;
 	                //inverted triangle
 	                case 4:
 	                    r = 0.4;
-	                    dots = React.createElement("path", { stroke: color, fill: color,
-	                        d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " L" + x + " " + (y + r / 2) + " z" });
+	                    dots = React.createElement("path", { stroke: color, fill: color, d: "M" + (x - r / 2) + " " + (y - r / 2) + " h" + r + " L" + x + " " + (y + r / 2) + " z",
+	                        style: this.state["dot-" + id + "-active"] ? { strokeWidth: 0.6 } : {} });
 	                    break;
 
 	            }
 	            return dots;
 	        }
 
-	        //set active when mouse hover
+	        /**
+	         * set active when mouse hover
+	         * @param e
+	         */
 
 	    }, {
 	        key: "setActive",
@@ -21971,22 +22144,27 @@
 	            y = y / this.svg.clientHeight * 60;
 	            var series = this.getNearestSeries(x, y);
 	            if (series) {
-	                $(this["curve" + series]).css({
-	                    "stroke-width": 0.4
-	                });
-	                this.state.y.filter(function (d) {
-	                    return d.id != series;
-	                }).forEach(function (d) {
-	                    $(_this5["curve" + d.id]).css({
-	                        "stroke-width": 0.2
+	                (function () {
+	                    var json = {};
+	                    json["dot-" + series + "-active"] = true;
+	                    json["curve-" + series + "-active"] = true;
+	                    _this5.state.y.filter(function (d) {
+	                        return d.id != series;
+	                    }).forEach(function (d) {
+	                        json["dot-" + d.id + "-active"] = false;
+	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                });
+	                    _this5.setState(json);
+	                })();
 	            } else {
-	                this.state.y.forEach(function (d) {
-	                    $(_this5["curve" + d.id]).css({
-	                        "stroke-width": 0.2
+	                (function () {
+	                    var json = {};
+	                    _this5.state.y.forEach(function (d) {
+	                        json["dot-" + d.id + "-active"] = false;
+	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                });
+	                    _this5.setState(json);
+	                })();
 	            }
 	        }
 
@@ -22008,12 +22186,12 @@
 	                    var w = 80 / _this6.state.data.length;
 	                    //find the corresponding y by x and slope
 	                    var yMap = [];
-	                    if (x < 10 + w / 2) {
+	                    if (x <= 10 + w / 2) {
 	                        yMap = _this6.state.lineDots.map(function (d) {
 	                            var lineY = d.vectors[0].y;
 	                            return { id: d.id, y: lineY };
 	                        });
-	                    } else if (x > 90 - w / 2) {
+	                    } else if (x >= 90 - w / 2) {
 	                        yMap = _this6.state.lineDots.map(function (d) {
 	                            var lineY = d.vectors[d.vectors.length - 1].y;
 	                            return { id: d.id, y: lineY };
@@ -22050,8 +22228,8 @@
 	                    } else if (y > yMap[yMap.length - 1].y) {
 	                        series = yMap[yMap.length - 1].id;
 	                    } else {
-	                        series = yMap[0].id;
-	                        for (var i = 0; i < yMap.length - 2; i++) {
+
+	                        for (var i = 0; i < yMap.length - 1; i++) {
 	                            var startY = yMap[i].y;
 	                            var endY = yMap[i + 1].y;
 	                            if (y >= startY && y <= endY) {
@@ -22068,10 +22246,16 @@
 	            }
 	            return series;
 	        }
+
+	        /**
+	         *
+	         */
+
 	    }, {
-	        key: "resetColor",
-	        value: function resetColor() {
-	            var y = this.state.y.map(function (d) {
+	        key: "setColor",
+	        value: function setColor(propsY) {
+	            var y = propsY == undefined ? this.state.y : propsY;
+	            y = y.map(function (d) {
 	                var max = 230;
 	                var r = Math.floor(Math.random() * max);
 	                var g = Math.floor(Math.random() * max);
@@ -22079,9 +22263,13 @@
 	                d.color = "rgba(" + r + "," + g + "," + b + ",1)";
 	                return d;
 	            });
-	            this.setState({
-	                y: y
-	            });
+	            if (propsY != undefined) {
+	                return y;
+	            } else {
+	                this.setState({
+	                    y: y
+	                });
+	            }
 	        }
 	    }]);
 
@@ -22127,7 +22315,7 @@
 
 
 	// module
-	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi svg {\r\n  width: 100%; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n    font-family: Arial; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n    font-size: 3px;\r\n    stroke-width: 0.1;\r\n    stroke: #333333;\r\n    text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n      stroke: #ccd6eb; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n      text-anchor: middle;\r\n      font-size: 1px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n      text-anchor: end;\r\n      font-size: 1px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n      text-anchor: middle;\r\n      font-size: 2px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n      stroke: #e6e6e6; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n    stroke-linejoin: round;\r\n    stroke-width: 0.2;\r\n    fill: transparent;\r\n    -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n            animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  to {\r\n    stroke-dashoffset: 0; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  to {\r\n    stroke-dashoffset: 0; } }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n    stroke-width: 0.3; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n    stroke-width: 0.3;\r\n    font-size: 0.5px;\r\n    text-anchor: start; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1Dx0N-2KG7smMmCdnsTEiT {\r\n    -webkit-user-select: none;\r\n       -moz-user-select: none;\r\n        -ms-user-select: none;\r\n            user-select: none;\r\n    cursor: pointer;\r\n    opacity: 0.8; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1Dx0N-2KG7smMmCdnsTEiT text {\r\n      display: none; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1Dx0N-2KG7smMmCdnsTEiT:hover text {\r\n    display: block; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1Dx0N-2KG7smMmCdnsTEiT:hover {\r\n    opacity: 1; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi svg {\r\n  width: 100%; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n    font-family: Arial; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n    font-size: 3px;\r\n    stroke-width: 0.1;\r\n    stroke: #333333;\r\n    text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n      stroke: #ccd6eb; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n      text-anchor: middle;\r\n      font-size: 1px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n      font-size: 1px;\r\n      text-anchor: end; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n      text-anchor: middle;\r\n      font-size: 2px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n      stroke: #e6e6e6; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n    stroke-linejoin: round;\r\n    stroke-width: 0.2;\r\n    fill: transparent;\r\n    -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n            animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  to {\r\n    stroke-dashoffset: 0; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  to {\r\n    stroke-dashoffset: 0; } }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n    stroke-width: 0.3; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n    stroke-width: 0.3;\r\n    font-size: 0.5px;\r\n    text-anchor: start; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n    -webkit-user-select: none;\r\n       -moz-user-select: none;\r\n        -ms-user-select: none;\r\n            user-select: none;\r\n    cursor: pointer;\r\n    opacity: 0.8; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n      display: none; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n    display: block; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n    opacity: 1; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
@@ -22141,7 +22329,7 @@
 		"dash": "_1tHyAu5KHrmWGb-yqByOSp",
 		"dots": "_254QL6LmiMZ_2y06F3DS4M",
 		"declare": "_1nkriHhWZrTqLfNpmOhAor",
-		"resetColor": "_1Dx0N-2KG7smMmCdnsTEiT"
+		"setColor": "O3lO0_hENTKhxevnxzfJ1"
 	};
 
 /***/ },
