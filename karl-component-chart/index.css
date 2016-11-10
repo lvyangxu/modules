@@ -13,11 +13,11 @@
       stroke: #ccd6eb; }
     .base svg .xAxis text {
       text-anchor: middle;
-      font-size: 1px; }
+      font-size: 1.5px; }
   .base svg .yAxis {
     stroke-width: 0.2; }
     .base svg .yAxis text {
-      font-size: 1px;
+      font-size: 1.5px;
       text-anchor: end; }
   .base svg .yAxisText {
     stroke-width: 0.2; }
@@ -34,14 +34,15 @@
     fill: transparent;
     animation: dash 1s linear forwards; }
 @keyframes dash {
-  to {
-    stroke-dashoffset: 0; } }
+  100% {
+    stroke-dashoffset: 0px; } }
   .base svg .dots {
     stroke-width: 0.3; }
   .base svg .declare {
     stroke-width: 0.3;
-    font-size: 0.5px;
     text-anchor: start; }
+    .base svg .declare text {
+      font-size: 2px; }
   .base svg .setColor {
     user-select: none;
     cursor: pointer;
@@ -52,5 +53,11 @@
     display: block; }
   .base svg .setColor:hover {
     opacity: 1; }
+  .base svg .tips path {
+    stroke-width: 0.1;
+    fill: rgba(255, 255, 255, 0.8); }
+  .base svg .tips text {
+    font-size: 1.5px;
+    text-anchor: middle; }
 
 /*# sourceMappingURL=index.css.map */

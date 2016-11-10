@@ -1,6 +1,6 @@
 let React = require("react");
 let css = require("./index.css");
-require("font-awesome-webpack");
+require("karl-extend");
 let $ = require("jquery");
 
 /**
@@ -30,21 +30,22 @@ class chart extends React.Component {
             endPointLineLength: this.props.endPointLineLength ? this.props.endPointLineLength : 0.1
         };
         let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
-            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor"];
+            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
         bindArr.forEach(d=> {
             this[d] = this[d].bind(this);
         });
     }
 
     componentDidMount() {
-        this.state.y.forEach(d=> {
-            let length = this["curve" + d.id].getTotalLength();
-            $(this["curve" + d.id]).css({
-                "stroke-dasharray": length,
-                "stroke-dashoffset": length
+        if (!this.state.isIE) {
+            this.state.y.forEach(d=> {
+                let length = this["curve" + d.id].getTotalLength();
+                $(this["curve" + d.id]).css({
+                    "stroke-dasharray": length,
+                    "stroke-dashoffset": length
+                });
             });
-        });
-
+        }
         let lineDots = this.state.y.map(d=> {
             let vectors = this.state.data.map((d1, j)=> {
                 let id = d.id;
@@ -55,9 +56,13 @@ class chart extends React.Component {
             });
             return {id: d.id, vectors: vectors};
         });
-        this.setState({
-            lineDots: lineDots
-        })
+        let json = {lineDots: lineDots};
+        let ua = window.navigator.userAgent;
+        if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
+            json["isIE"] = true;
+        }
+        this.setState(json);
+
 
     }
 
@@ -66,6 +71,14 @@ class chart extends React.Component {
             nextProps.data = this.sortData(nextProps.data);
         }
         this.setState(nextProps);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // if (prevState.tipsY != this.state.tipsY && prevState.tipsX != this.state.tipsX && this.state.tipsX && this.state.tipsY) {
+        if (!((prevState.tipsX == this.state.tipsX) && (prevState.tipsY == this.state.tipsY)) && this.state.tipsX && this.state.tipsY) {
+            // console.log(nextState);
+            console.log(this.tipsText);
+        }
     }
 
     render() {
@@ -138,9 +151,10 @@ class chart extends React.Component {
                                             return p;
                                         }).join(" ");
                                         let color = d.color;
+                                        let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
                                         return <path stroke={color} key={i} d={path} ref={curve=> {
                                             this["curve" + d.id] = curve;
-                                        }} style={this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {}}/>
+                                        }} style={style}/>
                                     })
                                 }
                             </g>
@@ -192,8 +206,18 @@ class chart extends React.Component {
                             </g>
                         </g>
                     </g>
-
-
+                    {
+                        (this.state.tipsX && this.state.tipsY) ?
+                            <g className={css.tips}>
+                                {
+                                    this.setTipsText()
+                                }
+                                {
+                                    this.setTips()
+                                }
+                            </g>
+                            : ""
+                    }
                 </svg>
             </div>
         );
@@ -561,11 +585,11 @@ class chart extends React.Component {
         let offset = $(this.svg).offset();
         let x = e.pageX - offset.left;
         let y = e.pageY - offset.top;
-        x = x / this.svg.clientWidth * 110;
-        y = y / this.svg.clientHeight * 60;
-        let series = this.getNearestSeries(x, y);
+        x = x / $(this.svg).width() * 110;
+        y = y / $(this.svg).height() * 60;
+        let {series, tipsX, tipsY, activeX} = this.getNearestSeries(x, y);
         if (series) {
-            let json = {};
+            let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             json["dot-" + series + "-active"] = true;
             json["curve-" + series + "-active"] = true;
             this.state.y.filter(d=> {
@@ -576,14 +600,13 @@ class chart extends React.Component {
             });
             this.setState(json);
         } else {
-            let json = {};
+            let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             this.state.y.forEach(d=> {
                 json["dot-" + d.id + "-active"] = false;
                 json["curve-" + d.id + "-active"] = false;
             });
             this.setState(json);
         }
-
     }
 
     /**
@@ -594,16 +617,21 @@ class chart extends React.Component {
      */
     getNearestSeries(x, y) {
         let series;
+        let tipsX, tipsY, index, activeX;
         if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
-            let w = 80 / this.state.data.length;
+            let w = this.state.xUnitLength;
             //find the corresponding y by x and slope
             let yMap = [];
             if (x <= 10 + w / 2) {
+                tipsX = 10 + w / 2;
+                index = 0;
                 yMap = this.state.lineDots.map(d=> {
                     let lineY = d.vectors[0].y;
                     return {id: d.id, y: lineY};
                 });
             } else if (x >= 90 - w / 2) {
+                tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
+                index = this.state.data.length - 1;
                 yMap = this.state.lineDots.map(d=> {
                     let lineY = d.vectors[d.vectors.length - 1].y;
                     return {id: d.id, y: lineY};
@@ -619,9 +647,17 @@ class chart extends React.Component {
                         break;
                     }
                 }
+                let x1 = 10 + startIndex * w + w / 2;
+                let x2 = 10 + endIndex * w + w / 2;
+                if (x <= (x1 + x2) / 2) {
+                    tipsX = 10 + w / 2 + startIndex * w;
+                    index = startIndex;
+                } else {
+                    tipsX = 10 + w / 2 + endIndex * w;
+                    index = endIndex;
+                }
+
                 yMap = this.state.lineDots.map(d=> {
-                    let x1 = 10 + startIndex * w + w / 2;
-                    let x2 = 10 + endIndex * w + w / 2;
                     let y1 = d.vectors[startIndex].y;
                     let y2 = d.vectors[endIndex].y;
                     let slope = (y2 - y1) / (x2 - x1);
@@ -637,7 +673,6 @@ class chart extends React.Component {
             } else if (y > yMap[yMap.length - 1].y) {
                 series = yMap[yMap.length - 1].id;
             } else {
-
                 for (let i = 0; i < yMap.length - 1; i++) {
                     let startY = yMap[i].y;
                     let endY = yMap[i + 1].y;
@@ -651,13 +686,20 @@ class chart extends React.Component {
                     }
                 }
             }
-
+            let vectors = this.state.lineDots.find(d=> {
+                return d.id == series;
+            }).vectors;
+            let vector = vectors[index];
+            tipsY = vector.y;
+            activeX = this.state.data[index][this.state.x];
         }
-        return series;
+        return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX};
     }
 
     /**
-     *
+     * set color
+     * @param propsY
+     * @returns {*}
      */
     setColor(propsY) {
         let y = (propsY == undefined) ? this.state.y : propsY;
@@ -676,6 +718,38 @@ class chart extends React.Component {
                 y: y
             })
         }
+    }
+
+    setTipsText() {
+        let offsetY = 1;
+        let startX = this.state.tipsX;
+        let startY = this.state.tipsY - offsetY;
+        let color = this.state.y.find(d=> {
+            return d.id == this.state.activeSeries;
+        }).color;
+        let xText = this.state.activeX;
+        let yText = this.state.data.find(d=> {
+            return d[this.state.x] == xText;
+        })[this.state.activeSeries];
+        let text = <text color={color} x={startX} y={startY - 2} ref={d=> {
+            this.tipsText = d;
+        }}>
+            <tspan>{this.state.activeSeries}</tspan>
+            <tspan>{xText}:{yText}</tspan>
+        </text>;
+        return text;
+    }
+
+    setTips() {
+        let offsetY = 1;
+        let startX = this.state.tipsX;
+        let startY = this.state.tipsY - offsetY;
+        let color = this.state.y.find(d=> {
+            return d.id == this.state.activeSeries;
+        }).color;
+        let path = <path stroke={color}
+                         d={`M${startX} ${startY} l-0.2 -0.4 l${-(this.state.xUnitLength - 0.4)} 0 a2 2 0 0 1 0 -2 `}/>;
+        return path;
     }
 
 }

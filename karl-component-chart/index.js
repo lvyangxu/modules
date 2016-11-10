@@ -10,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require("react");
 var css = require("./index.css");
-require("font-awesome-webpack");
+require("karl-extend");
 var $ = require("jquery");
 
 /**
@@ -44,7 +44,7 @@ var chart = function (_React$Component) {
             angleNum: _this.props.angleNum ? _this.props.angleNum : 12,
             endPointLineLength: _this.props.endPointLineLength ? _this.props.endPointLineLength : 0.1
         };
-        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor"];
+        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -56,14 +56,15 @@ var chart = function (_React$Component) {
         value: function componentDidMount() {
             var _this2 = this;
 
-            this.state.y.forEach(function (d) {
-                var length = _this2["curve" + d.id].getTotalLength();
-                $(_this2["curve" + d.id]).css({
-                    "stroke-dasharray": length,
-                    "stroke-dashoffset": length
+            if (!this.state.isIE) {
+                this.state.y.forEach(function (d) {
+                    var length = _this2["curve" + d.id].getTotalLength();
+                    $(_this2["curve" + d.id]).css({
+                        "stroke-dasharray": length,
+                        "stroke-dashoffset": length
+                    });
                 });
-            });
-
+            }
             var lineDots = this.state.y.map(function (d) {
                 var vectors = _this2.state.data.map(function (d1, j) {
                     var id = d.id;
@@ -74,9 +75,12 @@ var chart = function (_React$Component) {
                 });
                 return { id: d.id, vectors: vectors };
             });
-            this.setState({
-                lineDots: lineDots
-            });
+            var json = { lineDots: lineDots };
+            var ua = window.navigator.userAgent;
+            if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
+                json["isIE"] = true;
+            }
+            this.setState(json);
         }
     }, {
         key: "componentWillReceiveProps",
@@ -85,6 +89,15 @@ var chart = function (_React$Component) {
                 nextProps.data = this.sortData(nextProps.data);
             }
             this.setState(nextProps);
+        }
+    }, {
+        key: "componentDidUpdate",
+        value: function componentDidUpdate(prevProps, prevState) {
+            // if (prevState.tipsY != this.state.tipsY && prevState.tipsX != this.state.tipsX && this.state.tipsX && this.state.tipsY) {
+            if (!(prevState.tipsX == this.state.tipsX && prevState.tipsY == this.state.tipsY) && this.state.tipsX && this.state.tipsY) {
+                // console.log(nextState);
+                console.log(this.tipsText);
+            }
         }
     }, {
         key: "render",
@@ -186,9 +199,10 @@ var chart = function (_React$Component) {
                                 return p;
                             }).join(" ");
                             var color = d.color;
+                            var style = _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
                             return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
                                     _this3["curve" + d.id] = curve;
-                                }, style: _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {} });
+                                }, style: style });
                         })
                     ) : "",
                     React.createElement(
@@ -244,7 +258,13 @@ var chart = function (_React$Component) {
                                 )
                             )
                         )
-                    )
+                    ),
+                    this.state.tipsX && this.state.tipsY ? React.createElement(
+                        "g",
+                        { className: css.tips },
+                        this.setTipsText(),
+                        this.setTips()
+                    ) : ""
                 )
             );
         }
@@ -655,12 +675,19 @@ var chart = function (_React$Component) {
             var offset = $(this.svg).offset();
             var x = e.pageX - offset.left;
             var y = e.pageY - offset.top;
-            x = x / this.svg.clientWidth * 110;
-            y = y / this.svg.clientHeight * 60;
-            var series = this.getNearestSeries(x, y);
+            x = x / $(this.svg).width() * 110;
+            y = y / $(this.svg).height() * 60;
+
+            var _getNearestSeries = this.getNearestSeries(x, y);
+
+            var series = _getNearestSeries.series;
+            var tipsX = _getNearestSeries.tipsX;
+            var tipsY = _getNearestSeries.tipsY;
+            var activeX = _getNearestSeries.activeX;
+
             if (series) {
                 (function () {
-                    var json = {};
+                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
                     json["dot-" + series + "-active"] = true;
                     json["curve-" + series + "-active"] = true;
                     _this5.state.y.filter(function (d) {
@@ -673,7 +700,7 @@ var chart = function (_React$Component) {
                 })();
             } else {
                 (function () {
-                    var json = {};
+                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
                     _this5.state.y.forEach(function (d) {
                         json["dot-" + d.id + "-active"] = false;
                         json["curve-" + d.id + "-active"] = false;
@@ -696,74 +723,95 @@ var chart = function (_React$Component) {
             var _this6 = this;
 
             var series = void 0;
+            var tipsX = void 0,
+                tipsY = void 0,
+                index = void 0,
+                activeX = void 0;
             if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
-                (function () {
-                    var w = 80 / _this6.state.data.length;
-                    //find the corresponding y by x and slope
-                    var yMap = [];
-                    if (x <= 10 + w / 2) {
-                        yMap = _this6.state.lineDots.map(function (d) {
-                            var lineY = d.vectors[0].y;
-                            return { id: d.id, y: lineY };
-                        });
-                    } else if (x >= 90 - w / 2) {
-                        yMap = _this6.state.lineDots.map(function (d) {
-                            var lineY = d.vectors[d.vectors.length - 1].y;
-                            return { id: d.id, y: lineY };
-                        });
-                    } else {
-                        (function () {
-                            var startIndex = void 0,
-                                endIndex = void 0;
-                            for (var i = 0; i < _this6.state.data.length - 1; i++) {
-                                var startX = 10 + i * w + w / 2;
-                                var endX = 10 + (i + 1) * w + w / 2;
-                                if (x >= startX && x <= endX) {
-                                    startIndex = i;
-                                    endIndex = i + 1;
-                                    break;
-                                }
-                            }
-                            yMap = _this6.state.lineDots.map(function (d) {
-                                var x1 = 10 + startIndex * w + w / 2;
-                                var x2 = 10 + endIndex * w + w / 2;
-                                var y1 = d.vectors[startIndex].y;
-                                var y2 = d.vectors[endIndex].y;
-                                var slope = (y2 - y1) / (x2 - x1);
-                                var lineY = (x - x1) * slope + y1;
-                                return { id: d.id, y: lineY };
-                            });
-                        })();
-                    }
-                    yMap.sort(function (a, b) {
-                        return a.y - b.y;
+                var w = this.state.xUnitLength;
+                //find the corresponding y by x and slope
+                var yMap = [];
+                if (x <= 10 + w / 2) {
+                    tipsX = 10 + w / 2;
+                    index = 0;
+                    yMap = this.state.lineDots.map(function (d) {
+                        var lineY = d.vectors[0].y;
+                        return { id: d.id, y: lineY };
                     });
-                    if (y < yMap[0].y) {
-                        series = yMap[0].id;
-                    } else if (y > yMap[yMap.length - 1].y) {
-                        series = yMap[yMap.length - 1].id;
-                    } else {
-
-                        for (var i = 0; i < yMap.length - 1; i++) {
-                            var startY = yMap[i].y;
-                            var endY = yMap[i + 1].y;
-                            if (y >= startY && y <= endY) {
-                                if (y < (startY + endY) / 2) {
-                                    series = yMap[i].id;
-                                } else {
-                                    series = yMap[i + 1].id;
-                                }
+                } else if (x >= 90 - w / 2) {
+                    tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
+                    index = this.state.data.length - 1;
+                    yMap = this.state.lineDots.map(function (d) {
+                        var lineY = d.vectors[d.vectors.length - 1].y;
+                        return { id: d.id, y: lineY };
+                    });
+                } else {
+                    (function () {
+                        var startIndex = void 0,
+                            endIndex = void 0;
+                        for (var i = 0; i < _this6.state.data.length - 1; i++) {
+                            var startX = 10 + i * w + w / 2;
+                            var endX = 10 + (i + 1) * w + w / 2;
+                            if (x >= startX && x <= endX) {
+                                startIndex = i;
+                                endIndex = i + 1;
                                 break;
                             }
                         }
+                        var x1 = 10 + startIndex * w + w / 2;
+                        var x2 = 10 + endIndex * w + w / 2;
+                        if (x <= (x1 + x2) / 2) {
+                            tipsX = 10 + w / 2 + startIndex * w;
+                            index = startIndex;
+                        } else {
+                            tipsX = 10 + w / 2 + endIndex * w;
+                            index = endIndex;
+                        }
+
+                        yMap = _this6.state.lineDots.map(function (d) {
+                            var y1 = d.vectors[startIndex].y;
+                            var y2 = d.vectors[endIndex].y;
+                            var slope = (y2 - y1) / (x2 - x1);
+                            var lineY = (x - x1) * slope + y1;
+                            return { id: d.id, y: lineY };
+                        });
+                    })();
+                }
+                yMap.sort(function (a, b) {
+                    return a.y - b.y;
+                });
+                if (y < yMap[0].y) {
+                    series = yMap[0].id;
+                } else if (y > yMap[yMap.length - 1].y) {
+                    series = yMap[yMap.length - 1].id;
+                } else {
+                    for (var i = 0; i < yMap.length - 1; i++) {
+                        var startY = yMap[i].y;
+                        var endY = yMap[i + 1].y;
+                        if (y >= startY && y <= endY) {
+                            if (y < (startY + endY) / 2) {
+                                series = yMap[i].id;
+                            } else {
+                                series = yMap[i + 1].id;
+                            }
+                            break;
+                        }
                     }
-                })();
+                }
+                var vectors = this.state.lineDots.find(function (d) {
+                    return d.id == series;
+                }).vectors;
+                var vector = vectors[index];
+                tipsY = vector.y;
+                activeX = this.state.data[index][this.state.x];
             }
-            return series;
+            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX };
         }
 
         /**
-         *
+         * set color
+         * @param propsY
+         * @returns {*}
          */
 
     }, {
@@ -785,6 +833,56 @@ var chart = function (_React$Component) {
                     y: y
                 });
             }
+        }
+    }, {
+        key: "setTipsText",
+        value: function setTipsText() {
+            var _this7 = this;
+
+            var offsetY = 1;
+            var startX = this.state.tipsX;
+            var startY = this.state.tipsY - offsetY;
+            var color = this.state.y.find(function (d) {
+                return d.id == _this7.state.activeSeries;
+            }).color;
+            var xText = this.state.activeX;
+            var yText = this.state.data.find(function (d) {
+                return d[_this7.state.x] == xText;
+            })[this.state.activeSeries];
+            var text = React.createElement(
+                "text",
+                { color: color, x: startX, y: startY - 2, ref: function ref(d) {
+                        _this7.tipsText = d;
+                    } },
+                React.createElement(
+                    "tspan",
+                    null,
+                    this.state.activeSeries
+                ),
+                React.createElement(
+                    "tspan",
+                    null,
+                    xText,
+                    ":",
+                    yText
+                )
+            );
+            return text;
+        }
+    }, {
+        key: "setTips",
+        value: function setTips() {
+            var _this8 = this;
+
+            var offsetY = 1;
+            var startX = this.state.tipsX;
+            var startY = this.state.tipsY - offsetY;
+            var color = this.state.y.find(function (d) {
+                return d.id == _this8.state.activeSeries;
+            }).color;
+            var path = React.createElement("path", { stroke: color,
+                d: "M" + startX + " " + startY + " l-0.2 -0.4 l" + -(this.state.xUnitLength - 0.4) + " 0 a2 2 0 0 1 0 -2 " });
+            return path;
         }
     }]);
 

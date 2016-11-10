@@ -7,14 +7,21 @@ let extend = (funcName, func)=> {
     }
 };
 
-let extendNumber = (funcName, func)=> {
-    if (!Number.prototype[funcName]) {
-        Number.prototype[funcName] = func;
+let extendNumberObject = (funcName, func)=> {
+    if (!Number[funcName]) {
+        Number[funcName] = func;
     }
 };
 
-extend("includes", (search, start)=> {
-    let input = this.toString();
+extendNumberObject("parseInt", (d)=> {
+    return parseInt(d);
+});
+
+extend("includes", function (search, start) {
+    let input = this;
+    if (typeof input == "number") {
+        input = input.toString();
+    }
     if (typeof start !== 'number') {
         start = 0;
     }
@@ -24,6 +31,7 @@ extend("includes", (search, start)=> {
         return input.indexOf(search, start) !== -1;
     }
 });
+
 
 extend("utf8Encode", function () {
     let input = this.toString();
@@ -335,5 +343,28 @@ extend("toJson", function () {
     return eval('(' + this + ')');
 });
 
+if (!Array.prototype.find) {
+    Array.prototype.find = function (predicate) {
+        'use strict';
+        if (this == null) {
+            throw new TypeError('Array.prototype.find called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+            throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
+
+        for (var i = 0; i < length; i++) {
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) {
+                return value;
+            }
+        }
+        return undefined;
+    };
+}
 
 module.exports = "";
