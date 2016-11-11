@@ -1,5 +1,7 @@
 .base svg {
-  width: 100%; }
+  width: 100%;
+  box-shadow: 2px 2px 4px #ddd;
+  border: 1px solid #ddd; }
   .base svg text {
     font-family: Arial; }
   .base svg .title {

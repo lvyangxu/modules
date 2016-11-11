@@ -37,15 +37,6 @@ class chart extends React.Component {
     }
 
     componentDidMount() {
-        if (!this.state.isIE) {
-            this.state.y.forEach(d=> {
-                let length = this["curve" + d.id].getTotalLength();
-                $(this["curve" + d.id]).css({
-                    "stroke-dasharray": length,
-                    "stroke-dashoffset": length
-                });
-            });
-        }
         let lineDots = this.state.y.map(d=> {
             let vectors = this.state.data.map((d1, j)=> {
                 let id = d.id;
@@ -59,8 +50,19 @@ class chart extends React.Component {
         let json = {lineDots: lineDots};
         let ua = window.navigator.userAgent;
         if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
-            json["isIE"] = true;
+            json.isIE = true;
+            json.svgWidth = $(this.svg).width();
+            json.svgHeight = $(this.svg).width() * 60 / 110;
+        } else {
+            this.state.y.forEach(d=> {
+                let length = this["curve" + d.id].getTotalLength();
+                $(this["curve" + d.id]).css({
+                    "stroke-dasharray": length,
+                    "stroke-dashoffset": length
+                });
+            });
         }
+
         this.setState(json);
 
 
@@ -74,9 +76,7 @@ class chart extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        // if (prevState.tipsY != this.state.tipsY && prevState.tipsX != this.state.tipsX && this.state.tipsX && this.state.tipsY) {
         if (!((prevState.tipsX == this.state.tipsX) && (prevState.tipsY == this.state.tipsY)) && this.state.tipsX && this.state.tipsY) {
-            // console.log(nextState);
             console.log(this.tipsText);
         }
     }
@@ -84,143 +84,165 @@ class chart extends React.Component {
     render() {
         return (
             <div className={css.base + " react-chart"}>
-                <svg viewBox="0 0 110 60" onMouseMove={this.setActive} ref={(svg)=> {
-                    this.svg = svg;
-                }}>
-                    {
-                        this.state.title ? <g className={css.title}>
-                            <text x="50" y="3">{this.state.title}</text>
-                        </g> : ""
-                    }
-                    <g className={css.xAxis}>
-                        <path d="M10 55 h 80"/>
-                        {
-                            this.state.data.map((d, i)=> {
-                                let w = this.state.xUnitLength;
-                                let x = i * w + 10;
-                                return <g key={i}>
-                                    <path d={`M${x} 55 v1`}/>
-                                    <text x={x + w / 2} y={60}>{d[this.state.x]}</text>
-                                </g>
-                            })
-                        }
-                    </g>
-                    <g className={css.yAxis}>
-                        {
-                            this.state.yAxisNumArr.map((d, i)=> {
-                                let y = 55 - i * this.state.yUnitLength;
-                                let yTextDelta = 0;
-                                return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
-                            })
-                        }
-                    </g>
-                    {
-                        this.state.yAxisText ? <g className={css.yAxisText}>
-                            <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
-                        </g> : ""
-                    }
-
-                    <g className={css.xGrid}>
-                        {
-                            this.state.yAxisNumArr.map((d, i)=> {
-                                let y = 55 - i * this.state.yUnitLength;
-                                return <path key={i} d={`M10 ${y} h 80`}/>
-                            })
-                        }
-                        <path d={`M90 55 v1`}/>
-                    </g>
-                    {
-                        this.state.type == "curve" ?
-                            <g className={css.curve}>
-                                {
-                                    this.state.y.map((d, i)=> {
-                                        let lastX, lastY;
-                                        let path = this.state.data.map((d1, j)=> {
-                                            let id = d.id;
-                                            let x = this.xTransformToSvg(j);
-                                            let y = this.yTransformToSvg(d1[id]);
-                                            let p = "";
-                                            if (j == 0) {
-                                                p = `M ${x} ${y}`;
-                                            } else {
-                                                let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
-                                                p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
-                                            }
-                                            lastX = x;
-                                            lastY = y;
-                                            return p;
-                                        }).join(" ");
-                                        let color = d.color;
-                                        let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
-                                        return <path stroke={color} key={i} d={path} ref={curve=> {
-                                            this["curve" + d.id] = curve;
-                                        }} style={style}/>
-                                    })
-                                }
-                            </g>
-                            : ""
-                    }
-
-                    <g className={css.dots}>
-                        {
-
-                            this.state.lineDots.map((d, i)=> {
-                                return d.vectors.map(d1=> {
-                                    let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
-                                    return dots;
-                                })
-                            })
-                        }
-                    </g>
-                    <g className={css.declare}>
-                        {
-                            this.state.y.map((d, i)=> {
-                                let x = 91;
-                                let y = 15 + (40 - this.state.y.length * this.state.yUnitLength) / 2 + i * this.state.yUnitLength;
-                                let color = d.color;
-                                return <g key={i}>
-                                    <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
-                                          stroke={color} d={`M${x} ${y} h3`}/>
-                                    {
-                                        this.getDotsSymbol(i, 92.5, y, d.id)
-                                    }
-                                    <text x="94.5" y={y + 1}>{d.name}</text>
-                                </g>
-                            })
-                        }
-                        <g>
-                            <g title="reset color" className={css.setColor} onClick={()=> {
-                                this.setColor();
-                            }}>
-                                {
-                                    this.state.y.map((d, i)=> {
-                                        let color = d.color;
-                                        let x = 80 + i * 1;
-                                        let y1 = 5;
-                                        let y2 = 7;
-                                        return <path key={i} strokeWidth={1} stroke={color}
-                                                     d={`M${x} ${y1} L${x} ${y2}`}/>
-                                    })
-                                }
-                                <text x={79.5 + this.state.y.length / 2} y="4" textAnchor="middle">reset color</text>
-                            </g>
-                        </g>
-                    </g>
-                    {
-                        (this.state.tipsX && this.state.tipsY) ?
-                            <g className={css.tips}>
-                                {
-                                    this.setTipsText()
-                                }
-                                {
-                                    this.setTips()
-                                }
-                            </g>
-                            : ""
-                    }
-                </svg>
+                {
+                    this.renderSvg()
+                }
             </div>
         );
+    }
+
+    renderSvg() {
+        let svgChild =
+            <g>
+                {
+                    this.state.title ? <g className={css.title}>
+                        <text x="50" y="3">{this.state.title}</text>
+                    </g> : ""
+                }
+                <g className={css.xAxis}>
+                    <path d="M10 55 h 80"/>
+                    {
+                        this.state.data.map((d, i)=> {
+                            let w = this.state.xUnitLength;
+                            let x = i * w + 10;
+                            return <g key={i}>
+                                <path d={`M${x} 55 v1`}/>
+                                <text x={x + w / 2} y={60}>{d[this.state.x]}</text>
+                            </g>
+                        })
+                    }
+                </g>
+                <g className={css.yAxis}>
+                    {
+                        this.state.yAxisNumArr.map((d, i)=> {
+                            let y = 55 - i * this.state.yUnitLength;
+                            let yTextDelta = 0;
+                            return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
+                        })
+                    }
+                </g>
+                {
+                    this.state.yAxisText ? <g className={css.yAxisText}>
+                        <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
+                    </g> : ""
+                }
+
+                <g className={css.xGrid}>
+                    {
+                        this.state.yAxisNumArr.map((d, i)=> {
+                            let y = 55 - i * this.state.yUnitLength;
+                            return <path key={i} d={`M10 ${y} h 80`}/>
+                        })
+                    }
+                    <path d={`M90 55 v1`}/>
+                </g>
+                {
+                    this.state.type == "curve" ?
+                        <g className={css.curve}>
+                            {
+                                this.state.y.map((d, i)=> {
+                                    let lastX, lastY;
+                                    let path = this.state.data.map((d1, j)=> {
+                                        let id = d.id;
+                                        let x = this.xTransformToSvg(j);
+                                        let y = this.yTransformToSvg(d1[id]);
+                                        let p = "";
+                                        if (j == 0) {
+                                            p = `M ${x} ${y}`;
+                                        } else {
+                                            let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
+                                            p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
+                                        }
+                                        lastX = x;
+                                        lastY = y;
+                                        return p;
+                                    }).join(" ");
+                                    let color = d.color;
+                                    let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
+                                    return <path stroke={color} key={i} d={path} ref={curve=> {
+                                        this["curve" + d.id] = curve;
+                                    }} style={style}/>
+                                })
+                            }
+                        </g>
+                        : ""
+                }
+
+                <g className={css.dots}>
+                    {
+
+                        this.state.lineDots.map((d, i)=> {
+                            return d.vectors.map(d1=> {
+                                let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
+                                return dots;
+                            })
+                        })
+                    }
+                </g>
+                <g className={css.declare}>
+                    {
+                        this.state.y.map((d, i)=> {
+                            let x = 91;
+                            let y = 15 + (40 - this.state.y.length * this.state.yUnitLength) / 2 + i * this.state.yUnitLength;
+                            let color = d.color;
+                            return <g key={i}>
+                                <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
+                                      stroke={color} d={`M${x} ${y} h3`}/>
+                                {
+                                    this.getDotsSymbol(i, 92.5, y, d.id)
+                                }
+                                <text x="94.5" y={y + 1}>{d.name}</text>
+                            </g>
+                        })
+                    }
+                    <g>
+                        <g title="reset color" className={css.setColor} onClick={()=> {
+                            this.setColor();
+                        }}>
+                            {
+                                this.state.y.map((d, i)=> {
+                                    let color = d.color;
+                                    let x = 80 + i * 1;
+                                    let y1 = 5;
+                                    let y2 = 7;
+                                    return <path key={i} strokeWidth={1} stroke={color}
+                                                 d={`M${x} ${y1} L${x} ${y2}`}/>
+                                })
+                            }
+                            <text x={79.5 + this.state.y.length / 2} y="4" textAnchor="middle">reset color</text>
+                        </g>
+                    </g>
+                </g>
+                {
+                    (this.state.tipsX && this.state.tipsY) ?
+                        <g className={css.tips}>
+                            {
+                                this.setTipsText()
+                            }
+                            {
+                                this.setTips()
+                            }
+                        </g>
+                        : ""
+                }</g>;
+        let svgTag = this.state.svgWidth ?
+            <svg viewBox="0 0 110 60" width={this.state.svgWidth} height={this.state.svgHeight}
+                 onMouseMove={this.setActive}
+                 ref={(svg)=> {
+                     this.svg = svg;
+                 }}>
+                {
+                    svgChild
+                }
+            </svg> :
+            <svg viewBox="0 0 110 60" onMouseMove={this.setActive} ref={(svg)=> {
+                this.svg = svg;
+            }}>
+                {
+                    svgChild
+                }
+            </svg>;
+        return svgTag;
     }
 
     /**

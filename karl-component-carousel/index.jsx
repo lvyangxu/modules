@@ -236,3 +236,4 @@ class carousel extends React.Component {
 }
 
 module.exports = carousel;
+

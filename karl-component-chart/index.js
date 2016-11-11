@@ -56,15 +56,6 @@ var chart = function (_React$Component) {
         value: function componentDidMount() {
             var _this2 = this;
 
-            if (!this.state.isIE) {
-                this.state.y.forEach(function (d) {
-                    var length = _this2["curve" + d.id].getTotalLength();
-                    $(_this2["curve" + d.id]).css({
-                        "stroke-dasharray": length,
-                        "stroke-dashoffset": length
-                    });
-                });
-            }
             var lineDots = this.state.y.map(function (d) {
                 var vectors = _this2.state.data.map(function (d1, j) {
                     var id = d.id;
@@ -78,8 +69,19 @@ var chart = function (_React$Component) {
             var json = { lineDots: lineDots };
             var ua = window.navigator.userAgent;
             if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
-                json["isIE"] = true;
+                json.isIE = true;
+                json.svgWidth = $(this.svg).width();
+                json.svgHeight = $(this.svg).width() * 60 / 110;
+            } else {
+                this.state.y.forEach(function (d) {
+                    var length = _this2["curve" + d.id].getTotalLength();
+                    $(_this2["curve" + d.id]).css({
+                        "stroke-dasharray": length,
+                        "stroke-dashoffset": length
+                    });
+                });
             }
+
             this.setState(json);
         }
     }, {
@@ -93,180 +95,197 @@ var chart = function (_React$Component) {
     }, {
         key: "componentDidUpdate",
         value: function componentDidUpdate(prevProps, prevState) {
-            // if (prevState.tipsY != this.state.tipsY && prevState.tipsX != this.state.tipsX && this.state.tipsX && this.state.tipsY) {
             if (!(prevState.tipsX == this.state.tipsX && prevState.tipsY == this.state.tipsY) && this.state.tipsX && this.state.tipsY) {
-                // console.log(nextState);
                 console.log(this.tipsText);
             }
         }
     }, {
         key: "render",
         value: function render() {
-            var _this3 = this;
-
             return React.createElement(
                 "div",
                 { className: css.base + " react-chart" },
+                this.renderSvg()
+            );
+        }
+    }, {
+        key: "renderSvg",
+        value: function renderSvg() {
+            var _this3 = this;
+
+            var svgChild = React.createElement(
+                "g",
+                null,
+                this.state.title ? React.createElement(
+                    "g",
+                    { className: css.title },
+                    React.createElement(
+                        "text",
+                        { x: "50", y: "3" },
+                        this.state.title
+                    )
+                ) : "",
                 React.createElement(
-                    "svg",
-                    { viewBox: "0 0 110 60", onMouseMove: this.setActive, ref: function ref(svg) {
-                            _this3.svg = svg;
-                        } },
-                    this.state.title ? React.createElement(
-                        "g",
-                        { className: css.title },
-                        React.createElement(
-                            "text",
-                            { x: "50", y: "3" },
-                            this.state.title
-                        )
-                    ) : "",
-                    React.createElement(
-                        "g",
-                        { className: css.xAxis },
-                        React.createElement("path", { d: "M10 55 h 80" }),
-                        this.state.data.map(function (d, i) {
-                            var w = _this3.state.xUnitLength;
-                            var x = i * w + 10;
-                            return React.createElement(
-                                "g",
-                                { key: i },
-                                React.createElement("path", { d: "M" + x + " 55 v1" }),
-                                React.createElement(
-                                    "text",
-                                    { x: x + w / 2, y: 60 },
-                                    d[_this3.state.x]
-                                )
-                            );
-                        })
-                    ),
-                    React.createElement(
-                        "g",
-                        { className: css.yAxis },
-                        this.state.yAxisNumArr.map(function (d, i) {
-                            var y = 55 - i * _this3.state.yUnitLength;
-                            var yTextDelta = 0;
-                            return React.createElement(
+                    "g",
+                    { className: css.xAxis },
+                    React.createElement("path", { d: "M10 55 h 80" }),
+                    this.state.data.map(function (d, i) {
+                        var w = _this3.state.xUnitLength;
+                        var x = i * w + 10;
+                        return React.createElement(
+                            "g",
+                            { key: i },
+                            React.createElement("path", { d: "M" + x + " 55 v1" }),
+                            React.createElement(
                                 "text",
-                                { key: i, x: 9, y: y + yTextDelta },
-                                d
-                            );
-                        })
-                    ),
-                    this.state.yAxisText ? React.createElement(
-                        "g",
-                        { className: css.yAxisText },
-                        React.createElement(
+                                { x: x + w / 2, y: 60 },
+                                d[_this3.state.x]
+                            )
+                        );
+                    })
+                ),
+                React.createElement(
+                    "g",
+                    { className: css.yAxis },
+                    this.state.yAxisNumArr.map(function (d, i) {
+                        var y = 55 - i * _this3.state.yUnitLength;
+                        var yTextDelta = 0;
+                        return React.createElement(
                             "text",
-                            { x: "3", y: "35", transform: "rotate(-90,3,35)" },
-                            this.state.yAxisText
-                        )
-                    ) : "",
+                            { key: i, x: 9, y: y + yTextDelta },
+                            d
+                        );
+                    })
+                ),
+                this.state.yAxisText ? React.createElement(
+                    "g",
+                    { className: css.yAxisText },
                     React.createElement(
-                        "g",
-                        { className: css.xGrid },
-                        this.state.yAxisNumArr.map(function (d, i) {
-                            var y = 55 - i * _this3.state.yUnitLength;
-                            return React.createElement("path", { key: i, d: "M10 " + y + " h 80" });
-                        }),
-                        React.createElement("path", { d: "M90 55 v1" })
-                    ),
-                    this.state.type == "curve" ? React.createElement(
-                        "g",
-                        { className: css.curve },
-                        this.state.y.map(function (d, i) {
-                            var lastX = void 0,
-                                lastY = void 0;
-                            var path = _this3.state.data.map(function (d1, j) {
-                                var id = d.id;
-                                var x = _this3.xTransformToSvg(j);
-                                var y = _this3.yTransformToSvg(d1[id]);
-                                var p = "";
-                                if (j == 0) {
-                                    p = "M " + x + " " + y;
-                                } else {
-                                    var _getBezierCurvesVecto = _this3.getBezierCurvesVector(lastX, lastY, x, y);
+                        "text",
+                        { x: "3", y: "35", transform: "rotate(-90,3,35)" },
+                        this.state.yAxisText
+                    )
+                ) : "",
+                React.createElement(
+                    "g",
+                    { className: css.xGrid },
+                    this.state.yAxisNumArr.map(function (d, i) {
+                        var y = 55 - i * _this3.state.yUnitLength;
+                        return React.createElement("path", { key: i, d: "M10 " + y + " h 80" });
+                    }),
+                    React.createElement("path", { d: "M90 55 v1" })
+                ),
+                this.state.type == "curve" ? React.createElement(
+                    "g",
+                    { className: css.curve },
+                    this.state.y.map(function (d, i) {
+                        var lastX = void 0,
+                            lastY = void 0;
+                        var path = _this3.state.data.map(function (d1, j) {
+                            var id = d.id;
+                            var x = _this3.xTransformToSvg(j);
+                            var y = _this3.yTransformToSvg(d1[id]);
+                            var p = "";
+                            if (j == 0) {
+                                p = "M " + x + " " + y;
+                            } else {
+                                var _getBezierCurvesVecto = _this3.getBezierCurvesVector(lastX, lastY, x, y);
 
-                                    var x1 = _getBezierCurvesVecto.x1;
-                                    var y1 = _getBezierCurvesVecto.y1;
-                                    var x2 = _getBezierCurvesVecto.x2;
-                                    var y2 = _getBezierCurvesVecto.y2;
+                                var x1 = _getBezierCurvesVecto.x1;
+                                var y1 = _getBezierCurvesVecto.y1;
+                                var x2 = _getBezierCurvesVecto.x2;
+                                var y2 = _getBezierCurvesVecto.y2;
 
-                                    p = "C " + x1 + " " + y1 + "," + x2 + " " + y2 + "," + x + " " + y;
-                                }
-                                lastX = x;
-                                lastY = y;
-                                return p;
-                            }).join(" ");
-                            var color = d.color;
-                            var style = _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
-                            return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-                                    _this3["curve" + d.id] = curve;
-                                }, style: style });
-                        })
-                    ) : "",
+                                p = "C " + x1 + " " + y1 + "," + x2 + " " + y2 + "," + x + " " + y;
+                            }
+                            lastX = x;
+                            lastY = y;
+                            return p;
+                        }).join(" ");
+                        var color = d.color;
+                        var style = _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+                        return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
+                                _this3["curve" + d.id] = curve;
+                            }, style: style });
+                    })
+                ) : "",
+                React.createElement(
+                    "g",
+                    { className: css.dots },
+                    this.state.lineDots.map(function (d, i) {
+                        return d.vectors.map(function (d1) {
+                            var dots = _this3.getDotsSymbol(i, d1.x, d1.y, d.id);
+                            return dots;
+                        });
+                    })
+                ),
+                React.createElement(
+                    "g",
+                    { className: css.declare },
+                    this.state.y.map(function (d, i) {
+                        var x = 91;
+                        var y = 15 + (40 - _this3.state.y.length * _this3.state.yUnitLength) / 2 + i * _this3.state.yUnitLength;
+                        var color = d.color;
+                        return React.createElement(
+                            "g",
+                            { key: i },
+                            React.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+                                stroke: color, d: "M" + x + " " + y + " h3" }),
+                            _this3.getDotsSymbol(i, 92.5, y, d.id),
+                            React.createElement(
+                                "text",
+                                { x: "94.5", y: y + 1 },
+                                d.name
+                            )
+                        );
+                    }),
                     React.createElement(
                         "g",
-                        { className: css.dots },
-                        this.state.lineDots.map(function (d, i) {
-                            return d.vectors.map(function (d1) {
-                                var dots = _this3.getDotsSymbol(i, d1.x, d1.y, d.id);
-                                return dots;
-                            });
-                        })
-                    ),
-                    React.createElement(
-                        "g",
-                        { className: css.declare },
-                        this.state.y.map(function (d, i) {
-                            var x = 91;
-                            var y = 15 + (40 - _this3.state.y.length * _this3.state.yUnitLength) / 2 + i * _this3.state.yUnitLength;
-                            var color = d.color;
-                            return React.createElement(
-                                "g",
-                                { key: i },
-                                React.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
-                                    stroke: color, d: "M" + x + " " + y + " h3" }),
-                                _this3.getDotsSymbol(i, 92.5, y, d.id),
-                                React.createElement(
-                                    "text",
-                                    { x: "94.5", y: y + 1 },
-                                    d.name
-                                )
-                            );
-                        }),
+                        null,
                         React.createElement(
                             "g",
-                            null,
+                            { title: "reset color", className: css.setColor, onClick: function onClick() {
+                                    _this3.setColor();
+                                } },
+                            this.state.y.map(function (d, i) {
+                                var color = d.color;
+                                var x = 80 + i * 1;
+                                var y1 = 5;
+                                var y2 = 7;
+                                return React.createElement("path", { key: i, strokeWidth: 1, stroke: color,
+                                    d: "M" + x + " " + y1 + " L" + x + " " + y2 });
+                            }),
                             React.createElement(
-                                "g",
-                                { title: "reset color", className: css.setColor, onClick: function onClick() {
-                                        _this3.setColor();
-                                    } },
-                                this.state.y.map(function (d, i) {
-                                    var color = d.color;
-                                    var x = 80 + i * 1;
-                                    var y1 = 5;
-                                    var y2 = 7;
-                                    return React.createElement("path", { key: i, strokeWidth: 1, stroke: color,
-                                        d: "M" + x + " " + y1 + " L" + x + " " + y2 });
-                                }),
-                                React.createElement(
-                                    "text",
-                                    { x: 79.5 + this.state.y.length / 2, y: "4", textAnchor: "middle" },
-                                    "reset color"
-                                )
+                                "text",
+                                { x: 79.5 + this.state.y.length / 2, y: "4", textAnchor: "middle" },
+                                "reset color"
                             )
                         )
-                    ),
-                    this.state.tipsX && this.state.tipsY ? React.createElement(
-                        "g",
-                        { className: css.tips },
-                        this.setTipsText(),
-                        this.setTips()
-                    ) : ""
-                )
+                    )
+                ),
+                this.state.tipsX && this.state.tipsY ? React.createElement(
+                    "g",
+                    { className: css.tips },
+                    this.setTipsText(),
+                    this.setTips()
+                ) : ""
             );
+            var svgTag = this.state.svgWidth ? React.createElement(
+                "svg",
+                { viewBox: "0 0 110 60", width: this.state.svgWidth, height: this.state.svgHeight,
+                    onMouseMove: this.setActive,
+                    ref: function ref(svg) {
+                        _this3.svg = svg;
+                    } },
+                svgChild
+            ) : React.createElement(
+                "svg",
+                { viewBox: "0 0 110 60", onMouseMove: this.setActive, ref: function ref(svg) {
+                        _this3.svg = svg;
+                    } },
+                svgChild
+            );
+            return svgTag;
         }
 
         /**
