@@ -1,9 +1,11 @@
 .base {
-
+    box-shadow: 2px 2px 4px #ddd;
+    border: 1px solid #ddd;
+    padding-top: 5px;
+    padding-bottom: 5px;
     svg {
         width: 100%;
-        box-shadow: 2px 2px 4px #ddd;
-        border: 1px solid #ddd;
+        overflow-x: hidden;
         text {
             font-family: Arial;
         }

@@ -27,7 +27,14 @@ class chart extends React.Component {
             xUnitLength: 100 * 0.8 / data.length,
             yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
             angleNum: this.props.angleNum ? this.props.angleNum : 12,
-            endPointLineLength: this.props.endPointLineLength ? this.props.endPointLineLength : 0.1
+            endPointLineLength: this.props.endPointLineLength ? this.props.endPointLineLength : 0.1,
+            tipsRaisedX: 0.2,
+            tipsRaisedY: 0.2,
+            tipsMarginBottom: 1,
+            tipsPaddingTop: 1,
+            tipsPaddingBottom: 1,
+            tipsPaddingLeft: 1,
+            tipsPaddingRight: 1
         };
         let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
             "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
@@ -77,7 +84,16 @@ class chart extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (!((prevState.tipsX == this.state.tipsX) && (prevState.tipsY == this.state.tipsY)) && this.state.tipsX && this.state.tipsY) {
-            console.log(this.tipsText);
+            let w = $(this.tipsText).width() / $(this.svg).width() * 110;
+            w = w.toFixed(2);
+            w = Number.parseFloat(w);
+            let h = $(this.tipsText).height() / $(this.svg).height() * 60;
+            h = h.toFixed(2);
+            h = Number.parseFloat(h);
+            this.setState({
+                tipsWidth: w,
+                tipsHeight: h
+            });
         }
     }
 
@@ -137,35 +153,7 @@ class chart extends React.Component {
                     <path d={`M90 55 v1`}/>
                 </g>
                 {
-                    this.state.type == "curve" ?
-                        <g className={css.curve}>
-                            {
-                                this.state.y.map((d, i)=> {
-                                    let lastX, lastY;
-                                    let path = this.state.data.map((d1, j)=> {
-                                        let id = d.id;
-                                        let x = this.xTransformToSvg(j);
-                                        let y = this.yTransformToSvg(d1[id]);
-                                        let p = "";
-                                        if (j == 0) {
-                                            p = `M ${x} ${y}`;
-                                        } else {
-                                            let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
-                                            p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
-                                        }
-                                        lastX = x;
-                                        lastY = y;
-                                        return p;
-                                    }).join(" ");
-                                    let color = d.color;
-                                    let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
-                                    return <path stroke={color} key={i} d={path} ref={curve=> {
-                                        this["curve" + d.id] = curve;
-                                    }} style={style}/>
-                                })
-                            }
-                        </g>
-                        : ""
+                    this.renderData()
                 }
 
                 <g className={css.dots}>
@@ -217,14 +205,15 @@ class chart extends React.Component {
                     (this.state.tipsX && this.state.tipsY) ?
                         <g className={css.tips}>
                             {
-                                this.setTipsText()
+                                this.setTips()
                             }
                             {
-                                this.setTips()
+                                this.setTipsText()
                             }
                         </g>
                         : ""
                 }</g>;
+
         let svgTag = this.state.svgWidth ?
             <svg viewBox="0 0 110 60" width={this.state.svgWidth} height={this.state.svgHeight}
                  onMouseMove={this.setActive}
@@ -718,6 +707,45 @@ class chart extends React.Component {
         return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX};
     }
 
+    renderData(){
+        let g;
+        switch(this.state.type){
+            case "curve":
+                g = <g className={css.curve}>
+                    {
+                        this.state.y.map((d, i)=> {
+                            let lastX, lastY;
+                            let path = this.state.data.map((d1, j)=> {
+                                let id = d.id;
+                                let x = this.xTransformToSvg(j);
+                                let y = this.yTransformToSvg(d1[id]);
+                                let p = "";
+                                if (j == 0) {
+                                    p = `M ${x} ${y}`;
+                                } else {
+                                    let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
+                                    p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
+                                }
+                                lastX = x;
+                                lastY = y;
+                                return p;
+                            }).join(" ");
+                            let color = d.color;
+                            let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
+                            return <path stroke={color} key={i} d={path} ref={curve=> {
+                                this["curve" + d.id] = curve;
+                            }} style={style}/>
+                        })
+                    }
+                </g>;
+                break;
+            default:
+                g = "";
+                break;
+        }
+        return g;
+    }
+
     /**
      * set color
      * @param propsY
@@ -743,9 +771,8 @@ class chart extends React.Component {
     }
 
     setTipsText() {
-        let offsetY = 1;
         let startX = this.state.tipsX;
-        let startY = this.state.tipsY - offsetY;
+        let startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
         let color = this.state.y.find(d=> {
             return d.id == this.state.activeSeries;
         }).color;
@@ -753,24 +780,32 @@ class chart extends React.Component {
         let yText = this.state.data.find(d=> {
             return d[this.state.x] == xText;
         })[this.state.activeSeries];
-        let text = <text color={color} x={startX} y={startY - 2} ref={d=> {
+        let text = <text color={color} x={startX} y={startY} ref={d=> {
             this.tipsText = d;
         }}>
-            <tspan>{this.state.activeSeries}</tspan>
-            <tspan>{xText}:{yText}</tspan>
+            {this.state.activeSeries} : {yText}
         </text>;
         return text;
     }
 
     setTips() {
-        let offsetY = 1;
+        let arcRx = 0.5, arcRy = 0.5;
         let startX = this.state.tipsX;
-        let startY = this.state.tipsY - offsetY;
+        let startY = this.state.tipsY - this.state.tipsMarginBottom;
         let color = this.state.y.find(d=> {
             return d.id == this.state.activeSeries;
         }).color;
-        let path = <path stroke={color}
-                         d={`M${startX} ${startY} l-0.2 -0.4 l${-(this.state.xUnitLength - 0.4)} 0 a2 2 0 0 1 0 -2 `}/>;
+        let path = this.state.tipsWidth ?
+            <path stroke={color}
+                  d={`M${startX} ${startY} l${-this.state.tipsRaisedX} ${-this.state.tipsRaisedY}
+                  l${-(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft)} 0
+                  a${arcRx} ${arcRy} 0 0 1 ${-arcRx} ${-arcRy}
+                  l0 ${-(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy)}
+                  l${this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2} 0
+                  l0 ${(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy)}
+                  a${arcRx} ${arcRy} 0 0 1 ${-arcRx} ${arcRy}
+                  l${-(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight)} 0 z`}/>
+            : "";
         return path;
     }
 

@@ -21526,7 +21526,14 @@
 	            xUnitLength: 100 * 0.8 / data.length,
 	            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
 	            angleNum: _this.props.angleNum ? _this.props.angleNum : 12,
-	            endPointLineLength: _this.props.endPointLineLength ? _this.props.endPointLineLength : 0.1
+	            endPointLineLength: _this.props.endPointLineLength ? _this.props.endPointLineLength : 0.1,
+	            tipsRaisedX: 0.2,
+	            tipsRaisedY: 0.2,
+	            tipsMarginBottom: 1,
+	            tipsPaddingTop: 1,
+	            tipsPaddingBottom: 1,
+	            tipsPaddingLeft: 1,
+	            tipsPaddingRight: 1
 	        };
 	        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
 	        bindArr.forEach(function (d) {
@@ -21580,7 +21587,16 @@
 	        key: "componentDidUpdate",
 	        value: function componentDidUpdate(prevProps, prevState) {
 	            if (!(prevState.tipsX == this.state.tipsX && prevState.tipsY == this.state.tipsY) && this.state.tipsX && this.state.tipsY) {
-	                console.log(this.tipsText);
+	                var w = $(this.tipsText).width() / $(this.svg).width() * 110;
+	                w = w.toFixed(2);
+	                w = Number.parseFloat(w);
+	                var h = $(this.tipsText).height() / $(this.svg).height() * 60;
+	                h = h.toFixed(2);
+	                h = Number.parseFloat(h);
+	                this.setState({
+	                    tipsWidth: w,
+	                    tipsHeight: h
+	                });
 	            }
 	        }
 	    }, {
@@ -21659,40 +21675,7 @@
 	                    }),
 	                    React.createElement("path", { d: "M90 55 v1" })
 	                ),
-	                this.state.type == "curve" ? React.createElement(
-	                    "g",
-	                    { className: css.curve },
-	                    this.state.y.map(function (d, i) {
-	                        var lastX = void 0,
-	                            lastY = void 0;
-	                        var path = _this3.state.data.map(function (d1, j) {
-	                            var id = d.id;
-	                            var x = _this3.xTransformToSvg(j);
-	                            var y = _this3.yTransformToSvg(d1[id]);
-	                            var p = "";
-	                            if (j == 0) {
-	                                p = "M " + x + " " + y;
-	                            } else {
-	                                var _getBezierCurvesVecto = _this3.getBezierCurvesVector(lastX, lastY, x, y);
-
-	                                var x1 = _getBezierCurvesVecto.x1;
-	                                var y1 = _getBezierCurvesVecto.y1;
-	                                var x2 = _getBezierCurvesVecto.x2;
-	                                var y2 = _getBezierCurvesVecto.y2;
-
-	                                p = "C " + x1 + " " + y1 + "," + x2 + " " + y2 + "," + x + " " + y;
-	                            }
-	                            lastX = x;
-	                            lastY = y;
-	                            return p;
-	                        }).join(" ");
-	                        var color = d.color;
-	                        var style = _this3.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
-	                        return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-	                                _this3["curve" + d.id] = curve;
-	                            }, style: style });
-	                    })
-	                ) : "",
+	                this.renderData(),
 	                React.createElement(
 	                    "g",
 	                    { className: css.dots },
@@ -21750,10 +21733,11 @@
 	                this.state.tipsX && this.state.tipsY ? React.createElement(
 	                    "g",
 	                    { className: css.tips },
-	                    this.setTipsText(),
-	                    this.setTips()
+	                    this.setTips(),
+	                    this.setTipsText()
 	                ) : ""
 	            );
+
 	            var svgTag = this.state.svgWidth ? React.createElement(
 	                "svg",
 	                { viewBox: "0 0 110 60", width: this.state.svgWidth, height: this.state.svgHeight,
@@ -22310,6 +22294,55 @@
 	            }
 	            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX };
 	        }
+	    }, {
+	        key: "renderData",
+	        value: function renderData() {
+	            var _this7 = this;
+
+	            var g = void 0;
+	            switch (this.state.type) {
+	                case "curve":
+	                    g = React.createElement(
+	                        "g",
+	                        { className: css.curve },
+	                        this.state.y.map(function (d, i) {
+	                            var lastX = void 0,
+	                                lastY = void 0;
+	                            var path = _this7.state.data.map(function (d1, j) {
+	                                var id = d.id;
+	                                var x = _this7.xTransformToSvg(j);
+	                                var y = _this7.yTransformToSvg(d1[id]);
+	                                var p = "";
+	                                if (j == 0) {
+	                                    p = "M " + x + " " + y;
+	                                } else {
+	                                    var _getBezierCurvesVecto = _this7.getBezierCurvesVector(lastX, lastY, x, y);
+
+	                                    var x1 = _getBezierCurvesVecto.x1;
+	                                    var y1 = _getBezierCurvesVecto.y1;
+	                                    var x2 = _getBezierCurvesVecto.x2;
+	                                    var y2 = _getBezierCurvesVecto.y2;
+
+	                                    p = "C " + x1 + " " + y1 + "," + x2 + " " + y2 + "," + x + " " + y;
+	                                }
+	                                lastX = x;
+	                                lastY = y;
+	                                return p;
+	                            }).join(" ");
+	                            var color = d.color;
+	                            var style = _this7.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+	                            return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
+	                                    _this7["curve" + d.id] = curve;
+	                                }, style: style });
+	                        })
+	                    );
+	                    break;
+	                default:
+	                    g = "";
+	                    break;
+	            }
+	            return g;
+	        }
 
 	        /**
 	         * set color
@@ -22340,51 +22373,42 @@
 	    }, {
 	        key: "setTipsText",
 	        value: function setTipsText() {
-	            var _this7 = this;
+	            var _this8 = this;
 
-	            var offsetY = 1;
 	            var startX = this.state.tipsX;
-	            var startY = this.state.tipsY - offsetY;
+	            var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this7.state.activeSeries;
+	                return d.id == _this8.state.activeSeries;
 	            }).color;
 	            var xText = this.state.activeX;
 	            var yText = this.state.data.find(function (d) {
-	                return d[_this7.state.x] == xText;
+	                return d[_this8.state.x] == xText;
 	            })[this.state.activeSeries];
 	            var text = React.createElement(
 	                "text",
-	                { color: color, x: startX, y: startY - 2, ref: function ref(d) {
-	                        _this7.tipsText = d;
+	                { color: color, x: startX, y: startY, ref: function ref(d) {
+	                        _this8.tipsText = d;
 	                    } },
-	                React.createElement(
-	                    "tspan",
-	                    null,
-	                    this.state.activeSeries
-	                ),
-	                React.createElement(
-	                    "tspan",
-	                    null,
-	                    xText,
-	                    ":",
-	                    yText
-	                )
+	                this.state.activeSeries,
+	                " : ",
+	                yText
 	            );
 	            return text;
 	        }
 	    }, {
 	        key: "setTips",
 	        value: function setTips() {
-	            var _this8 = this;
+	            var _this9 = this;
 
-	            var offsetY = 1;
+	            var arcRx = 0.5,
+	                arcRy = 0.5;
 	            var startX = this.state.tipsX;
-	            var startY = this.state.tipsY - offsetY;
+	            var startY = this.state.tipsY - this.state.tipsMarginBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this8.state.activeSeries;
+	                return d.id == _this9.state.activeSeries;
 	            }).color;
-	            var path = React.createElement("path", { stroke: color,
-	                d: "M" + startX + " " + startY + " l-0.2 -0.4 l" + -(this.state.xUnitLength - 0.4) + " 0 a2 2 0 0 1 0 -2 " });
+	            var path = this.state.tipsWidth ? React.createElement("path", { stroke: color,
+	                d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";
 	            return path;
 	        }
 	    }]);
@@ -22431,7 +22455,7 @@
 
 
 	// module
-	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi svg {\r\n  width: 100%;\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n    font-family: Arial; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n    font-size: 3px;\r\n    stroke-width: 0.1;\r\n    stroke: #333333;\r\n    text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n      stroke: #ccd6eb; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n      text-anchor: middle;\r\n      font-size: 1.5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n      font-size: 1.5px;\r\n      text-anchor: end; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n      text-anchor: middle;\r\n      font-size: 2px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n    stroke-width: 0.2; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n      stroke: #e6e6e6; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n    stroke-linejoin: round;\r\n    stroke-width: 0.2;\r\n    fill: transparent;\r\n    -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n            animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n    stroke-width: 0.3; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n    stroke-width: 0.3;\r\n    text-anchor: start; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n      font-size: 2px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n    -webkit-user-select: none;\r\n       -moz-user-select: none;\r\n        -ms-user-select: none;\r\n            user-select: none;\r\n    cursor: pointer;\r\n    opacity: 0.8; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n      display: none; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n    display: block; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n    opacity: 1; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n    stroke-width: 0.1;\r\n    fill: rgba(255, 255, 255, 0.8); }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n    font-size: 1.5px;\r\n    text-anchor: middle; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #ccd6eb; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent;\r\n      -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n              animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
