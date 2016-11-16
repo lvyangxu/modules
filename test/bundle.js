@@ -78,8 +78,8 @@
 	            return React.createElement(
 	                "div",
 	                null,
-	                React.createElement(Com, { title: "chart", yAxisText: "dollor", x: "date",
-	                    y: [{ id: "p", name: "p" }, { id: "q", name: "q" }],
+	                React.createElement(Com, { title: "chart", yAxisText: "dollor", x: "date", type: "bar",
+	                    y: [{ id: "o", name: "o" }, { id: "p", name: "p" }, { id: "q", name: "q" }],
 	                    data: [{ date: "2016-9-11", m: 0.04, o: 1, p: 2, q: 3 }, { date: "2016-9-13", m: 0.04, n: 0.03, o: 3, p: 2 }, { date: "2016-9-12", m: 0.07, o: 5, p: 47 }, { date: "2016-9-14", m: 0.61, n: 0.05, o: 7, p: 4, q: 5 }, { date: "2016-9-15", m: 0.02, n: 0.08, p: 6 }] })
 	            );
 	        }
@@ -21564,13 +21564,28 @@
 	                json.svgWidth = $(this.svg).width();
 	                json.svgHeight = $(this.svg).width() * 60 / 110;
 	            } else {
-	                this.state.y.forEach(function (d) {
-	                    var length = _this2["curve" + d.id].getTotalLength();
-	                    $(_this2["curve" + d.id]).css({
-	                        "stroke-dasharray": length,
-	                        "stroke-dashoffset": length
-	                    });
-	                });
+	                switch (this.state.type) {
+	                    case "curve":
+	                        this.state.y.forEach(function (d) {
+	                            var length = _this2["curve" + d.id].getTotalLength();
+	                            $(_this2["curve" + d.id]).css({
+	                                "stroke-dasharray": length,
+	                                "stroke-dashoffset": length
+	                            });
+	                        });
+	                        break;
+	                    case "bar":
+	                        this.state.y.forEach(function (d) {
+	                            _this2.state.data.forEach(function (d1, i) {
+	                                var length = _this2["bar" + d.id + i].getTotalLength();
+	                                $(_this2["bar" + d.id + i]).css({
+	                                    "stroke-dasharray": length,
+	                                    "stroke-dashoffset": length
+	                                });
+	                            });
+	                        });
+	                        break;
+	                }
 	            }
 
 	            this.setState(json);
@@ -21602,15 +21617,6 @@
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            return React.createElement(
-	                "div",
-	                { className: css.base + " react-chart" },
-	                this.renderSvg()
-	            );
-	        }
-	    }, {
-	        key: "renderSvg",
-	        value: function renderSvg() {
 	            var _this3 = this;
 
 	            var svgChild = React.createElement(
@@ -21679,12 +21685,12 @@
 	                React.createElement(
 	                    "g",
 	                    { className: css.dots },
-	                    this.state.lineDots.map(function (d, i) {
+	                    this.state.type == "curve" ? this.state.lineDots.map(function (d, i) {
 	                        return d.vectors.map(function (d1) {
 	                            var dots = _this3.getDotsSymbol(i, d1.x, d1.y, d.id);
 	                            return dots;
 	                        });
-	                    })
+	                    }) : ""
 	                ),
 	                React.createElement(
 	                    "g",
@@ -21693,42 +21699,60 @@
 	                        var x = 91;
 	                        var y = 15 + (40 - _this3.state.y.length * _this3.state.yUnitLength) / 2 + i * _this3.state.yUnitLength;
 	                        var color = d.color;
-	                        return React.createElement(
-	                            "g",
-	                            { key: i },
-	                            React.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
-	                                stroke: color, d: "M" + x + " " + y + " h3" }),
-	                            _this3.getDotsSymbol(i, 92.5, y, d.id),
-	                            React.createElement(
-	                                "text",
-	                                { x: "94.5", y: y + 1 },
-	                                d.name
-	                            )
-	                        );
+	                        var symbol = void 0;
+	                        switch (_this3.state.type) {
+	                            case "curve":
+	                                symbol = React.createElement(
+	                                    "g",
+	                                    { key: i },
+	                                    React.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+	                                        stroke: color, d: "M" + x + " " + y + " h3" }),
+	                                    _this3.getDotsSymbol(i, 92.5, y, d.id),
+	                                    React.createElement(
+	                                        "text",
+	                                        { x: "94.5", y: y + 1 },
+	                                        d.name
+	                                    )
+	                                );
+	                                break;
+	                            case "bar":
+	                                var offsetX = _this3.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+	                                var offsetY = _this3.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+	                                symbol = React.createElement(
+	                                    "g",
+	                                    { key: i },
+	                                    React.createElement("rect", { fill: color, x: x - offsetX, y: y - offsetY, width: 3 + offsetX * 2,
+	                                        height: 1 + offsetY * 2 }),
+	                                    React.createElement(
+	                                        "text",
+	                                        { x: "94.5", y: y + 1 },
+	                                        d.name
+	                                    )
+	                                );
+	                                break;
+	                        }
+	                        return symbol;
 	                    }),
 	                    React.createElement(
 	                        "g",
-	                        null,
+	                        { className: css.setColor, onClick: function onClick() {
+	                                _this3.setColor();
+	                            } },
+	                        this.state.y.map(function (d, i) {
+	                            var color = d.color;
+	                            var x = 80 + i * 1;
+	                            var y1 = 5;
+	                            var y2 = 7;
+	                            return React.createElement("path", { key: i, strokeWidth: 1, stroke: color,
+	                                d: "M" + x + " " + y1 + " L" + x + " " + y2 });
+	                        }),
 	                        React.createElement(
-	                            "g",
-	                            { title: "reset color", className: css.setColor, onClick: function onClick() {
-	                                    _this3.setColor();
-	                                } },
-	                            this.state.y.map(function (d, i) {
-	                                var color = d.color;
-	                                var x = 80 + i * 1;
-	                                var y1 = 5;
-	                                var y2 = 7;
-	                                return React.createElement("path", { key: i, strokeWidth: 1, stroke: color,
-	                                    d: "M" + x + " " + y1 + " L" + x + " " + y2 });
-	                            }),
-	                            React.createElement(
-	                                "text",
-	                                { x: 79.5 + this.state.y.length / 2, y: "4", textAnchor: "middle" },
-	                                "reset color"
-	                            )
+	                            "text",
+	                            { x: 79.5 + this.state.y.length / 2, y: "4", textAnchor: "middle" },
+	                            "reset color"
 	                        )
-	                    )
+	                    ),
+	                    this.setTypeList()
 	                ),
 	                this.state.tipsX && this.state.tipsY ? React.createElement(
 	                    "g",
@@ -21753,7 +21777,58 @@
 	                    } },
 	                svgChild
 	            );
-	            return svgTag;
+	            return React.createElement(
+	                "div",
+	                { className: css.base + " react-chart" },
+	                svgTag
+	            );
+	        }
+
+	        /**
+	         * set type list icon
+	         * @returns {XML}
+	         */
+
+	    }, {
+	        key: "setTypeList",
+	        value: function setTypeList() {
+	            var _this4 = this;
+
+	            var activeStyle = {};
+	            var inactiveStyle = { opacity: 0.3 };
+	            var iconUnderlineStartX = this.state.type == "curve" ? 91 : 95;
+	            var list = React.createElement(
+	                "g",
+	                { className: css.typeList },
+	                React.createElement("path", { d: "M" + iconUnderlineStartX + " 3.5 l3 0", stroke: "black", strokeWidth: 0.2 }),
+	                React.createElement(
+	                    "g",
+	                    { className: css.typeIcon, onClick: function onClick() {
+	                            _this4.setState({
+	                                type: "curve"
+	                            });
+	                        } },
+	                    React.createElement("path", { className: css.iconBackground, d: "M91 1 h3 v3 h-3 z" }),
+	                    React.createElement("path", { fill: "none", d: "M91 2 l0.5 0 l0.5 -1 l0.5 2 l0.5 -1 l1 0",
+	                        style: this.state.type == "curve" ? activeStyle : inactiveStyle })
+	                ),
+	                React.createElement(
+	                    "g",
+	                    { className: css.typeIcon, onClick: function onClick() {
+	                            _this4.setState({
+	                                type: "bar"
+	                            });
+	                        } },
+	                    React.createElement("path", { className: css.iconBackground, d: "M95 1 h3 v3 h-3 z" }),
+	                    React.createElement("path", { fill: "none", d: "M95.1 2 h0.8 v1 h-0.8 z",
+	                        style: this.state.type == "bar" ? activeStyle : inactiveStyle }),
+	                    React.createElement("path", { fill: "none", d: "M96.1 1.5 h0.8 v1.5 h-0.8 z",
+	                        style: this.state.type == "bar" ? activeStyle : inactiveStyle }),
+	                    React.createElement("path", { fill: "none", d: "M97.1 1 h0.8 v2 h-0.8 z",
+	                        style: this.state.type == "bar" ? activeStyle : inactiveStyle })
+	                )
+	            );
+	            return list;
 	        }
 
 	        /**
@@ -21765,17 +21840,17 @@
 	    }, {
 	        key: "sortData",
 	        value: function sortData(d) {
-	            var _this4 = this;
+	            var _this5 = this;
 
 	            var data = d.concat();
 	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
 	            var isDate = data.every(function (d1) {
-	                return regex.test(d1[_this4.props.x]);
+	                return regex.test(d1[_this5.props.x]);
 	            });
 	            if (isDate) {
 	                data.sort(function (a, b) {
-	                    var arr1 = a[_this4.props.x].split("-");
-	                    var arr2 = b[_this4.props.x].split("-");
+	                    var arr1 = a[_this5.props.x].split("-");
+	                    var arr2 = b[_this5.props.x].split("-");
 	                    if (arr1[0] != arr2[0]) {
 	                        return arr1[0] - arr2[0];
 	                    } else if (arr1[1] != arr2[1]) {
@@ -22157,7 +22232,7 @@
 	    }, {
 	        key: "setActive",
 	        value: function setActive(e) {
-	            var _this5 = this;
+	            var _this6 = this;
 
 	            var offset = $(this.svg).offset();
 	            var x = e.pageX - offset.left;
@@ -22177,22 +22252,22 @@
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
 	                    json["dot-" + series + "-active"] = true;
 	                    json["curve-" + series + "-active"] = true;
-	                    _this5.state.y.filter(function (d) {
+	                    _this6.state.y.filter(function (d) {
 	                        return d.id != series;
 	                    }).forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this5.setState(json);
+	                    _this6.setState(json);
 	                })();
 	            } else {
 	                (function () {
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-	                    _this5.state.y.forEach(function (d) {
+	                    _this6.state.y.forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this5.setState(json);
+	                    _this6.setState(json);
 	                })();
 	            }
 	        }
@@ -22207,7 +22282,7 @@
 	    }, {
 	        key: "getNearestSeries",
 	        value: function getNearestSeries(x, y) {
-	            var _this6 = this;
+	            var _this7 = this;
 
 	            var series = void 0;
 	            var tipsX = void 0,
@@ -22216,88 +22291,116 @@
 	                activeX = void 0;
 	            if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
 	                var w = this.state.xUnitLength;
-	                //find the corresponding y by x and slope
-	                var yMap = [];
-	                if (x <= 10 + w / 2) {
-	                    tipsX = 10 + w / 2;
-	                    index = 0;
-	                    yMap = this.state.lineDots.map(function (d) {
-	                        var lineY = d.vectors[0].y;
-	                        return { id: d.id, y: lineY };
-	                    });
-	                } else if (x >= 90 - w / 2) {
-	                    tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
-	                    index = this.state.data.length - 1;
-	                    yMap = this.state.lineDots.map(function (d) {
-	                        var lineY = d.vectors[d.vectors.length - 1].y;
-	                        return { id: d.id, y: lineY };
-	                    });
-	                } else {
-	                    (function () {
-	                        var startIndex = void 0,
-	                            endIndex = void 0;
-	                        for (var i = 0; i < _this6.state.data.length - 1; i++) {
-	                            var startX = 10 + i * w + w / 2;
-	                            var endX = 10 + (i + 1) * w + w / 2;
-	                            if (x >= startX && x <= endX) {
-	                                startIndex = i;
-	                                endIndex = i + 1;
-	                                break;
-	                            }
-	                        }
-	                        var x1 = 10 + startIndex * w + w / 2;
-	                        var x2 = 10 + endIndex * w + w / 2;
-	                        if (x <= (x1 + x2) / 2) {
-	                            tipsX = 10 + w / 2 + startIndex * w;
-	                            index = startIndex;
-	                        } else {
-	                            tipsX = 10 + w / 2 + endIndex * w;
-	                            index = endIndex;
-	                        }
 
-	                        yMap = _this6.state.lineDots.map(function (d) {
-	                            var y1 = d.vectors[startIndex].y;
-	                            var y2 = d.vectors[endIndex].y;
-	                            var slope = (y2 - y1) / (x2 - x1);
-	                            var lineY = (x - x1) * slope + y1;
-	                            return { id: d.id, y: lineY };
-	                        });
-	                    })();
-	                }
-	                yMap.sort(function (a, b) {
-	                    return a.y - b.y;
-	                });
-	                if (y < yMap[0].y) {
-	                    series = yMap[0].id;
-	                } else if (y > yMap[yMap.length - 1].y) {
-	                    series = yMap[yMap.length - 1].id;
-	                } else {
-	                    for (var i = 0; i < yMap.length - 1; i++) {
-	                        var startY = yMap[i].y;
-	                        var endY = yMap[i + 1].y;
-	                        if (y >= startY && y <= endY) {
-	                            if (y < (startY + endY) / 2) {
-	                                series = yMap[i].id;
-	                            } else {
-	                                series = yMap[i + 1].id;
-	                            }
-	                            break;
+	                switch (this.state.type) {
+	                    case "curve":
+	                        //find the corresponding y by x and slope
+	                        var yMap = [];
+	                        if (x <= 10 + w / 2) {
+	                            tipsX = 10 + w / 2;
+	                            index = 0;
+	                            yMap = this.state.lineDots.map(function (d) {
+	                                var lineY = d.vectors[0].y;
+	                                return { id: d.id, y: lineY };
+	                            });
+	                        } else if (x >= 90 - w / 2) {
+	                            tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
+	                            index = this.state.data.length - 1;
+	                            yMap = this.state.lineDots.map(function (d) {
+	                                var lineY = d.vectors[d.vectors.length - 1].y;
+	                                return { id: d.id, y: lineY };
+	                            });
+	                        } else {
+	                            (function () {
+	                                var startIndex = void 0,
+	                                    endIndex = void 0;
+	                                for (var i = 0; i < _this7.state.data.length - 1; i++) {
+	                                    var startX = 10 + i * w + w / 2;
+	                                    var endX = 10 + (i + 1) * w + w / 2;
+	                                    if (x >= startX && x <= endX) {
+	                                        startIndex = i;
+	                                        endIndex = i + 1;
+	                                        break;
+	                                    }
+	                                }
+	                                var x1 = 10 + startIndex * w + w / 2;
+	                                var x2 = 10 + endIndex * w + w / 2;
+	                                if (x <= (x1 + x2) / 2) {
+	                                    tipsX = 10 + w / 2 + startIndex * w;
+	                                    index = startIndex;
+	                                } else {
+	                                    tipsX = 10 + w / 2 + endIndex * w;
+	                                    index = endIndex;
+	                                }
+
+	                                yMap = _this7.state.lineDots.map(function (d) {
+	                                    var y1 = d.vectors[startIndex].y;
+	                                    var y2 = d.vectors[endIndex].y;
+	                                    var slope = (y2 - y1) / (x2 - x1);
+	                                    var lineY = (x - x1) * slope + y1;
+	                                    return { id: d.id, y: lineY };
+	                                });
+	                            })();
 	                        }
-	                    }
+	                        yMap.sort(function (a, b) {
+	                            return a.y - b.y;
+	                        });
+	                        if (y < yMap[0].y) {
+	                            series = yMap[0].id;
+	                        } else if (y > yMap[yMap.length - 1].y) {
+	                            series = yMap[yMap.length - 1].id;
+	                        } else {
+	                            for (var i = 0; i < yMap.length - 1; i++) {
+	                                var startY = yMap[i].y;
+	                                var endY = yMap[i + 1].y;
+	                                if (y >= startY && y <= endY) {
+	                                    if (y < (startY + endY) / 2) {
+	                                        series = yMap[i].id;
+	                                    } else {
+	                                        series = yMap[i + 1].id;
+	                                    }
+	                                    break;
+	                                }
+	                            }
+	                        }
+	                        var vectors = this.state.lineDots.find(function (d) {
+	                            return d.id == series;
+	                        }).vectors;
+	                        var vector = vectors[index];
+	                        tipsY = vector.y;
+	                        activeX = this.state.data[index][this.state.x];
+	                        break;
+	                    case "bar":
+	                        var barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
+	                        for (var _i3 = 0; _i3 < this.state.y.length; _i3++) {
+	                            for (var j = 0; j < this.state.data.length; j++) {
+	                                var offsetX = (_i3 - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+	                                var barStartX = this.xTransformToSvg(j) + offsetX;
+	                                var barEndX = barStartX + barWidth;
+	                                if (x >= barStartX && x <= barEndX) {
+	                                    series = this.state.y[_i3].id;
+	                                    tipsX = barStartX + barWidth / 2;
+	                                    tipsY = this.yTransformToSvg(this.state.data[j][series]);
+	                                    activeX = this.state.data[j][this.state.x];
+	                                    break;
+	                                }
+	                            }
+	                        }
+	                        break;
 	                }
-	                var vectors = this.state.lineDots.find(function (d) {
-	                    return d.id == series;
-	                }).vectors;
-	                var vector = vectors[index];
-	                tipsY = vector.y;
-	                activeX = this.state.data[index][this.state.x];
 	            }
 	            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX };
 	        }
+
+	        /**
+	         * render data by chart type
+	         * @returns {*}
+	         */
+
 	    }, {
 	        key: "renderData",
 	        value: function renderData() {
-	            var _this7 = this;
+	            var _this8 = this;
 
 	            var g = void 0;
 	            switch (this.state.type) {
@@ -22308,15 +22411,15 @@
 	                        this.state.y.map(function (d, i) {
 	                            var lastX = void 0,
 	                                lastY = void 0;
-	                            var path = _this7.state.data.map(function (d1, j) {
+	                            var path = _this8.state.data.map(function (d1, j) {
 	                                var id = d.id;
-	                                var x = _this7.xTransformToSvg(j);
-	                                var y = _this7.yTransformToSvg(d1[id]);
+	                                var x = _this8.xTransformToSvg(j);
+	                                var y = _this8.yTransformToSvg(d1[id]);
 	                                var p = "";
 	                                if (j == 0) {
 	                                    p = "M " + x + " " + y;
 	                                } else {
-	                                    var _getBezierCurvesVecto = _this7.getBezierCurvesVector(lastX, lastY, x, y);
+	                                    var _getBezierCurvesVecto = _this8.getBezierCurvesVector(lastX, lastY, x, y);
 
 	                                    var x1 = _getBezierCurvesVecto.x1;
 	                                    var y1 = _getBezierCurvesVecto.y1;
@@ -22330,10 +22433,30 @@
 	                                return p;
 	                            }).join(" ");
 	                            var color = d.color;
-	                            var style = _this7.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+	                            var style = _this8.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
 	                            return React.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-	                                    _this7["curve" + d.id] = curve;
+	                                    _this8["curve" + d.id] = curve;
 	                                }, style: style });
+	                        })
+	                    );
+	                    break;
+	                case "bar":
+	                    g = React.createElement(
+	                        "g",
+	                        { className: css.bar },
+	                        this.state.y.map(function (d, i) {
+	                            return _this8.state.data.map(function (d1, j) {
+	                                var id = d.id;
+	                                var barWidth = _this8.state.xUnitLength / ((_this8.state.y.length + 2) * 1.5);
+	                                var offsetX = (i - _this8.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+	                                var x = _this8.xTransformToSvg(j) + offsetX + barWidth / 2;
+	                                var y = _this8.yTransformToSvg(d1[id]);
+	                                return React.createElement("path", { stroke: d.color, strokeWidth: barWidth,
+	                                    d: "M" + x + " " + _this8.yTransformToSvg(0) + " L" + x + " " + y,
+	                                    ref: function ref(bar) {
+	                                        _this8["bar" + id + j] = bar;
+	                                    } });
+	                            });
 	                        })
 	                    );
 	                    break;
@@ -22370,24 +22493,30 @@
 	                });
 	            }
 	        }
+
+	        /**
+	         * set tips text
+	         * @returns {XML}
+	         */
+
 	    }, {
 	        key: "setTipsText",
 	        value: function setTipsText() {
-	            var _this8 = this;
+	            var _this9 = this;
 
 	            var startX = this.state.tipsX;
 	            var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this8.state.activeSeries;
+	                return d.id == _this9.state.activeSeries;
 	            }).color;
 	            var xText = this.state.activeX;
 	            var yText = this.state.data.find(function (d) {
-	                return d[_this8.state.x] == xText;
+	                return d[_this9.state.x] == xText;
 	            })[this.state.activeSeries];
 	            var text = React.createElement(
 	                "text",
 	                { color: color, x: startX, y: startY, ref: function ref(d) {
-	                        _this8.tipsText = d;
+	                        _this9.tipsText = d;
 	                    } },
 	                this.state.activeSeries,
 	                " : ",
@@ -22395,17 +22524,23 @@
 	            );
 	            return text;
 	        }
+
+	        /**
+	         * set tips border
+	         * @returns {*}
+	         */
+
 	    }, {
 	        key: "setTips",
 	        value: function setTips() {
-	            var _this9 = this;
+	            var _this10 = this;
 
 	            var arcRx = 0.5,
 	                arcRy = 0.5;
 	            var startX = this.state.tipsX;
 	            var startY = this.state.tipsY - this.state.tipsMarginBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this9.state.activeSeries;
+	                return d.id == _this10.state.activeSeries;
 	            }).color;
 	            var path = this.state.tipsWidth ? React.createElement("path", { stroke: color,
 	                d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";
@@ -22455,7 +22590,7 @@
 
 
 	// module
-	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #ccd6eb; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent;\r\n      -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n              animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #ccd6eb; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n@-webkit-keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n@keyframes _1tHyAu5KHrmWGb-yqByOSp {\r\n  100% {\r\n    stroke-dashoffset: 0px; } }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent;\r\n      -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n              animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1-j9DpT3C8ePfo34hK6-so path {\r\n      -webkit-animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards;\r\n              animation: _1tHyAu5KHrmWGb-yqByOSp 1s linear forwards; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd {\r\n      cursor: pointer; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 path {\r\n        stroke-width: 0.1;\r\n        stroke: black; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 ._2ggYv0LtOTOBpWzRSumyba {\r\n        fill: transparent;\r\n        stroke: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
@@ -22467,9 +22602,13 @@
 		"xGrid": "_2gGFrRSg-yDPewQFmx6HcN",
 		"curve": "_3TiNUc3e6pEx1kmQuBGply",
 		"dash": "_1tHyAu5KHrmWGb-yqByOSp",
+		"bar": "_1-j9DpT3C8ePfo34hK6-so",
 		"dots": "_254QL6LmiMZ_2y06F3DS4M",
 		"declare": "_1nkriHhWZrTqLfNpmOhAor",
 		"setColor": "O3lO0_hENTKhxevnxzfJ1",
+		"typeList": "_1hKIqMepEqWuOdKV6ohRYd",
+		"typeIcon": "jzFyK-NQWJT5MVg11-kf8",
+		"iconBackground": "_2ggYv0LtOTOBpWzRSumyba",
 		"tips": "_1zf5kT3OWWX_EQ3UiTqjLs"
 	};
 

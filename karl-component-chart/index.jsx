@@ -38,14 +38,14 @@ class chart extends React.Component {
         };
         let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
             "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
 
     componentDidMount() {
-        let lineDots = this.state.y.map(d=> {
-            let vectors = this.state.data.map((d1, j)=> {
+        let lineDots = this.state.y.map(d => {
+            let vectors = this.state.data.map((d1, j) => {
                 let id = d.id;
                 let x = this.xTransformToSvg(j);
                 let y = this.yTransformToSvg(d1[id]);
@@ -61,13 +61,28 @@ class chart extends React.Component {
             json.svgWidth = $(this.svg).width();
             json.svgHeight = $(this.svg).width() * 60 / 110;
         } else {
-            this.state.y.forEach(d=> {
-                let length = this["curve" + d.id].getTotalLength();
-                $(this["curve" + d.id]).css({
-                    "stroke-dasharray": length,
-                    "stroke-dashoffset": length
-                });
-            });
+            switch (this.state.type) {
+                case "curve":
+                    this.state.y.forEach(d => {
+                        let length = this["curve" + d.id].getTotalLength();
+                        $(this["curve" + d.id]).css({
+                            "stroke-dasharray": length,
+                            "stroke-dashoffset": length
+                        });
+                    });
+                    break;
+                case "bar":
+                    this.state.y.forEach(d => {
+                        this.state.data.forEach((d1, i) => {
+                            let length = this["bar" + d.id + i].getTotalLength();
+                            $(this["bar" + d.id + i]).css({
+                                "stroke-dasharray": length,
+                                "stroke-dashoffset": length
+                            });
+                        });
+                    });
+                    break;
+            }
         }
 
         this.setState(json);
@@ -98,16 +113,6 @@ class chart extends React.Component {
     }
 
     render() {
-        return (
-            <div className={css.base + " react-chart"}>
-                {
-                    this.renderSvg()
-                }
-            </div>
-        );
-    }
-
-    renderSvg() {
         let svgChild =
             <g>
                 {
@@ -118,7 +123,7 @@ class chart extends React.Component {
                 <g className={css.xAxis}>
                     <path d="M10 55 h 80"/>
                     {
-                        this.state.data.map((d, i)=> {
+                        this.state.data.map((d, i) => {
                             let w = this.state.xUnitLength;
                             let x = i * w + 10;
                             return <g key={i}>
@@ -130,7 +135,7 @@ class chart extends React.Component {
                 </g>
                 <g className={css.yAxis}>
                     {
-                        this.state.yAxisNumArr.map((d, i)=> {
+                        this.state.yAxisNumArr.map((d, i) => {
                             let y = 55 - i * this.state.yUnitLength;
                             let yTextDelta = 0;
                             return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
@@ -145,7 +150,7 @@ class chart extends React.Component {
 
                 <g className={css.xGrid}>
                     {
-                        this.state.yAxisNumArr.map((d, i)=> {
+                        this.state.yAxisNumArr.map((d, i) => {
                             let y = 55 - i * this.state.yUnitLength;
                             return <path key={i} d={`M10 ${y} h 80`}/>
                         })
@@ -158,48 +163,64 @@ class chart extends React.Component {
 
                 <g className={css.dots}>
                     {
-
-                        this.state.lineDots.map((d, i)=> {
-                            return d.vectors.map(d1=> {
-                                let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
-                                return dots;
-                            })
-                        })
+                        this.state.type == "curve" ?
+                            this.state.lineDots.map((d, i) => {
+                                return d.vectors.map(d1 => {
+                                    let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
+                                    return dots;
+                                })
+                            }) : ""
                     }
                 </g>
                 <g className={css.declare}>
                     {
-                        this.state.y.map((d, i)=> {
+                        this.state.y.map((d, i) => {
                             let x = 91;
                             let y = 15 + (40 - this.state.y.length * this.state.yUnitLength) / 2 + i * this.state.yUnitLength;
                             let color = d.color;
-                            return <g key={i}>
-                                <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
-                                      stroke={color} d={`M${x} ${y} h3`}/>
-                                {
-                                    this.getDotsSymbol(i, 92.5, y, d.id)
-                                }
-                                <text x="94.5" y={y + 1}>{d.name}</text>
-                            </g>
+                            let symbol;
+                            switch (this.state.type) {
+                                case "curve":
+                                    symbol = <g key={i}>
+                                        <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
+                                              stroke={color} d={`M${x} ${y} h3`}/>
+                                        {
+                                            this.getDotsSymbol(i, 92.5, y, d.id)
+                                        }
+                                        <text x="94.5" y={y + 1}>{d.name}</text>
+                                    </g>;
+                                    break;
+                                case "bar":
+                                    let offsetX = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                                    let offsetY = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                                    symbol = <g key={i}>
+                                        <rect fill={color} x={x - offsetX} y={y - offsetY} width={3 + offsetX * 2}
+                                              height={1 + offsetY * 2}/>
+                                        <text x="94.5" y={y + 1}>{d.name}</text>
+                                    </g>;
+                                    break;
+                            }
+                            return symbol;
                         })
                     }
-                    <g>
-                        <g title="reset color" className={css.setColor} onClick={()=> {
-                            this.setColor();
-                        }}>
-                            {
-                                this.state.y.map((d, i)=> {
-                                    let color = d.color;
-                                    let x = 80 + i * 1;
-                                    let y1 = 5;
-                                    let y2 = 7;
-                                    return <path key={i} strokeWidth={1} stroke={color}
-                                                 d={`M${x} ${y1} L${x} ${y2}`}/>
-                                })
-                            }
-                            <text x={79.5 + this.state.y.length / 2} y="4" textAnchor="middle">reset color</text>
-                        </g>
+                    <g className={css.setColor} onClick={() => {
+                        this.setColor();
+                    }}>
+                        {
+                            this.state.y.map((d, i) => {
+                                let color = d.color;
+                                let x = 80 + i * 1;
+                                let y1 = 5;
+                                let y2 = 7;
+                                return <path key={i} strokeWidth={1} stroke={color}
+                                             d={`M${x} ${y1} L${x} ${y2}`}/>
+                            })
+                        }
+                        <text x={79.5 + this.state.y.length / 2} y="4" textAnchor="middle">reset color</text>
                     </g>
+                    {
+                        this.setTypeList()
+                    }
                 </g>
                 {
                     (this.state.tipsX && this.state.tipsY) ?
@@ -217,21 +238,63 @@ class chart extends React.Component {
         let svgTag = this.state.svgWidth ?
             <svg viewBox="0 0 110 60" width={this.state.svgWidth} height={this.state.svgHeight}
                  onMouseMove={this.setActive}
-                 ref={(svg)=> {
+                 ref={(svg) => {
                      this.svg = svg;
                  }}>
                 {
                     svgChild
                 }
             </svg> :
-            <svg viewBox="0 0 110 60" onMouseMove={this.setActive} ref={(svg)=> {
+            <svg viewBox="0 0 110 60" onMouseMove={this.setActive} ref={(svg) => {
                 this.svg = svg;
             }}>
                 {
                     svgChild
                 }
             </svg>;
-        return svgTag;
+        return (
+            <div className={css.base + " react-chart"}>
+                {
+                    svgTag
+                }
+            </div>
+        );
+    }
+
+    /**
+     * set type list icon
+     * @returns {XML}
+     */
+    setTypeList() {
+        let activeStyle = {};
+        let inactiveStyle = {opacity: 0.3};
+        let iconUnderlineStartX = this.state.type == "curve" ? 91 : 95;
+        let list = <g className={css.typeList}>
+            <path d={`M${iconUnderlineStartX} 3.5 l3 0`} stroke="black" strokeWidth={0.2}/>
+            <g className={css.typeIcon} onClick={() => {
+                this.setState({
+                    type: "curve"
+                });
+            }}>
+                <path className={css.iconBackground} d={`M91 1 h3 v3 h-3 z`}></path>
+                <path fill="none" d={`M91 2 l0.5 0 l0.5 -1 l0.5 2 l0.5 -1 l1 0`}
+                      style={(this.state.type == "curve") ? activeStyle : inactiveStyle}/>
+            </g>
+            <g className={css.typeIcon} onClick={() => {
+                this.setState({
+                    type: "bar"
+                });
+            }}>
+                <path className={css.iconBackground} d={`M95 1 h3 v3 h-3 z`}></path>
+                <path fill="none" d={`M95.1 2 h0.8 v1 h-0.8 z`}
+                      style={(this.state.type == "bar") ? activeStyle : inactiveStyle}/>
+                <path fill="none" d={`M96.1 1.5 h0.8 v1.5 h-0.8 z`}
+                      style={(this.state.type == "bar") ? activeStyle : inactiveStyle}/>
+                <path fill="none" d={`M97.1 1 h0.8 v2 h-0.8 z`}
+                      style={(this.state.type == "bar") ? activeStyle : inactiveStyle}/>
+            </g>
+        </g>;
+        return list;
     }
 
     /**
@@ -242,11 +305,11 @@ class chart extends React.Component {
     sortData(d) {
         let data = d.concat();
         let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
-        let isDate = data.every(d1=> {
+        let isDate = data.every(d1 => {
             return regex.test(d1[this.props.x]);
         });
         if (isDate) {
-            data.sort((a, b)=> {
+            data.sort((a, b) => {
                 let arr1 = a[this.props.x].split("-");
                 let arr2 = b[this.props.x].split("-");
                 if (arr1[0] != arr2[0]) {
@@ -270,8 +333,8 @@ class chart extends React.Component {
      * @returns {*}
      */
     fillData(data, y) {
-        data = data.map(d=> {
-            y.forEach(d1=> {
+        data = data.map(d => {
+            y.forEach(d1 => {
                 if (!d.hasOwnProperty(d1.id)) {
                     d[d1.id] = 0;
                 }
@@ -290,8 +353,8 @@ class chart extends React.Component {
     getYAxisNumArr(yData, data) {
         //get max y num and min y num
         let max, min;
-        yData.forEach(d=> {
-            data.forEach(d1=> {
+        yData.forEach(d => {
+            data.forEach(d1 => {
                 let d2 = d1[d.id];
                 if (max == undefined) {
                     max = d2;
@@ -454,7 +517,7 @@ class chart extends React.Component {
      */
     yTransformToSvg(y) {
         let min, max;
-        this.state.yAxisNumArr.forEach(d=> {
+        this.state.yAxisNumArr.forEach(d => {
             if (min == undefined) {
                 min = d;
             } else {
@@ -479,7 +542,7 @@ class chart extends React.Component {
      */
     yTransformToNatural(y) {
         let min, max;
-        this.state.yAxisNumArr.forEach(d=> {
+        this.state.yAxisNumArr.forEach(d => {
             if (min == undefined) {
                 min = d;
             } else {
@@ -603,16 +666,16 @@ class chart extends React.Component {
             let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             json["dot-" + series + "-active"] = true;
             json["curve-" + series + "-active"] = true;
-            this.state.y.filter(d=> {
+            this.state.y.filter(d => {
                 return d.id != series;
-            }).forEach(d=> {
+            }).forEach(d => {
                 json["dot-" + d.id + "-active"] = false;
                 json["curve-" + d.id + "-active"] = false;
             });
             this.setState(json);
         } else {
             let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
-            this.state.y.forEach(d=> {
+            this.state.y.forEach(d => {
                 json["dot-" + d.id + "-active"] = false;
                 json["curve-" + d.id + "-active"] = false;
             });
@@ -631,91 +694,118 @@ class chart extends React.Component {
         let tipsX, tipsY, index, activeX;
         if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
             let w = this.state.xUnitLength;
-            //find the corresponding y by x and slope
-            let yMap = [];
-            if (x <= 10 + w / 2) {
-                tipsX = 10 + w / 2;
-                index = 0;
-                yMap = this.state.lineDots.map(d=> {
-                    let lineY = d.vectors[0].y;
-                    return {id: d.id, y: lineY};
-                });
-            } else if (x >= 90 - w / 2) {
-                tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
-                index = this.state.data.length - 1;
-                yMap = this.state.lineDots.map(d=> {
-                    let lineY = d.vectors[d.vectors.length - 1].y;
-                    return {id: d.id, y: lineY};
-                });
-            } else {
-                let startIndex, endIndex;
-                for (let i = 0; i < this.state.data.length - 1; i++) {
-                    let startX = 10 + i * w + w / 2;
-                    let endX = 10 + (i + 1) * w + w / 2;
-                    if (x >= startX && x <= endX) {
-                        startIndex = i;
-                        endIndex = i + 1;
-                        break;
-                    }
-                }
-                let x1 = 10 + startIndex * w + w / 2;
-                let x2 = 10 + endIndex * w + w / 2;
-                if (x <= (x1 + x2) / 2) {
-                    tipsX = 10 + w / 2 + startIndex * w;
-                    index = startIndex;
-                } else {
-                    tipsX = 10 + w / 2 + endIndex * w;
-                    index = endIndex;
-                }
 
-                yMap = this.state.lineDots.map(d=> {
-                    let y1 = d.vectors[startIndex].y;
-                    let y2 = d.vectors[endIndex].y;
-                    let slope = (y2 - y1) / (x2 - x1);
-                    let lineY = (x - x1) * slope + y1;
-                    return {id: d.id, y: lineY};
-                });
-            }
-            yMap.sort((a, b)=> {
-                return a.y - b.y;
-            });
-            if (y < yMap[0].y) {
-                series = yMap[0].id;
-            } else if (y > yMap[yMap.length - 1].y) {
-                series = yMap[yMap.length - 1].id;
-            } else {
-                for (let i = 0; i < yMap.length - 1; i++) {
-                    let startY = yMap[i].y;
-                    let endY = yMap[i + 1].y;
-                    if (y >= startY && y <= endY) {
-                        if (y < (startY + endY) / 2) {
-                            series = yMap[i].id;
-                        } else {
-                            series = yMap[i + 1].id;
+            switch (this.state.type) {
+                case "curve":
+                    //find the corresponding y by x and slope
+                    let yMap = [];
+                    if (x <= 10 + w / 2) {
+                        tipsX = 10 + w / 2;
+                        index = 0;
+                        yMap = this.state.lineDots.map(d => {
+                            let lineY = d.vectors[0].y;
+                            return {id: d.id, y: lineY};
+                        });
+                    } else if (x >= 90 - w / 2) {
+                        tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
+                        index = this.state.data.length - 1;
+                        yMap = this.state.lineDots.map(d => {
+                            let lineY = d.vectors[d.vectors.length - 1].y;
+                            return {id: d.id, y: lineY};
+                        });
+                    } else {
+                        let startIndex, endIndex;
+                        for (let i = 0; i < this.state.data.length - 1; i++) {
+                            let startX = 10 + i * w + w / 2;
+                            let endX = 10 + (i + 1) * w + w / 2;
+                            if (x >= startX && x <= endX) {
+                                startIndex = i;
+                                endIndex = i + 1;
+                                break;
+                            }
                         }
-                        break;
+                        let x1 = 10 + startIndex * w + w / 2;
+                        let x2 = 10 + endIndex * w + w / 2;
+                        if (x <= (x1 + x2) / 2) {
+                            tipsX = 10 + w / 2 + startIndex * w;
+                            index = startIndex;
+                        } else {
+                            tipsX = 10 + w / 2 + endIndex * w;
+                            index = endIndex;
+                        }
+
+                        yMap = this.state.lineDots.map(d => {
+                            let y1 = d.vectors[startIndex].y;
+                            let y2 = d.vectors[endIndex].y;
+                            let slope = (y2 - y1) / (x2 - x1);
+                            let lineY = (x - x1) * slope + y1;
+                            return {id: d.id, y: lineY};
+                        });
                     }
-                }
+                    yMap.sort((a, b) => {
+                        return a.y - b.y;
+                    });
+                    if (y < yMap[0].y) {
+                        series = yMap[0].id;
+                    } else if (y > yMap[yMap.length - 1].y) {
+                        series = yMap[yMap.length - 1].id;
+                    } else {
+                        for (let i = 0; i < yMap.length - 1; i++) {
+                            let startY = yMap[i].y;
+                            let endY = yMap[i + 1].y;
+                            if (y >= startY && y <= endY) {
+                                if (y < (startY + endY) / 2) {
+                                    series = yMap[i].id;
+                                } else {
+                                    series = yMap[i + 1].id;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    let vectors = this.state.lineDots.find(d => {
+                        return d.id == series;
+                    }).vectors;
+                    let vector = vectors[index];
+                    tipsY = vector.y;
+                    activeX = this.state.data[index][this.state.x];
+                    break;
+                case "bar":
+                    let barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
+                    for (let i = 0; i < this.state.y.length; i++) {
+                        for (let j = 0; j < this.state.data.length; j++) {
+                            let offsetX = (i - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+                            let barStartX = this.xTransformToSvg(j) + offsetX;
+                            let barEndX = barStartX + barWidth;
+                            if (x >= barStartX && x <= barEndX) {
+                                series = this.state.y[i].id;
+                                tipsX = barStartX + barWidth / 2;
+                                tipsY = this.yTransformToSvg(this.state.data[j][series]);
+                                activeX = this.state.data[j][this.state.x];
+                                break;
+                            }
+                        }
+                    }
+                    break;
             }
-            let vectors = this.state.lineDots.find(d=> {
-                return d.id == series;
-            }).vectors;
-            let vector = vectors[index];
-            tipsY = vector.y;
-            activeX = this.state.data[index][this.state.x];
+
         }
         return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX};
     }
 
-    renderData(){
+    /**
+     * render data by chart type
+     * @returns {*}
+     */
+    renderData() {
         let g;
-        switch(this.state.type){
+        switch (this.state.type) {
             case "curve":
                 g = <g className={css.curve}>
                     {
-                        this.state.y.map((d, i)=> {
+                        this.state.y.map((d, i) => {
                             let lastX, lastY;
-                            let path = this.state.data.map((d1, j)=> {
+                            let path = this.state.data.map((d1, j) => {
                                 let id = d.id;
                                 let x = this.xTransformToSvg(j);
                                 let y = this.yTransformToSvg(d1[id]);
@@ -732,9 +822,30 @@ class chart extends React.Component {
                             }).join(" ");
                             let color = d.color;
                             let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
-                            return <path stroke={color} key={i} d={path} ref={curve=> {
+                            return <path stroke={color} key={i} d={path} ref={curve => {
                                 this["curve" + d.id] = curve;
                             }} style={style}/>
+                        })
+                    }
+                </g>;
+                break;
+            case "bar":
+                g = <g className={css.bar}>
+                    {
+                        this.state.y.map((d, i) => {
+                            return this.state.data.map((d1, j) => {
+                                let id = d.id;
+                                let barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
+                                let offsetX = (i - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+                                let x = this.xTransformToSvg(j) + offsetX + barWidth / 2;
+                                let y = this.yTransformToSvg(d1[id]);
+                                return <path stroke={d.color} strokeWidth={barWidth}
+                                             d={`M${x} ${this.yTransformToSvg(0)} L${x} ${y}`}
+                                             ref={bar => {
+                                                 this["bar" + id + j] = bar;
+                                             }}/>;
+                            })
+
                         })
                     }
                 </g>;
@@ -753,7 +864,7 @@ class chart extends React.Component {
      */
     setColor(propsY) {
         let y = (propsY == undefined) ? this.state.y : propsY;
-        y = y.map(d=> {
+        y = y.map(d => {
             let max = 230;
             let r = Math.floor(Math.random() * max);
             let g = Math.floor(Math.random() * max);
@@ -770,17 +881,21 @@ class chart extends React.Component {
         }
     }
 
+    /**
+     * set tips text
+     * @returns {XML}
+     */
     setTipsText() {
         let startX = this.state.tipsX;
         let startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
-        let color = this.state.y.find(d=> {
+        let color = this.state.y.find(d => {
             return d.id == this.state.activeSeries;
         }).color;
         let xText = this.state.activeX;
-        let yText = this.state.data.find(d=> {
+        let yText = this.state.data.find(d => {
             return d[this.state.x] == xText;
         })[this.state.activeSeries];
-        let text = <text color={color} x={startX} y={startY} ref={d=> {
+        let text = <text color={color} x={startX} y={startY} ref={d => {
             this.tipsText = d;
         }}>
             {this.state.activeSeries} : {yText}
@@ -788,11 +903,15 @@ class chart extends React.Component {
         return text;
     }
 
+    /**
+     * set tips border
+     * @returns {*}
+     */
     setTips() {
         let arcRx = 0.5, arcRy = 0.5;
         let startX = this.state.tipsX;
         let startY = this.state.tipsY - this.state.tipsMarginBottom;
-        let color = this.state.y.find(d=> {
+        let color = this.state.y.find(d => {
             return d.id == this.state.activeSeries;
         }).color;
         let path = this.state.tipsWidth ?

@@ -14,8 +14,9 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <Com title="chart" yAxisText="dollor" x="date"
+                <Com title="chart" yAxisText="dollor" x="date" type="bar"
                      y={[
+                         {id: "o", name: "o"},
                          {id: "p", name: "p"},
                          {id: "q", name: "q"},
                      ]}

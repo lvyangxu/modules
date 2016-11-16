@@ -51,6 +51,12 @@
             }
         }
 
+        @keyframes dash {
+            100% {
+                stroke-dashoffset: 0px;
+            }
+        }
+
         .curve {
             path {
                 stroke-linejoin: round;
@@ -58,12 +64,11 @@
                 fill: transparent;
                 animation: dash 1s linear forwards;
             }
+        }
 
-            @keyframes dash {
-
-                100% {
-                    stroke-dashoffset: 0px;
-                }
+        .bar {
+            path {
+                animation: dash 1s linear forwards;
             }
         }
 
@@ -74,7 +79,7 @@
         .declare {
             stroke-width: 0.3;
             text-anchor: start;
-            text{
+            text {
                 font-size: 2px;
             }
         }
@@ -93,6 +98,21 @@
         }
         .setColor:hover {
             opacity: 1;
+        }
+
+        .typeList {
+            cursor: pointer;
+            .typeIcon {
+                path {
+                    stroke-width: 0.1;
+                    stroke: black;
+                }
+                .iconBackground {
+
+                    fill: transparent;
+                    stroke: transparent;
+                }
+            }
         }
 
         .tips {
