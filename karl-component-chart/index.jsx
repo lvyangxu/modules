@@ -91,10 +91,7 @@ class chart extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.data) {
-            nextProps.data = this.sortData(nextProps.data);
-        }
-        this.setState(nextProps);
+
     }
 
     componentDidUpdate(prevProps, prevState) {

@@ -108,12 +108,7 @@ var chart = function (_React$Component) {
         }
     }, {
         key: "componentWillReceiveProps",
-        value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.data) {
-                nextProps.data = this.sortData(nextProps.data);
-            }
-            this.setState(nextProps);
-        }
+        value: function componentWillReceiveProps(nextProps) {}
     }, {
         key: "componentDidUpdate",
         value: function componentDidUpdate(prevProps, prevState) {

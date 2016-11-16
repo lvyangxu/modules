@@ -8,7 +8,9 @@ require("font-awesome-webpack");
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            a:2
+        }
     }
 
     render() {
@@ -27,6 +29,10 @@ class App extends React.Component {
                          {date: "2016-9-14", m: 0.61, n: 0.05, o: 7, p: 4, q: 5},
                          {date: "2016-9-15", m: 0.02, n: 0.08, p: 6}
                      ]}/>
+                <button onClick={() => {
+                    this.setState({a: 1});
+                }}>1
+                </button>
             </div>
         )
     }
