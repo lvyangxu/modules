@@ -15,6 +15,12 @@ var $ = require("jquery");
 
 /**
  * chart component,props means:
+ * title: text on the svg top
+ * yAxisText: text on the yAxis left
+ * type: svg chart type,curve or bar,default curve
+ * x: svg xAxis id
+ * y: svg yAxis json,like {id:id,name:name}
+ * data: json contains keys of x and y[id]
  */
 
 var chart = function (_React$Component) {

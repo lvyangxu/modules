@@ -1,0 +1,1 @@
+{"version":3,"sources":["client.es6"],"names":[],"mappings":";;AAAA,IAAI,MAAM,QAAQ,0BAAR,CAAV;AACA,QAAQ,gBAAR","file":"client.js","sourcesContent":["let tcp = require(\"../karl-tcp-client/index\");\r\nrequire(\"babel-polyfill\");"]}

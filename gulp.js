@@ -17,7 +17,6 @@ gulp.task('build', function () {
         gutil.log('Error!', err.message);
         this.end();
     }).pipe(gulp.dest('test/'));
-    gulp.src('test/*.js').pipe(rename({ basename: "bundle" }));
 });
 
 //# sourceMappingURL=gulp.js.map

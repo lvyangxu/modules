@@ -1,6 +1,6 @@
 {
   "name": "karl-extend",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "string and number extend prototype",
   "main": "index.js",
   "scripts": {

@@ -18,6 +18,5 @@ gulp.task('build', function () {
             this.end();
         })
         .pipe(gulp.dest('test/'));
-    gulp.src('test/*.js')
-        .pipe(rename({basename: "bundle"}))
 });
+
