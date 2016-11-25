@@ -2,38 +2,55 @@ let React = require("react");
 let css = require("./index.css");
 require("font-awesome-webpack");
 
+/**
+ * data
+ */
 class nav extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
             content: [],
-            activeIndex: 0,
+            activeNav: "",
             height: 300
         };
         let bindArr = [];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
 
     componentDidMount() {
-        let hash = window.location.hash.replace(/#/g, "");
+        let activeNav = "";
         let data = this.props.data;
+        if (data[0].hasOwnProperty("child")) {
+            activeNav = data[0].child[0];
+        } else {
+            activeNav = data[0].titleText;
+        }
 
-        let activeIndex = 0;
+        let hash = window.location.hash.replace(/#/g, "");
         if (hash != "") {
-            let index = data.findIndex(d=> {
-                return d == hash;
+            let isFind = false;
+            data.forEach(d => {
+                if (d.hasOwnProperty("child")) {
+                    if (d.child.includes(hash)) {
+                        isFind = true;
+                    }
+                } else {
+                    if (hash == d.titleText) {
+                        isFind = true;
+                    }
+                }
             });
-            if (index != -1) {
-                activeIndex = index;
+            if (isFind) {
+                activeNav = hash;
             }
         }
 
         this.setState({
             data: data,
-            activeIndex: activeIndex,
+            activeNav: activeNav,
             content: this.props.children,
             height: this.props.height ? this.props.height : 300
         });
@@ -52,24 +69,68 @@ class nav extends React.Component {
             <div style={{height: this.state.height + "px"}} className={css.base + " react-nav"}>
                 <div className={css.menu}>
                     {
-                        this.state.data.map((d, i)=> {
-                            return <div key={i}
-                                        className={(i == this.state.activeIndex) ? css.liActive : css.li}
-                                        onClick={()=> {
-                                            this.setState({activeIndex: i});
-                                        }}>
-                                {d}
-                            </div>
+                        this.state.data.map((d, i) => {
+                            let li = "";
+                            if (d.hasOwnProperty("child")) {
+                                li = <div key={i}>
+                                    {
+                                        d.child.map((d1, j) => {
+                                            let className = (d1 == this.state.activeNav) ? css.liActive : css.li;
+                                            let secondLi = <div key={j} className={className}>
+                                                {d1}
+                                            </div>;
+                                            return secondLi;
+                                        })
+                                    }
+                                </div>;
+                            } else {
+                                li = <div key={i}
+                                          className={(d.titleText == this.state.activeNav) ? css.liActive : css.li}
+                                          onClick={() => {
+                                              this.setState({activeNav: d.titleText});
+                                          }}>
+                                    {d}
+                                </div>;
+                            }
+                            return li;
                         })
                     }
                 </div>
                 <div className={css.content}>
-                    {this.state.content.filter((d, i)=> {
-                        return i == this.state.activeIndex;
-                    })}
+                    {
+                        this.setActiveNav()
+                    }
                 </div>
             </div>
         );
+    }
+
+    setActiveNav(){
+
+        let firstIndex,secondIndex;
+        this.state.data.forEach((d,i) => {
+            if(d.hasOwnProperty("child")){
+                d.child.map((d1,j)=>{
+                   if(d1 == this.state.activeNav){
+                       firstIndex = i;
+                       secondIndex = j;
+                   }
+                });
+            }else{
+                if(d.titleText == this.state.activeNav){
+                    firstIndex = i;
+                }
+            }
+        });
+        let activeContent = "";
+        if(firstIndex){
+            activeContent = this.state.content[firstIndex];
+            if(secondIndex){
+                activeContent = activeContent.props.children[secondIndex];
+            }
+        }
+        return activeContent;
+
     }
 
 }

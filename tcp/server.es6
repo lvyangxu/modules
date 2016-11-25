@@ -1,7 +1,8 @@
-let tcp = require("../karl-tcp-server/index");
+let tcpServer = require("../karl-tcp-server/index");
 require("babel-polyfill");
-let tcp1 = new tcp({
-    port: 4000,
+let tcpServer1 = new tcpServer({
+    port: 80,
+    hostname: "localhost",
     startCallback: () => {
         console.log("tcp server start");
     },
@@ -10,7 +11,7 @@ let tcp1 = new tcp({
     },
     connectCallback: d => {
         let s = () => {
-            tcp1.send(d, "haha");
+            tcpServer1.send(d, "haha");
             setTimeout(s, 5000);
         };
         s();
@@ -18,7 +19,7 @@ let tcp1 = new tcp({
     }
 });
 
-tcp1.listen();
+tcpServer1.listen();
 
 
 

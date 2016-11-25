@@ -12,6 +12,10 @@ var React = require("react");
 var css = require("./index.css");
 require("font-awesome-webpack");
 
+/**
+ * data
+ */
+
 var nav = function (_React$Component) {
     _inherits(nav, _React$Component);
 
@@ -23,7 +27,7 @@ var nav = function (_React$Component) {
         _this.state = {
             data: [],
             content: [],
-            activeIndex: 0,
+            activeNav: "",
             height: 300
         };
         var bindArr = [];
@@ -36,22 +40,36 @@ var nav = function (_React$Component) {
     _createClass(nav, [{
         key: "componentDidMount",
         value: function componentDidMount() {
-            var hash = window.location.hash.replace(/#/g, "");
+            var activeNav = "";
             var data = this.props.data;
+            if (data[0].hasOwnProperty("child")) {
+                activeNav = data[0].child[0];
+            } else {
+                activeNav = data[0].titleText;
+            }
 
-            var activeIndex = 0;
+            var hash = window.location.hash.replace(/#/g, "");
             if (hash != "") {
-                var index = data.findIndex(function (d) {
-                    return d == hash;
+                var isFind = false;
+                data.forEach(function (d) {
+                    if (d.hasOwnProperty("child")) {
+                        if (d.child.includes(hash)) {
+                            isFind = true;
+                        }
+                    } else {
+                        if (hash == d.titleText) {
+                            isFind = true;
+                        }
+                    }
                 });
-                if (index != -1) {
-                    activeIndex = index;
+                if (isFind) {
+                    activeNav = hash;
                 }
             }
 
             this.setState({
                 data: data,
-                activeIndex: activeIndex,
+                activeNav: activeNav,
                 content: this.props.children,
                 height: this.props.height ? this.props.height : 300
             });
@@ -77,25 +95,71 @@ var nav = function (_React$Component) {
                     "div",
                     { className: css.menu },
                     this.state.data.map(function (d, i) {
-                        return React.createElement(
-                            "div",
-                            { key: i,
-                                className: i == _this2.state.activeIndex ? css.liActive : css.li,
-                                onClick: function onClick() {
-                                    _this2.setState({ activeIndex: i });
-                                } },
-                            d
-                        );
+                        var li = "";
+                        if (d.hasOwnProperty("child")) {
+                            li = React.createElement(
+                                "div",
+                                { key: i },
+                                d.child.map(function (d1, j) {
+                                    var className = d1 == _this2.state.activeNav ? css.liActive : css.li;
+                                    var secondLi = React.createElement(
+                                        "div",
+                                        { key: j, className: className },
+                                        d1
+                                    );
+                                    return secondLi;
+                                })
+                            );
+                        } else {
+                            li = React.createElement(
+                                "div",
+                                { key: i,
+                                    className: d.titleText == _this2.state.activeNav ? css.liActive : css.li,
+                                    onClick: function onClick() {
+                                        _this2.setState({ activeNav: d.titleText });
+                                    } },
+                                d
+                            );
+                        }
+                        return li;
                     })
                 ),
                 React.createElement(
                     "div",
                     { className: css.content },
-                    this.state.content.filter(function (d, i) {
-                        return i == _this2.state.activeIndex;
-                    })
+                    this.setActiveNav()
                 )
             );
+        }
+    }, {
+        key: "setActiveNav",
+        value: function setActiveNav() {
+            var _this3 = this;
+
+            var firstIndex = void 0,
+                secondIndex = void 0;
+            this.state.data.forEach(function (d, i) {
+                if (d.hasOwnProperty("child")) {
+                    d.child.map(function (d1, j) {
+                        if (d1 == _this3.state.activeNav) {
+                            firstIndex = i;
+                            secondIndex = j;
+                        }
+                    });
+                } else {
+                    if (d.titleText == _this3.state.activeNav) {
+                        firstIndex = i;
+                    }
+                }
+            });
+            var activeContent = "";
+            if (firstIndex) {
+                activeContent = this.state.content[firstIndex];
+                if (secondIndex) {
+                    activeContent = activeContent.props.children[secondIndex];
+                }
+            }
+            return activeContent;
         }
     }]);
 

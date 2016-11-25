@@ -15,7 +15,13 @@ class tcpServer {
                 this.socketList = this.socketList.filter(d => {
                     return d != socket;
                 });
+                socket.end();
             });
+            socket.on("error", (err) => {
+                console.log("socket err:" + err);
+                socket.end();
+            })
+
             if (this.param.hasOwnProperty("connectCallback")) {
                 this.param.connectCallback(socket);
             }
@@ -35,7 +41,7 @@ class tcpServer {
 
     }
 
-    send(socket,message) {
+    send(socket, message) {
         socket.write(message);
     }
 
@@ -43,10 +49,6 @@ class tcpServer {
         if (this.param.hasOwnProperty("receiveCallback")) {
             this.param.receiveCallback(message);
         }
-        // let promise = new Promise((resolve, reject) => {
-        //
-        // });
-        // return promise;
     }
 
 }

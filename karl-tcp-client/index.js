@@ -1,18 +1,36 @@
 let net = require("net");
 class tcpClient {
-    constructor() {
-        const client = net.createConnection({port: 8124}, () => {
+    constructor(param) {
+        this.param = param;
+    }
+
+    connect() {
+        const clientSocket = net.createConnection({
+            port: this.param.port,
+            host: this.param.hostname
+        }, () => {
             //'connect' listener
-            console.log('connected to server!');
-            client.write('world!\r\n');
+            if (this.param.hasOwnProperty("connectCallback")) {
+                this.param.connectCallback();
+            }
         });
-        client.on('data', (data) => {
-            console.log(data.toString());
-            client.end();
+
+        clientSocket.on('data', (message) => {
+            if (this.param.hasOwnProperty("receiveCallback")) {
+                this.param.receiveCallback(message);
+            }
         });
-        client.on('end', () => {
-            console.log('disconnected from server');
+        clientSocket.on('end', () => {
+            if (this.param.hasOwnProperty("endCallback")) {
+                this.param.endCallback();
+            }
         });
+
+        this.clientSocket = clientSocket;
+    }
+
+    send(message) {
+        this.clientSocket.write(message);
     }
 
 }
