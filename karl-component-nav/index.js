@@ -86,58 +86,70 @@ var nav = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
-            var _this2 = this;
-
             return React.createElement(
                 "div",
-                { style: { height: this.state.height + "px" }, className: css.base + " react-nav" },
+                { className: css.base + " react-nav" },
                 React.createElement(
                     "div",
                     { className: css.menu },
-                    this.state.data.map(function (d, i) {
-                        var li = "";
-                        if (d.hasOwnProperty("child")) {
-                            li = React.createElement(
-                                "div",
-                                { key: i },
-                                d.child.map(function (d1, j) {
-                                    var className = d1 == _this2.state.activeNav ? css.liActive : css.li;
-                                    var secondLi = React.createElement(
-                                        "div",
-                                        { key: j, className: className },
-                                        d1
-                                    );
-                                    return secondLi;
-                                })
-                            );
-                        } else {
-                            li = React.createElement(
-                                "div",
-                                { key: i,
-                                    className: d.titleText == _this2.state.activeNav ? css.liActive : css.li,
-                                    onClick: function onClick() {
-                                        _this2.setState({ activeNav: d.titleText });
-                                    } },
-                                d
-                            );
-                        }
-                        return li;
-                    })
+                    this.setMenu()
                 ),
                 React.createElement(
                     "div",
                     { className: css.content },
-                    this.setActiveNav()
+                    this.setContent()
                 )
             );
         }
     }, {
-        key: "setActiveNav",
-        value: function setActiveNav() {
+        key: "setMenu",
+        value: function setMenu() {
+            var _this2 = this;
+
+            return this.state.data.map(function (d, i) {
+                var li = "";
+                if (d.hasOwnProperty("child")) {
+                    li = React.createElement(
+                        "div",
+                        { key: i },
+                        React.createElement(
+                            "div",
+                            { className: css.li },
+                            d.titleText
+                        ),
+                        d.child.map(function (d1, j) {
+                            var className = d1 == _this2.state.activeNav ? css.liActive : css.li;
+                            var secondLi = React.createElement(
+                                "div",
+                                { key: j, className: className, onClick: function onClick() {
+                                        _this2.setState({ activeNav: d1 });
+                                    } },
+                                d1
+                            );
+                            return secondLi;
+                        })
+                    );
+                } else {
+                    li = React.createElement(
+                        "div",
+                        { key: i,
+                            className: d.titleText == _this2.state.activeNav ? css.liActive : css.li,
+                            onClick: function onClick() {
+                                _this2.setState({ activeNav: d.titleText });
+                            } },
+                        d.titleText
+                    );
+                }
+                return li;
+            });
+        }
+    }, {
+        key: "setContent",
+        value: function setContent() {
             var _this3 = this;
 
-            var firstIndex = void 0,
-                secondIndex = void 0;
+            var firstIndex = -1,
+                secondIndex = -1;
             this.state.data.forEach(function (d, i) {
                 if (d.hasOwnProperty("child")) {
                     d.child.map(function (d1, j) {
@@ -153,9 +165,9 @@ var nav = function (_React$Component) {
                 }
             });
             var activeContent = "";
-            if (firstIndex) {
+            if (firstIndex >= 0) {
                 activeContent = this.state.content[firstIndex];
-                if (secondIndex) {
+                if (secondIndex >= 0) {
                     activeContent = activeContent.props.children[secondIndex];
                 }
             }

@@ -111,7 +111,6 @@ var radio = function (_React$Component) {
                     React.createElement(
                         "div",
                         { className: css.filter },
-                        React.createElement("i", { className: "fa fa-search" }),
                         React.createElement("input", { onChange: this.filterChange,
                             value: this.state.filterValue,
                             placeholder: "filter" })

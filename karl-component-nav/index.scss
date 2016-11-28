@@ -1,36 +1,44 @@
 .base {
     display: inline-block;
     position: relative;
-    .menu{
+
+    $backColor: rgba(242, 242, 242, 1);
+    $fontColor: rgba(68, 68, 68, 1);
+    $hoverBackColor: rgba(229, 229, 229, 1);
+    $activeFontColor: rgba(0, 0, 0, 0.8);
+
+    .menu {
+        display: inline-block;
         font-size: 12px;
-        position: absolute;
         width: 200px;
-        height: 100%;
-        background-color: #f4f4f4;
-        .li{
+        background-color: $backColor;
+        .li {
             padding-left: 40px;
             height: 40px;
             line-height: 40px;
             margin-top: 10px;
             font-size: 16px;
             cursor: pointer;
+            color: $fontColor;
         }
-        .li:hover{
-            color: rgba(51,186,200,.8);
+        .li:hover {
+            background-color: $hoverBackColor !important;
         }
-        .liActive{
+        .liActive {
             padding-left: 40px;
             height: 40px;
             line-height: 40px;
             margin-top: 10px;
             font-size: 16px;
             cursor: pointer;
-            color: #33ba95!important;
+            font-weight: bold;
+            color: $activeFontColor !important;
         }
     }
 
-    .content{
+    .content {
         display: inline-block;
-        margin-left: 250px;
+        vertical-align: top;
+        margin-left: 50px;
     }
 }

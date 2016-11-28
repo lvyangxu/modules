@@ -1,6 +1,6 @@
 {
   "name": "karl-component-radio",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "react component radio",
   "main": "index.js",
   "scripts": {

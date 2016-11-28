@@ -2,19 +2,20 @@
   display: inline-block;
   position: relative; }
   .base .menu {
-    position: absolute;
+    display: inline-block;
+    font-size: 12px;
     width: 200px;
-    height: 100%;
-    background-color: #f4f4f4; }
+    background-color: #f2f2f2; }
     .base .menu .li {
       padding-left: 40px;
       height: 40px;
       line-height: 40px;
       margin-top: 10px;
       font-size: 16px;
-      cursor: pointer; }
+      cursor: pointer;
+      color: #444444; }
     .base .menu .li:hover {
-      color: rgba(51, 186, 200, 0.8); }
+      background-color: #e5e5e5 !important; }
     .base .menu .liActive {
       padding-left: 40px;
       height: 40px;
@@ -22,9 +23,11 @@
       margin-top: 10px;
       font-size: 16px;
       cursor: pointer;
-      color: #33ba95 !important; }
+      font-weight: bold;
+      color: rgba(0, 0, 0, 0.8) !important; }
   .base .content {
     display: inline-block;
-    margin-left: 250px; }
+    vertical-align: top;
+    margin-left: 50px; }
 
 /*# sourceMappingURL=index.css.map */

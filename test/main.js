@@ -4,42 +4,46 @@ var React = require("react");
 var ReactDom = require("react-dom");
 
 var Com = require("../karl-component-nav/index");
-require("font-awesome-webpack");
+var Radio = require("../karl-component-radio");
 
 ReactDom.render(React.createElement(
-    Com,
-    { data: [{ titleText: 2, child: ["a", "b"] }, { titleText: 2 }, { titleText: 2, child: ["c", "d"] }] },
+    "div",
+    null,
     React.createElement(
-        "div",
-        null,
+        Com,
+        { data: [{ titleText: 1, child: ["a", "b"] }, { titleText: 2 }, { titleText: 3, child: ["c", "d"] }] },
         React.createElement(
             "div",
             null,
-            "aa"
+            React.createElement(
+                "div",
+                null,
+                React.createElement(Radio, { data: [1, 2, 3] })
+            ),
+            React.createElement(
+                "div",
+                null,
+                "bb"
+            )
         ),
         React.createElement(
             "div",
             null,
-            "bb"
-        )
-    ),
-    React.createElement(
-        "div",
-        null,
-        "2"
-    ),
-    React.createElement(
-        "div",
-        null,
-        React.createElement(
-            "div",
-            null,
-            "cc"
+            "2"
         ),
         React.createElement(
             "div",
             null,
-            "dd"
+            React.createElement(
+                "div",
+                null,
+                "cc"
+            ),
+            React.createElement(
+                "div",
+                null,
+                "dd"
+            )
         )
     )
 ), document.getElementById("test"));

@@ -79,7 +79,6 @@ class radio extends React.Component {
                      }}
                      style={(this.state.panelShow) ? {} : {display: "none"}}>
                     <div className={css.filter}>
-                        <i className="fa fa-search"></i>
                         <input onChange={this.filterChange}
                                value={this.state.filterValue}
                                placeholder="filter"/>
