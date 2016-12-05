@@ -50,14 +50,14 @@
 	var ReactDom = __webpack_require__(47);
 
 	var Com = __webpack_require__(185);
-	var Radio = __webpack_require__(201);
+	var Radio = __webpack_require__(202);
 
 	ReactDom.render(React.createElement(
 	    "div",
 	    null,
 	    React.createElement(
 	        Com,
-	        { data: [{ titleText: 1, child: ["a", "b"] }, { titleText: 2 }, { titleText: 3, child: ["c", "d"] }] },
+	        { data: [{ text: 1, child: ["a", "b"] }, { text: 2 }, { text: 3, child: ["c", "d"] }] },
 	        React.createElement(
 	            "div",
 	            null,
@@ -99,6 +99,9 @@
 	// {id: "p", name: "p"},
 	// {id: "q", name: "q"},
 	// {id: "r", name: "r"}
+
+	var regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
+	console.log(regex.test(1.2));
 
 	//# sourceMappingURL=main.js.map
 
@@ -21499,9 +21502,10 @@
 	var React = __webpack_require__(14);
 	var css = __webpack_require__(186);
 	__webpack_require__(190);
+	var $ = __webpack_require__(201);
 
 	/**
-	 * data
+	 * data an array,element like {text:"a",child:["a1","a2"]}
 	 */
 
 	var nav = function (_React$Component) {
@@ -21528,12 +21532,16 @@
 	    _createClass(nav, [{
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
+	            var marginTop = $(this.base).offset().top;
+	            var height = $(window).height() - marginTop;
+	            $(this.base).css({ height: height });
+
 	            var activeNav = "";
 	            var data = this.props.data;
 	            if (data[0].hasOwnProperty("child")) {
 	                activeNav = data[0].child[0];
 	            } else {
-	                activeNav = data[0].titleText;
+	                activeNav = data[0].text;
 	            }
 
 	            var hash = window.location.hash.replace(/#/g, "");
@@ -21545,7 +21553,7 @@
 	                            isFind = true;
 	                        }
 	                    } else {
-	                        if (hash == d.titleText) {
+	                        if (hash == d.text) {
 	                            isFind = true;
 	                        }
 	                    }
@@ -21574,9 +21582,13 @@
 	    }, {
 	        key: "render",
 	        value: function render() {
+	            var _this2 = this;
+
 	            return React.createElement(
 	                "div",
-	                { className: css.base + " react-nav" },
+	                { className: css.base + " react-nav", ref: function ref(d) {
+	                        _this2.base = d;
+	                    } },
 	                React.createElement(
 	                    "div",
 	                    { className: css.menu },
@@ -21592,7 +21604,7 @@
 	    }, {
 	        key: "setMenu",
 	        value: function setMenu() {
-	            var _this2 = this;
+	            var _this3 = this;
 
 	            return this.state.data.map(function (d, i) {
 	                var li = "";
@@ -21602,30 +21614,40 @@
 	                        { key: i },
 	                        React.createElement(
 	                            "div",
-	                            { className: css.li },
-	                            d.titleText
+	                            { className: css.li, onClick: function onClick() {
+	                                    var isShow = _this3.state["li" + i + "show"];
+	                                    var json = {};
+	                                    json["li" + i + "show"] = !isShow;
+	                                    _this3.setState(json);
+	                                } },
+	                            React.createElement("i", { className: _this3.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right" }),
+	                            d.text
 	                        ),
-	                        d.child.map(function (d1, j) {
-	                            var className = d1 == _this2.state.activeNav ? css.liActive : css.li;
-	                            var secondLi = React.createElement(
-	                                "div",
-	                                { key: j, className: className, onClick: function onClick() {
-	                                        _this2.setState({ activeNav: d1 });
-	                                    } },
-	                                d1
-	                            );
-	                            return secondLi;
-	                        })
+	                        React.createElement(
+	                            "div",
+	                            { style: _this3.state["li" + i + "show"] ? {} : { "display": "none" } },
+	                            d.child.map(function (d1, j) {
+	                                var active = d1 == _this3.state.activeNav ? css.active : "";
+	                                var li2 = React.createElement(
+	                                    "div",
+	                                    { key: j, className: css.li + " " + css.li2 + " " + active,
+	                                        onClick: function onClick() {
+	                                            _this3.setState({ activeNav: d1 });
+	                                        } },
+	                                    d1
+	                                );
+	                                return li2;
+	                            })
+	                        )
 	                    );
 	                } else {
+	                    var active = d.text == _this3.state.activeNav ? css.active : "";
 	                    li = React.createElement(
 	                        "div",
-	                        { key: i,
-	                            className: d.titleText == _this2.state.activeNav ? css.liActive : css.li,
-	                            onClick: function onClick() {
-	                                _this2.setState({ activeNav: d.titleText });
+	                        { key: i, className: css.li + " " + active, onClick: function onClick() {
+	                                _this3.setState({ activeNav: d.text });
 	                            } },
-	                        d.titleText
+	                        d.text
 	                    );
 	                }
 	                return li;
@@ -21634,20 +21656,20 @@
 	    }, {
 	        key: "setContent",
 	        value: function setContent() {
-	            var _this3 = this;
+	            var _this4 = this;
 
 	            var firstIndex = -1,
 	                secondIndex = -1;
 	            this.state.data.forEach(function (d, i) {
 	                if (d.hasOwnProperty("child")) {
 	                    d.child.map(function (d1, j) {
-	                        if (d1 == _this3.state.activeNav) {
+	                        if (d1 == _this4.state.activeNav) {
 	                            firstIndex = i;
 	                            secondIndex = j;
 	                        }
 	                    });
 	                } else {
-	                    if (d.titleText == _this3.state.activeNav) {
+	                    if (d.text == _this4.state.activeNav) {
 	                        firstIndex = i;
 	                    }
 	                }
@@ -21705,14 +21727,15 @@
 
 
 	// module
-	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  display: inline-block;\r\n  position: relative; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    display: inline-block;\r\n    font-size: 12px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      margin-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh .BGVwF7vVGJOdMtlk1iVXw {\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      margin-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    vertical-align: top;\r\n    margin-left: 50px; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  display: inline-block;\r\n  position: relative;\r\n  overflow-y: auto; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    position: absolute;\r\n    font-size: 13px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      margin-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n      ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt i {\r\n        margin-right: 5px; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt._3oyE8Ie-pJ8eqE-6rTn4TJ {\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._1dRrkLjWTNkrGHbuO2l8vq {\r\n      margin-left: 20px; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    vertical-align: top;\r\n    margin-left: 250px; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
 		"base": "_1A-b3DJMO6F7jyLvZD4rDi",
 		"menu": "_1kxhjIqOtZhkA58fdoNdfh",
 		"li": "_4WnbxbM2pEnCoDp2dsUHt",
-		"liActive": "BGVwF7vVGJOdMtlk1iVXw",
+		"active": "_3oyE8Ie-pJ8eqE-6rTn4TJ",
+		"li2": "_1dRrkLjWTNkrGHbuO2l8vq",
 		"content": "LNS1JtUh7jb4KsrigQC3n"
 	};
 
@@ -22390,415 +22413,6 @@
 
 /***/ },
 /* 201 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var http = __webpack_require__(202);
-	var React = __webpack_require__(14);
-	var css = __webpack_require__(204);
-	__webpack_require__(190);
-
-	/**
-	 * radio component,props means:
-	 * data:an array,element can be string or number
-	 * defaultBlank:if this props exits,then default value is "",else default value is the first option
-	 * callback:function after value change,param is current select value
-	 */
-
-	var radio = function (_React$Component) {
-	    _inherits(radio, _React$Component);
-
-	    function radio(props) {
-	        _classCallCheck(this, radio);
-
-	        var _this = _possibleConstructorReturn(this, (radio.__proto__ || Object.getPrototypeOf(radio)).call(this, props));
-
-	        _this.state = {
-	            panelShow: false,
-	            sourceData: [],
-	            value: "",
-	            filterData: [],
-	            pageData: [],
-	            filterValue: "",
-	            pageIndex: 0
-	        };
-	        var bindArr = ["panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
-	        bindArr.forEach(function (d) {
-	            _this[d] = _this[d].bind(_this);
-	        });
-	        return _this;
-	    }
-
-	    _createClass(radio, [{
-	        key: "componentDidMount",
-	        value: function componentDidMount() {
-	            var _this2 = this;
-
-	            if (this.props.url != undefined) {
-	                http.post(this.props.url).then(function (d) {
-	                    var pageData = _this2.slicePageData(d, 0);
-	                    _this2.setState({
-	                        value: _this2.props.defaultBlank ? "" : d[0],
-	                        sourceData: d,
-	                        filterData: d,
-	                        pageData: pageData
-	                    });
-	                }).catch(function (d) {
-	                    console.log("init radio failed:" + d);
-	                });
-	            } else {
-	                var data = this.props.data;
-	                var pageData = this.slicePageData(data, 0);
-	                this.setState({
-	                    value: this.props.defaultBlank ? "" : data[0],
-	                    sourceData: data,
-	                    filterData: data,
-	                    pageData: pageData
-	                });
-	            }
-
-	            window.addEventListener("click", function () {
-	                if (_this2.state.panelShow) {
-	                    _this2.setState({ panelShow: false });
-	                }
-	            }, false);
-	        }
-	    }, {
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {
-	            if (this.props.value != nextProps.value) {
-	                this.setState({
-	                    value: nextProps.value
-	                });
-	            }
-	        }
-	    }, {
-	        key: "render",
-	        value: function render() {
-	            var _this3 = this;
-
-	            return React.createElement(
-	                "div",
-	                { className: css.base + " react-radio" },
-	                React.createElement(
-	                    "div",
-	                    { className: css.display, onClick: this.panelToggle },
-	                    this.state.value,
-	                    React.createElement("i", { className: "fa fa-caret-down" })
-	                ),
-	                React.createElement(
-	                    "div",
-	                    { className: css.panel,
-	                        onClick: function onClick(e) {
-	                            e.stopPropagation();
-	                        },
-	                        style: this.state.panelShow ? {} : { display: "none" } },
-	                    React.createElement(
-	                        "div",
-	                        { className: css.filter },
-	                        React.createElement("input", { onChange: this.filterChange,
-	                            value: this.state.filterValue,
-	                            placeholder: "filter" })
-	                    ),
-	                    React.createElement(
-	                        "div",
-	                        { className: css.options },
-	                        this.state.pageData.map(function (d, i) {
-	                            return React.createElement("div", { key: i, className: css.option, onClick: function onClick() {
-	                                    _this3.select(d);
-	                                }, dangerouslySetInnerHTML: _this3.setOptionHtml(d) });
-	                        }),
-	                        React.createElement(
-	                            "div",
-	                            { className: css.page },
-	                            React.createElement(
-	                                "button",
-	                                { className: css.pageLeft, onClick: function onClick() {
-	                                        _this3.pageToStart();
-	                                    } },
-	                                React.createElement("i", { className: "fa fa-angle-double-left" })
-	                            ),
-	                            React.createElement(
-	                                "button",
-	                                { className: css.pageLeft, onClick: function onClick() {
-	                                        _this3.pageLeft();
-	                                    } },
-	                                React.createElement("i", { className: "fa fa-angle-left" })
-	                            ),
-	                            this.state.pageIndex + 1 + "/" + (Math.ceil(this.state.filterData.length / 10) == 0 ? 1 : Math.ceil(this.state.filterData.length / 10)),
-	                            React.createElement(
-	                                "button",
-	                                { className: css.pageRight, onClick: function onClick() {
-	                                        _this3.pageRight();
-	                                    } },
-	                                React.createElement("i", { className: "fa fa-angle-right" })
-	                            ),
-	                            React.createElement(
-	                                "button",
-	                                { className: css.pageRight, onClick: function onClick() {
-	                                        _this3.pageToEnd();
-	                                    } },
-	                                React.createElement("i", { className: "fa fa-angle-double-right" })
-	                            )
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }, {
-	        key: "panelToggle",
-	        value: function panelToggle(e) {
-	            e.stopPropagation();
-	            this.setState({
-	                panelShow: !this.state.panelShow
-	            });
-	        }
-	    }, {
-	        key: "filterChange",
-	        value: function filterChange(e) {
-	            var filterData = this.state.sourceData.filter(function (d) {
-	                return d.toString().includes(e.target.value);
-	            });
-	            var pageData = this.slicePageData(filterData, 0);
-	            this.setState({
-	                filterValue: e.target.value,
-	                pageIndex: 0,
-	                filterData: filterData,
-	                pageData: pageData
-	            });
-	        }
-	    }, {
-	        key: "select",
-	        value: function select(d) {
-	            this.setState({
-	                panelShow: false,
-	                value: d
-	            });
-
-	            if (this.props.callback) {
-	                this.props.callback(d);
-	            }
-	        }
-	    }, {
-	        key: "setOptionHtml",
-	        value: function setOptionHtml(d) {
-	            d = d.toString();
-	            var v = this.state.filterValue;
-	            var regex = new RegExp(v, "g");
-	            if (v == "") {
-	                return { __html: d };
-	            } else {
-	                var result = d.toString().replace(regex, function () {
-	                    return "<strong>" + v + "</strong>";
-	                });
-	                return { __html: result };
-	            }
-	        }
-	    }, {
-	        key: "slicePageData",
-	        value: function slicePageData(data, i) {
-	            var filterData = data;
-	            var start = i * 10;
-	            var end = i * 10 + 10;
-	            end = end > filterData.length ? filterData.length : end;
-	            var columnData = filterData.slice(start, end);
-	            return columnData;
-	        }
-	    }, {
-	        key: "pageLeft",
-	        value: function pageLeft() {
-	            var i = this.state.pageIndex;
-	            if (i != 0) {
-	                i--;
-	            }
-	            this.setState({
-	                pageIndex: i,
-	                pageData: this.slicePageData(this.state.filterData, i)
-	            });
-	        }
-	    }, {
-	        key: "pageRight",
-	        value: function pageRight() {
-	            var i = this.state.pageIndex;
-	            var end = Math.ceil(this.state.filterData.length / 10);
-	            if (i < end - 1) {
-	                i++;
-	            }
-	            this.setState({
-	                pageIndex: i,
-	                pageData: this.slicePageData(this.state.filterData, i)
-	            });
-	        }
-	    }, {
-	        key: "pageToStart",
-	        value: function pageToStart() {
-	            var i = 0;
-	            this.setState({
-	                pageIndex: i,
-	                pageData: this.slicePageData(this.state.filterData, i)
-	            });
-	        }
-	    }, {
-	        key: "pageToEnd",
-	        value: function pageToEnd() {
-	            var end = Math.ceil(this.state.filterData.length / 10);
-	            var i = end - 1;
-	            this.setState({
-	                pageIndex: i,
-	                pageData: this.slicePageData(this.state.filterData, i)
-	            });
-	        }
-	    }]);
-
-	    return radio;
-	}(React.Component);
-
-	module.exports = radio;
-
-	//# sourceMappingURL=index.js.map
-
-/***/ },
-/* 202 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var $ = __webpack_require__(203);
-
-	var http = function () {
-	    function http() {
-	        _classCallCheck(this, http);
-	    }
-
-	    _createClass(http, null, [{
-	        key: "doAjaxInJquery",
-
-	        /**
-	         * do ajax with jquery
-	         * @param param ajax option
-	         * @returns {*|void}
-	         */
-	        value: function doAjaxInJquery(param) {
-	            var request = $.ajax({
-	                type: param.type || "post",
-	                url: param.url,
-	                cache: false,
-	                timeout: (param.requestTimeOutSecond || 30) * 1000,
-	                data: param.contentType == "application/json" ? JSON.stringify(param.data) : param.data,
-	                contentType: param.contentType || "application/x-www-form-urlencoded;charset=utf-8",
-	                dataType: param.dataType || "text"
-	            }).done(function (data) {
-	                param.successCallback(data);
-	            }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
-	                param.failureCallback(textStatus);
-	            });
-	            return request;
-	        }
-	    }, {
-	        key: "post",
-
-
-	        /**
-	         * do http post with json contentType and dataType
-	         * @param url
-	         * @param data
-	         * @returns {Promise}
-	         */
-	        value: function post(url, data) {
-	            var promise = new Promise(function (resolve, reject) {
-	                data = data == undefined ? {} : data;
-	                http.doAjaxInJquery({
-	                    url: url,
-	                    data: data,
-	                    contentType: "application/json",
-	                    dataType: "json",
-	                    successCallback: function successCallback(d) {
-	                        if (d.success == undefined || d.message == undefined) {
-	                            reject("unexpected json:" + d);
-	                            return;
-	                        }
-	                        if (d.success == "true") {
-	                            resolve(d.message);
-	                        } else {
-	                            if (d.message == "unauthorized") {
-	                                window.location.href = "../login/";
-	                                return;
-	                            }
-	                            reject(d.message);
-	                        }
-	                    },
-	                    failureCallback: function failureCallback(d) {
-	                        reject("http request error:" + d);
-	                    }
-	                });
-	            });
-	            return promise;
-	        }
-
-	        /**
-	         * do http get with json contentType and dataType
-	         * @param url
-	         * @param data
-	         * @returns {Promise}
-	         */
-
-	    }, {
-	        key: "get",
-	        value: function get(url, data) {
-	            var promise = new Promise(function (resolve, reject) {
-	                data = data == undefined ? {} : data;
-	                http.doAjaxInJquery({
-	                    type: "get",
-	                    url: url,
-	                    data: data,
-	                    contentType: "application/json",
-	                    dataType: "json",
-	                    successCallback: function successCallback(d) {
-	                        if (d.success == undefined || d.message == undefined) {
-	                            reject("unexpected json:" + d);
-	                            return;
-	                        }
-	                        if (d.success == "true") {
-	                            resolve(d.message);
-	                        } else {
-	                            if (d.message == "unauthorized") {
-	                                window.location.href = "../login/";
-	                                return;
-	                            }
-	                            reject(d.message);
-	                        }
-	                    },
-	                    failureCallback: function failureCallback(d) {
-	                        reject("http request error:" + d);
-	                    }
-	                });
-	            });
-	            return promise;
-	        }
-	    }]);
-
-	    return http;
-	}();
-
-	module.exports = http;
-
-	//# sourceMappingURL=index.js.map
-
-/***/ },
-/* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -33022,6 +32636,415 @@
 	return jQuery;
 	} );
 
+
+/***/ },
+/* 202 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var http = __webpack_require__(203);
+	var React = __webpack_require__(14);
+	var css = __webpack_require__(204);
+	__webpack_require__(190);
+
+	/**
+	 * radio component,props means:
+	 * data:an array,element can be string or number
+	 * defaultBlank:if this props exits,then default value is "",else default value is the first option
+	 * callback:function after value change,param is current select value
+	 */
+
+	var radio = function (_React$Component) {
+	    _inherits(radio, _React$Component);
+
+	    function radio(props) {
+	        _classCallCheck(this, radio);
+
+	        var _this = _possibleConstructorReturn(this, (radio.__proto__ || Object.getPrototypeOf(radio)).call(this, props));
+
+	        _this.state = {
+	            panelShow: false,
+	            sourceData: [],
+	            value: "",
+	            filterData: [],
+	            pageData: [],
+	            filterValue: "",
+	            pageIndex: 0
+	        };
+	        var bindArr = ["panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
+	        bindArr.forEach(function (d) {
+	            _this[d] = _this[d].bind(_this);
+	        });
+	        return _this;
+	    }
+
+	    _createClass(radio, [{
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            var _this2 = this;
+
+	            if (this.props.url != undefined) {
+	                http.post(this.props.url).then(function (d) {
+	                    var pageData = _this2.slicePageData(d, 0);
+	                    _this2.setState({
+	                        value: _this2.props.defaultBlank ? "" : d[0],
+	                        sourceData: d,
+	                        filterData: d,
+	                        pageData: pageData
+	                    });
+	                }).catch(function (d) {
+	                    console.log("init radio failed:" + d);
+	                });
+	            } else {
+	                var data = this.props.data;
+	                var pageData = this.slicePageData(data, 0);
+	                this.setState({
+	                    value: this.props.defaultBlank ? "" : data[0],
+	                    sourceData: data,
+	                    filterData: data,
+	                    pageData: pageData
+	                });
+	            }
+
+	            window.addEventListener("click", function () {
+	                if (_this2.state.panelShow) {
+	                    _this2.setState({ panelShow: false });
+	                }
+	            }, false);
+	        }
+	    }, {
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(nextProps) {
+	            if (this.props.value != nextProps.value) {
+	                this.setState({
+	                    value: nextProps.value
+	                });
+	            }
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _this3 = this;
+
+	            return React.createElement(
+	                "div",
+	                { className: css.base + " react-radio" },
+	                React.createElement(
+	                    "div",
+	                    { className: css.display, onClick: this.panelToggle },
+	                    this.state.value,
+	                    React.createElement("i", { className: "fa fa-caret-down" })
+	                ),
+	                React.createElement(
+	                    "div",
+	                    { className: css.panel,
+	                        onClick: function onClick(e) {
+	                            e.stopPropagation();
+	                        },
+	                        style: this.state.panelShow ? {} : { display: "none" } },
+	                    React.createElement(
+	                        "div",
+	                        { className: css.filter },
+	                        React.createElement("input", { onChange: this.filterChange,
+	                            value: this.state.filterValue,
+	                            placeholder: "filter" })
+	                    ),
+	                    React.createElement(
+	                        "div",
+	                        { className: css.options },
+	                        this.state.pageData.map(function (d, i) {
+	                            return React.createElement("div", { key: i, className: css.option, onClick: function onClick() {
+	                                    _this3.select(d);
+	                                }, dangerouslySetInnerHTML: _this3.setOptionHtml(d) });
+	                        }),
+	                        React.createElement(
+	                            "div",
+	                            { className: css.page },
+	                            React.createElement(
+	                                "button",
+	                                { className: css.pageLeft, onClick: function onClick() {
+	                                        _this3.pageToStart();
+	                                    } },
+	                                React.createElement("i", { className: "fa fa-angle-double-left" })
+	                            ),
+	                            React.createElement(
+	                                "button",
+	                                { className: css.pageLeft, onClick: function onClick() {
+	                                        _this3.pageLeft();
+	                                    } },
+	                                React.createElement("i", { className: "fa fa-angle-left" })
+	                            ),
+	                            this.state.pageIndex + 1 + "/" + (Math.ceil(this.state.filterData.length / 10) == 0 ? 1 : Math.ceil(this.state.filterData.length / 10)),
+	                            React.createElement(
+	                                "button",
+	                                { className: css.pageRight, onClick: function onClick() {
+	                                        _this3.pageRight();
+	                                    } },
+	                                React.createElement("i", { className: "fa fa-angle-right" })
+	                            ),
+	                            React.createElement(
+	                                "button",
+	                                { className: css.pageRight, onClick: function onClick() {
+	                                        _this3.pageToEnd();
+	                                    } },
+	                                React.createElement("i", { className: "fa fa-angle-double-right" })
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: "panelToggle",
+	        value: function panelToggle(e) {
+	            e.stopPropagation();
+	            this.setState({
+	                panelShow: !this.state.panelShow
+	            });
+	        }
+	    }, {
+	        key: "filterChange",
+	        value: function filterChange(e) {
+	            var filterData = this.state.sourceData.filter(function (d) {
+	                return d.toString().includes(e.target.value);
+	            });
+	            var pageData = this.slicePageData(filterData, 0);
+	            this.setState({
+	                filterValue: e.target.value,
+	                pageIndex: 0,
+	                filterData: filterData,
+	                pageData: pageData
+	            });
+	        }
+	    }, {
+	        key: "select",
+	        value: function select(d) {
+	            this.setState({
+	                panelShow: false,
+	                value: d
+	            });
+
+	            if (this.props.callback) {
+	                this.props.callback(d);
+	            }
+	        }
+	    }, {
+	        key: "setOptionHtml",
+	        value: function setOptionHtml(d) {
+	            d = d.toString();
+	            var v = this.state.filterValue;
+	            var regex = new RegExp(v, "g");
+	            if (v == "") {
+	                return { __html: d };
+	            } else {
+	                var result = d.toString().replace(regex, function () {
+	                    return "<strong>" + v + "</strong>";
+	                });
+	                return { __html: result };
+	            }
+	        }
+	    }, {
+	        key: "slicePageData",
+	        value: function slicePageData(data, i) {
+	            var filterData = data;
+	            var start = i * 10;
+	            var end = i * 10 + 10;
+	            end = end > filterData.length ? filterData.length : end;
+	            var columnData = filterData.slice(start, end);
+	            return columnData;
+	        }
+	    }, {
+	        key: "pageLeft",
+	        value: function pageLeft() {
+	            var i = this.state.pageIndex;
+	            if (i != 0) {
+	                i--;
+	            }
+	            this.setState({
+	                pageIndex: i,
+	                pageData: this.slicePageData(this.state.filterData, i)
+	            });
+	        }
+	    }, {
+	        key: "pageRight",
+	        value: function pageRight() {
+	            var i = this.state.pageIndex;
+	            var end = Math.ceil(this.state.filterData.length / 10);
+	            if (i < end - 1) {
+	                i++;
+	            }
+	            this.setState({
+	                pageIndex: i,
+	                pageData: this.slicePageData(this.state.filterData, i)
+	            });
+	        }
+	    }, {
+	        key: "pageToStart",
+	        value: function pageToStart() {
+	            var i = 0;
+	            this.setState({
+	                pageIndex: i,
+	                pageData: this.slicePageData(this.state.filterData, i)
+	            });
+	        }
+	    }, {
+	        key: "pageToEnd",
+	        value: function pageToEnd() {
+	            var end = Math.ceil(this.state.filterData.length / 10);
+	            var i = end - 1;
+	            this.setState({
+	                pageIndex: i,
+	                pageData: this.slicePageData(this.state.filterData, i)
+	            });
+	        }
+	    }]);
+
+	    return radio;
+	}(React.Component);
+
+	module.exports = radio;
+
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 203 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var $ = __webpack_require__(201);
+
+	var http = function () {
+	    function http() {
+	        _classCallCheck(this, http);
+	    }
+
+	    _createClass(http, null, [{
+	        key: "doAjaxInJquery",
+
+	        /**
+	         * do ajax with jquery
+	         * @param param ajax option
+	         * @returns {*|void}
+	         */
+	        value: function doAjaxInJquery(param) {
+	            var request = $.ajax({
+	                type: param.type || "post",
+	                url: param.url,
+	                cache: false,
+	                timeout: (param.requestTimeOutSecond || 30) * 1000,
+	                data: param.contentType == "application/json" ? JSON.stringify(param.data) : param.data,
+	                contentType: param.contentType || "application/x-www-form-urlencoded;charset=utf-8",
+	                dataType: param.dataType || "text"
+	            }).done(function (data) {
+	                param.successCallback(data);
+	            }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+	                param.failureCallback(textStatus);
+	            });
+	            return request;
+	        }
+	    }, {
+	        key: "post",
+
+
+	        /**
+	         * do http post with json contentType and dataType
+	         * @param url
+	         * @param data
+	         * @returns {Promise}
+	         */
+	        value: function post(url, data) {
+	            var promise = new Promise(function (resolve, reject) {
+	                data = data == undefined ? {} : data;
+	                http.doAjaxInJquery({
+	                    url: url,
+	                    data: data,
+	                    contentType: "application/json",
+	                    dataType: "json",
+	                    successCallback: function successCallback(d) {
+	                        if (d.success == undefined || d.message == undefined) {
+	                            reject("unexpected json:" + d);
+	                            return;
+	                        }
+	                        if (d.success == "true") {
+	                            resolve(d.message);
+	                        } else {
+	                            if (d.message == "unauthorized") {
+	                                window.location.href = "../login/";
+	                                return;
+	                            }
+	                            reject(d.message);
+	                        }
+	                    },
+	                    failureCallback: function failureCallback(d) {
+	                        reject("http request error:" + d);
+	                    }
+	                });
+	            });
+	            return promise;
+	        }
+
+	        /**
+	         * do http get with json contentType and dataType
+	         * @param url
+	         * @param data
+	         * @returns {Promise}
+	         */
+
+	    }, {
+	        key: "get",
+	        value: function get(url, data) {
+	            var promise = new Promise(function (resolve, reject) {
+	                data = data == undefined ? {} : data;
+	                http.doAjaxInJquery({
+	                    type: "get",
+	                    url: url,
+	                    data: data,
+	                    contentType: "application/json",
+	                    dataType: "json",
+	                    successCallback: function successCallback(d) {
+	                        if (d.success == undefined || d.message == undefined) {
+	                            reject("unexpected json:" + d);
+	                            return;
+	                        }
+	                        if (d.success == "true") {
+	                            resolve(d.message);
+	                        } else {
+	                            if (d.message == "unauthorized") {
+	                                window.location.href = "../login/";
+	                                return;
+	                            }
+	                            reject(d.message);
+	                        }
+	                    },
+	                    failureCallback: function failureCallback(d) {
+	                        reject("http request error:" + d);
+	                    }
+	                });
+	            });
+	            return promise;
+	        }
+	    }]);
+
+	    return http;
+	}();
+
+	module.exports = http;
+
+	//# sourceMappingURL=index.js.map
 
 /***/ },
 /* 204 */

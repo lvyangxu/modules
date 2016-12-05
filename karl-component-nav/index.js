@@ -11,9 +11,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var React = require("react");
 var css = require("./index.css");
 require("font-awesome-webpack");
+var $ = require("jquery");
 
 /**
- * data
+ * data an array,element like {text:"a",child:["a1","a2"]}
  */
 
 var nav = function (_React$Component) {
@@ -40,12 +41,16 @@ var nav = function (_React$Component) {
     _createClass(nav, [{
         key: "componentDidMount",
         value: function componentDidMount() {
+            var marginTop = $(this.base).offset().top;
+            var height = $(window).height() - marginTop;
+            $(this.base).css({ height: height });
+
             var activeNav = "";
             var data = this.props.data;
             if (data[0].hasOwnProperty("child")) {
                 activeNav = data[0].child[0];
             } else {
-                activeNav = data[0].titleText;
+                activeNav = data[0].text;
             }
 
             var hash = window.location.hash.replace(/#/g, "");
@@ -57,7 +62,7 @@ var nav = function (_React$Component) {
                             isFind = true;
                         }
                     } else {
-                        if (hash == d.titleText) {
+                        if (hash == d.text) {
                             isFind = true;
                         }
                     }
@@ -86,9 +91,13 @@ var nav = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             return React.createElement(
                 "div",
-                { className: css.base + " react-nav" },
+                { className: css.base + " react-nav", ref: function ref(d) {
+                        _this2.base = d;
+                    } },
                 React.createElement(
                     "div",
                     { className: css.menu },
@@ -104,7 +113,7 @@ var nav = function (_React$Component) {
     }, {
         key: "setMenu",
         value: function setMenu() {
-            var _this2 = this;
+            var _this3 = this;
 
             return this.state.data.map(function (d, i) {
                 var li = "";
@@ -114,30 +123,40 @@ var nav = function (_React$Component) {
                         { key: i },
                         React.createElement(
                             "div",
-                            { className: css.li },
-                            d.titleText
+                            { className: css.li, onClick: function onClick() {
+                                    var isShow = _this3.state["li" + i + "show"];
+                                    var json = {};
+                                    json["li" + i + "show"] = !isShow;
+                                    _this3.setState(json);
+                                } },
+                            React.createElement("i", { className: _this3.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right" }),
+                            d.text
                         ),
-                        d.child.map(function (d1, j) {
-                            var className = d1 == _this2.state.activeNav ? css.liActive : css.li;
-                            var secondLi = React.createElement(
-                                "div",
-                                { key: j, className: className, onClick: function onClick() {
-                                        _this2.setState({ activeNav: d1 });
-                                    } },
-                                d1
-                            );
-                            return secondLi;
-                        })
+                        React.createElement(
+                            "div",
+                            { style: _this3.state["li" + i + "show"] ? {} : { "display": "none" } },
+                            d.child.map(function (d1, j) {
+                                var active = d1 == _this3.state.activeNav ? css.active : "";
+                                var li2 = React.createElement(
+                                    "div",
+                                    { key: j, className: css.li + " " + css.li2 + " " + active,
+                                        onClick: function onClick() {
+                                            _this3.setState({ activeNav: d1 });
+                                        } },
+                                    d1
+                                );
+                                return li2;
+                            })
+                        )
                     );
                 } else {
+                    var active = d.text == _this3.state.activeNav ? css.active : "";
                     li = React.createElement(
                         "div",
-                        { key: i,
-                            className: d.titleText == _this2.state.activeNav ? css.liActive : css.li,
-                            onClick: function onClick() {
-                                _this2.setState({ activeNav: d.titleText });
+                        { key: i, className: css.li + " " + active, onClick: function onClick() {
+                                _this3.setState({ activeNav: d.text });
                             } },
-                        d.titleText
+                        d.text
                     );
                 }
                 return li;
@@ -146,20 +165,20 @@ var nav = function (_React$Component) {
     }, {
         key: "setContent",
         value: function setContent() {
-            var _this3 = this;
+            var _this4 = this;
 
             var firstIndex = -1,
                 secondIndex = -1;
             this.state.data.forEach(function (d, i) {
                 if (d.hasOwnProperty("child")) {
                     d.child.map(function (d1, j) {
-                        if (d1 == _this3.state.activeNav) {
+                        if (d1 == _this4.state.activeNav) {
                             firstIndex = i;
                             secondIndex = j;
                         }
                     });
                 } else {
-                    if (d.titleText == _this3.state.activeNav) {
+                    if (d.text == _this4.state.activeNav) {
                         firstIndex = i;
                     }
                 }

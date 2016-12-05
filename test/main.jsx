@@ -7,9 +7,9 @@ let Radio = require("../karl-component-radio");
 ReactDom.render(
     <div>
         <Com data={[
-            {titleText: 1, child: ["a", "b"]},
-            {titleText: 2},
-            {titleText: 3, child: ["c", "d"]}
+            {text: 1, child: ["a", "b"]},
+            {text: 2},
+            {text: 3, child: ["c", "d"]}
         ]}>
             <div>
                 <div>
@@ -32,3 +32,5 @@ ReactDom.render(
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
 
+let regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
+console.log(regex.test(1.2));

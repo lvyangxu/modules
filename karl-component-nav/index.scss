@@ -1,6 +1,7 @@
 .base {
     display: inline-block;
     position: relative;
+    overflow-y: auto;
 
     $backColor: rgba(242, 242, 242, 1);
     $fontColor: rgba(68, 68, 68, 1);
@@ -8,11 +9,12 @@
     $activeFontColor: rgba(0, 0, 0, 0.8);
 
     .menu {
-        display: inline-block;
-        font-size: 12px;
+        position: absolute;
+        font-size: 13px;
         width: 200px;
         background-color: $backColor;
         .li {
+            user-select: none;
             padding-left: 40px;
             height: 40px;
             line-height: 40px;
@@ -20,25 +22,25 @@
             font-size: 16px;
             cursor: pointer;
             color: $fontColor;
+            i{
+                margin-right: 5px;
+            }
         }
         .li:hover {
             background-color: $hoverBackColor !important;
         }
-        .liActive {
-            padding-left: 40px;
-            height: 40px;
-            line-height: 40px;
-            margin-top: 10px;
-            font-size: 16px;
-            cursor: pointer;
+        .li.active {
             font-weight: bold;
             color: $activeFontColor !important;
+        }
+        .li2{
+            margin-left: 20px;
         }
     }
 
     .content {
         display: inline-block;
         vertical-align: top;
-        margin-left: 50px;
+        margin-left: 250px;
     }
 }

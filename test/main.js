@@ -11,7 +11,7 @@ ReactDom.render(React.createElement(
     null,
     React.createElement(
         Com,
-        { data: [{ titleText: 1, child: ["a", "b"] }, { titleText: 2 }, { titleText: 3, child: ["c", "d"] }] },
+        { data: [{ text: 1, child: ["a", "b"] }, { text: 2 }, { text: 3, child: ["c", "d"] }] },
         React.createElement(
             "div",
             null,
@@ -53,5 +53,8 @@ ReactDom.render(React.createElement(
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
+
+var regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
+console.log(regex.test(1.2));
 
 //# sourceMappingURL=main.js.map

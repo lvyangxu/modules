@@ -1,9 +1,10 @@
 let React = require("react");
 let css = require("./index.css");
 require("font-awesome-webpack");
+let $ = require("jquery");
 
 /**
- * data
+ * data an array,element like {text:"a",child:["a1","a2"]}
  */
 class nav extends React.Component {
     constructor(props) {
@@ -21,12 +22,16 @@ class nav extends React.Component {
     }
 
     componentDidMount() {
+        let marginTop = $(this.base).offset().top;
+        let height = $(window).height() - marginTop;
+        $(this.base).css({height: height});
+
         let activeNav = "";
         let data = this.props.data;
         if (data[0].hasOwnProperty("child")) {
             activeNav = data[0].child[0];
         } else {
-            activeNav = data[0].titleText;
+            activeNav = data[0].text;
         }
 
         let hash = window.location.hash.replace(/#/g, "");
@@ -38,7 +43,7 @@ class nav extends React.Component {
                         isFind = true;
                     }
                 } else {
-                    if (hash == d.titleText) {
+                    if (hash == d.text) {
                         isFind = true;
                     }
                 }
@@ -66,7 +71,9 @@ class nav extends React.Component {
 
     render() {
         return (
-            <div className={css.base + " react-nav"}>
+            <div className={css.base + " react-nav"} ref={d => {
+                this.base = d;
+            }}>
                 <div className={css.menu}>
                     {
                         this.setMenu()
@@ -86,27 +93,35 @@ class nav extends React.Component {
             let li = "";
             if (d.hasOwnProperty("child")) {
                 li = <div key={i}>
-                    <div className={css.li}>{d.titleText}</div>
-                    {
-                        d.child.map((d1, j) => {
-                            let className = (d1 == this.state.activeNav) ? css.liActive : css.li;
-                            let secondLi = <div key={j} className={className} onClick={() => {
-                                this.setState({activeNav: d1});
-                            }}>
-                                {d1}
-                            </div>;
-                            return secondLi;
-                        })
-                    }
+                    <div className={css.li} onClick={() => {
+                        let isShow = this.state["li" + i + "show"];
+                        let json = {};
+                        json["li" + i + "show"] = !isShow;
+                        this.setState(json);
+                    }}>
+                        <i className={this.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right"}></i>
+                        {d.text}
+                    </div>
+                    <div style={this.state["li" + i + "show"] ? {} : {"display": "none"}}>
+                        {
+                            d.child.map((d1, j) => {
+                                let active = (d1 == this.state.activeNav) ? css.active : "";
+                                let li2 = <div key={j} className={css.li + " " + css.li2 + " " + active}
+                                               onClick={() => {
+                                                   this.setState({activeNav: d1});
+                                               }}>
+                                    {d1}
+                                </div>;
+                                return li2;
+                            })
+                        }
+                    </div>
                 </div>;
             } else {
-                li = <div key={i}
-                          className={(d.titleText == this.state.activeNav) ? css.liActive : css.li}
-                          onClick={() => {
-                              this.setState({activeNav: d.titleText});
-                          }}>
-                    {d.titleText}
-                </div>;
+                let active = (d.text == this.state.activeNav) ? css.active : "";
+                li = <div key={i} className={css.li + " " + active} onClick={() => {
+                    this.setState({activeNav: d.text});
+                }}>{d.text}</div>;
             }
             return li;
         });
@@ -123,7 +138,7 @@ class nav extends React.Component {
                     }
                 });
             } else {
-                if (d.titleText == this.state.activeNav) {
+                if (d.text == this.state.activeNav) {
                     firstIndex = i;
                 }
             }
