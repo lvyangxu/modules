@@ -14,6 +14,12 @@ ReactDom.render(
             <div>
                 <div>
                     <Radio data={[1, 2, 3]}/>
+                    <Radio data={[1, 2, 3]}/>
+                    <Radio data={[1, 2, 3]}/>
+                    <Radio data={[1, 2, 3]}/>
+                    <Radio data={[1, 2, 3]}/>
+                    <Radio data={[1, 2, 3]}/>
+                    <div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div>
                 </div>
                 <div>bb</div>
             </div>
@@ -31,6 +37,5 @@ ReactDom.render(
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
-
-let regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
-console.log(regex.test(1.2));
+let $ = require("jquery");
+console.log($(window).height());

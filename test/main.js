@@ -18,7 +18,77 @@ ReactDom.render(React.createElement(
             React.createElement(
                 "div",
                 null,
-                React.createElement(Radio, { data: [1, 2, 3] })
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(Radio, { data: [1, 2, 3] }),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    "1"
+                )
             ),
             React.createElement(
                 "div",
@@ -53,8 +123,7 @@ ReactDom.render(React.createElement(
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
-
-var regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
-console.log(regex.test(1.2));
+var $ = require("jquery");
+console.log($(window).height());
 
 //# sourceMappingURL=main.js.map

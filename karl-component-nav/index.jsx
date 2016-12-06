@@ -22,9 +22,11 @@ class nav extends React.Component {
     }
 
     componentDidMount() {
-        let marginTop = $(this.base).offset().top;
-        let height = $(window).height() - marginTop;
-        $(this.base).css({height: height});
+        this.setMenuHeight();
+
+        window.addEventListener("resize", e => {
+            this.setMenuHeight();
+        });
 
         let activeNav = "";
         let data = this.props.data;
@@ -59,6 +61,8 @@ class nav extends React.Component {
             content: this.props.children,
             height: this.props.height ? this.props.height : 300
         });
+
+
     }
 
     componentWillReceiveProps(nextProps) {
@@ -74,18 +78,29 @@ class nav extends React.Component {
             <div className={css.base + " react-nav"} ref={d => {
                 this.base = d;
             }}>
-                <div className={css.menu}>
+                <div className={css.menu} ref={d => {
+                    this.menu = d;
+                }}>
                     {
                         this.setMenu()
                     }
                 </div>
-                <div className={css.content}>
+                <div className={css.content} ref={d => {
+                    this.content = d;
+                }}>
                     {
                         this.setContent()
                     }
                 </div>
             </div>
         );
+    }
+
+    setMenuHeight() {
+        let marginTop = $(this.base).offset().top;
+        let height = $(window).height() - marginTop;
+        $(this.menu).css({height: height});
+        $(this.content).css({height: height});
     }
 
     setMenu() {

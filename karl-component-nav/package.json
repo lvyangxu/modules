@@ -1,6 +1,6 @@
 {
   "name": "karl-component-nav",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "react component nav",
   "main": "index.js",
   "scripts": {

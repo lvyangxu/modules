@@ -1,18 +1,19 @@
 .base {
-  display: inline-block;
-  position: relative;
-  overflow-y: auto; }
+  position: relative; }
   .base .menu {
     position: absolute;
+    overflow-y: auto;
     font-size: 13px;
     width: 200px;
     background-color: #f2f2f2; }
+    .base .menu .menu1 {
+      height: 120%; }
     .base .menu .li {
       user-select: none;
       padding-left: 40px;
       height: 40px;
       line-height: 40px;
-      margin-top: 10px;
+      padding-top: 10px;
       font-size: 16px;
       cursor: pointer;
       color: #444444; }
@@ -27,7 +28,8 @@
       margin-left: 20px; }
   .base .content {
     display: inline-block;
+    margin-left: 200px;
     vertical-align: top;
-    margin-left: 250px; }
+    overflow-y: auto; }
 
 /*# sourceMappingURL=index.css.map */

@@ -1,8 +1,5 @@
 .base {
-    display: inline-block;
     position: relative;
-    overflow-y: auto;
-
     $backColor: rgba(242, 242, 242, 1);
     $fontColor: rgba(68, 68, 68, 1);
     $hoverBackColor: rgba(229, 229, 229, 1);
@@ -10,15 +7,20 @@
 
     .menu {
         position: absolute;
+        overflow-y: auto;
         font-size: 13px;
         width: 200px;
         background-color: $backColor;
+        .menu1{
+            height: 120%;
+        }
+
         .li {
             user-select: none;
             padding-left: 40px;
             height: 40px;
             line-height: 40px;
-            margin-top: 10px;
+            padding-top: 10px;
             font-size: 16px;
             cursor: pointer;
             color: $fontColor;
@@ -40,7 +42,8 @@
 
     .content {
         display: inline-block;
+        margin-left: 200px;
         vertical-align: top;
-        margin-left: 250px;
+        overflow-y: auto;
     }
 }

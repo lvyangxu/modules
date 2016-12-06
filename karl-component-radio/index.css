@@ -1,6 +1,7 @@
 .base {
   display: inline-block;
-  font-size: 12px; }
+  font-size: 12px;
+  position: relative; }
   .base .display {
     width: 150px;
     height: 16px;

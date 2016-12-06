@@ -3,6 +3,7 @@ $width: 150px;
 .base {
     display: inline-block;
     font-size: 12px;
+    position: relative;
     .display {
         width: $width;
         height: 16px;

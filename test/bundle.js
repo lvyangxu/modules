@@ -64,7 +64,77 @@
 	            React.createElement(
 	                "div",
 	                null,
-	                React.createElement(Radio, { data: [1, 2, 3] })
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(Radio, { data: [1, 2, 3] }),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                ),
+	                React.createElement(
+	                    "div",
+	                    null,
+	                    "1"
+	                )
 	            ),
 	            React.createElement(
 	                "div",
@@ -99,9 +169,8 @@
 	// {id: "p", name: "p"},
 	// {id: "q", name: "q"},
 	// {id: "r", name: "r"}
-
-	var regex = new RegExp(/^-?(([1-9]{1}\d{0,14})|0)(.\d+)?$/g);
-	console.log(regex.test(1.2));
+	var $ = __webpack_require__(201);
+	console.log($(window).height());
 
 	//# sourceMappingURL=main.js.map
 
@@ -21532,9 +21601,13 @@
 	    _createClass(nav, [{
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
-	            var marginTop = $(this.base).offset().top;
-	            var height = $(window).height() - marginTop;
-	            $(this.base).css({ height: height });
+	            var _this2 = this;
+
+	            this.setMenuHeight();
+
+	            window.addEventListener("resize", function (e) {
+	                _this2.setMenuHeight();
+	            });
 
 	            var activeNav = "";
 	            var data = this.props.data;
@@ -21582,29 +21655,41 @@
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 
 	            return React.createElement(
 	                "div",
 	                { className: css.base + " react-nav", ref: function ref(d) {
-	                        _this2.base = d;
+	                        _this3.base = d;
 	                    } },
 	                React.createElement(
 	                    "div",
-	                    { className: css.menu },
+	                    { className: css.menu, ref: function ref(d) {
+	                            _this3.menu = d;
+	                        } },
 	                    this.setMenu()
 	                ),
 	                React.createElement(
 	                    "div",
-	                    { className: css.content },
+	                    { className: css.content, ref: function ref(d) {
+	                            _this3.content = d;
+	                        } },
 	                    this.setContent()
 	                )
 	            );
 	        }
 	    }, {
+	        key: "setMenuHeight",
+	        value: function setMenuHeight() {
+	            var marginTop = $(this.base).offset().top;
+	            var height = $(window).height() - marginTop;
+	            $(this.menu).css({ height: height });
+	            $(this.content).css({ height: height });
+	        }
+	    }, {
 	        key: "setMenu",
 	        value: function setMenu() {
-	            var _this3 = this;
+	            var _this4 = this;
 
 	            return this.state.data.map(function (d, i) {
 	                var li = "";
@@ -21615,24 +21700,24 @@
 	                        React.createElement(
 	                            "div",
 	                            { className: css.li, onClick: function onClick() {
-	                                    var isShow = _this3.state["li" + i + "show"];
+	                                    var isShow = _this4.state["li" + i + "show"];
 	                                    var json = {};
 	                                    json["li" + i + "show"] = !isShow;
-	                                    _this3.setState(json);
+	                                    _this4.setState(json);
 	                                } },
-	                            React.createElement("i", { className: _this3.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right" }),
+	                            React.createElement("i", { className: _this4.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right" }),
 	                            d.text
 	                        ),
 	                        React.createElement(
 	                            "div",
-	                            { style: _this3.state["li" + i + "show"] ? {} : { "display": "none" } },
+	                            { style: _this4.state["li" + i + "show"] ? {} : { "display": "none" } },
 	                            d.child.map(function (d1, j) {
-	                                var active = d1 == _this3.state.activeNav ? css.active : "";
+	                                var active = d1 == _this4.state.activeNav ? css.active : "";
 	                                var li2 = React.createElement(
 	                                    "div",
 	                                    { key: j, className: css.li + " " + css.li2 + " " + active,
 	                                        onClick: function onClick() {
-	                                            _this3.setState({ activeNav: d1 });
+	                                            _this4.setState({ activeNav: d1 });
 	                                        } },
 	                                    d1
 	                                );
@@ -21641,11 +21726,11 @@
 	                        )
 	                    );
 	                } else {
-	                    var active = d.text == _this3.state.activeNav ? css.active : "";
+	                    var active = d.text == _this4.state.activeNav ? css.active : "";
 	                    li = React.createElement(
 	                        "div",
 	                        { key: i, className: css.li + " " + active, onClick: function onClick() {
-	                                _this3.setState({ activeNav: d.text });
+	                                _this4.setState({ activeNav: d.text });
 	                            } },
 	                        d.text
 	                    );
@@ -21656,20 +21741,20 @@
 	    }, {
 	        key: "setContent",
 	        value: function setContent() {
-	            var _this4 = this;
+	            var _this5 = this;
 
 	            var firstIndex = -1,
 	                secondIndex = -1;
 	            this.state.data.forEach(function (d, i) {
 	                if (d.hasOwnProperty("child")) {
 	                    d.child.map(function (d1, j) {
-	                        if (d1 == _this4.state.activeNav) {
+	                        if (d1 == _this5.state.activeNav) {
 	                            firstIndex = i;
 	                            secondIndex = j;
 	                        }
 	                    });
 	                } else {
-	                    if (d.text == _this4.state.activeNav) {
+	                    if (d.text == _this5.state.activeNav) {
 	                        firstIndex = i;
 	                    }
 	                }
@@ -21727,12 +21812,13 @@
 
 
 	// module
-	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  display: inline-block;\r\n  position: relative;\r\n  overflow-y: auto; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    position: absolute;\r\n    font-size: 13px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      margin-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n      ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt i {\r\n        margin-right: 5px; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt._3oyE8Ie-pJ8eqE-6rTn4TJ {\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._1dRrkLjWTNkrGHbuO2l8vq {\r\n      margin-left: 20px; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    vertical-align: top;\r\n    margin-left: 250px; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  position: relative; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    position: absolute;\r\n    overflow-y: auto;\r\n    font-size: 13px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._2atOT8qBdCaEE1i-Qm6BtS {\r\n      height: 120%; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      padding-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n      ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt i {\r\n        margin-right: 5px; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt._3oyE8Ie-pJ8eqE-6rTn4TJ {\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._1dRrkLjWTNkrGHbuO2l8vq {\r\n      margin-left: 20px; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    margin-left: 200px;\r\n    vertical-align: top;\r\n    overflow-y: auto; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
 		"base": "_1A-b3DJMO6F7jyLvZD4rDi",
 		"menu": "_1kxhjIqOtZhkA58fdoNdfh",
+		"menu1": "_2atOT8qBdCaEE1i-Qm6BtS",
 		"li": "_4WnbxbM2pEnCoDp2dsUHt",
 		"active": "_3oyE8Ie-pJ8eqE-6rTn4TJ",
 		"li2": "_1dRrkLjWTNkrGHbuO2l8vq",
@@ -33081,7 +33167,7 @@
 
 
 	// module
-	exports.push([module.id, "._222DZKqaODtJpHhYBit1C5 {\r\n  display: inline-block;\r\n  font-size: 12px; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm {\r\n    width: 150px;\r\n    height: 16px;\r\n    padding: 8px;\r\n    border: 1px solid #cccccc;\r\n    background: -webkit-linear-gradient(top, #fdfdfd, #f4f4f4);\r\n    background: linear-gradient(to bottom, #fdfdfd, #f4f4f4);\r\n    color: #222222;\r\n    font-size: 13px;\r\n    font-family: Arial;\r\n    border-radius: 3px;\r\n    cursor: pointer;\r\n    text-decoration: none;\r\n    text-shadow: 0 1px 0 #f2f2f2;\r\n    font-weight: bold;\r\n    text-align: left; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm i {\r\n      float: right; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm:hover {\r\n    background: -webkit-linear-gradient(top, #ededed, #dbdbdb);\r\n    background: linear-gradient(to bottom, #ededed, #dbdbdb);\r\n    box-shadow: inset 0px 0px 2px 2px #c8c8c8; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._2rjlYUM01pyMTN2vnnBkLw {\r\n    z-index: 2;\r\n    position: absolute;\r\n    height: 370px;\r\n    background: white;\r\n    padding: 5px;\r\n    border: 1px solid #aeaeae;\r\n    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);\r\n    margin-top: 4px; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 {\r\n    border: 1px solid #cccccc; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 i {\r\n      margin-left: 5px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 input {\r\n      padding: 5px 4px 5px 4px;\r\n      border: none;\r\n      outline: none; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs div {\r\n    height: 30px;\r\n    line-height: 30px; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2QASiqPtb3qYjATZ683_WX {\r\n    padding-left: 5px;\r\n    padding-right: 5px;\r\n    cursor: pointer; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2QASiqPtb3qYjATZ683_WX:hover {\r\n    background-color: #eeeeee; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz {\r\n    position: absolute;\r\n    bottom: 10px;\r\n    width: 100%;\r\n    text-align: center;\r\n    -moz-user-select: none;\r\n    -ms-user-select: none;\r\n    -webkit-user-select: none; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button {\r\n      border: none;\r\n      outline: none;\r\n      background-color: transparent;\r\n      font-weight: bolder;\r\n      font-size: 14px;\r\n      cursor: pointer;\r\n      padding-left: 10px;\r\n      padding-right: 10px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button:hover {\r\n      background-color: #eeeeee; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button._2Jp9oSnWnqJW3zLYNPwWuv {\r\n      margin-right: 5px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button._32oA9BNxqhql9E8VB0jNg_ {\r\n      margin-left: 5px; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, "._222DZKqaODtJpHhYBit1C5 {\r\n  display: inline-block;\r\n  font-size: 12px;\r\n  position: relative; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm {\r\n    width: 150px;\r\n    height: 16px;\r\n    padding: 8px;\r\n    border: 1px solid #cccccc;\r\n    background: -webkit-linear-gradient(top, #fdfdfd, #f4f4f4);\r\n    background: linear-gradient(to bottom, #fdfdfd, #f4f4f4);\r\n    color: #222222;\r\n    font-size: 13px;\r\n    font-family: Arial;\r\n    border-radius: 3px;\r\n    cursor: pointer;\r\n    text-decoration: none;\r\n    text-shadow: 0 1px 0 #f2f2f2;\r\n    font-weight: bold;\r\n    text-align: left; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm i {\r\n      float: right; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._1PrLQutxDuAfTfu4n8GSlm:hover {\r\n    background: -webkit-linear-gradient(top, #ededed, #dbdbdb);\r\n    background: linear-gradient(to bottom, #ededed, #dbdbdb);\r\n    box-shadow: inset 0px 0px 2px 2px #c8c8c8; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._2rjlYUM01pyMTN2vnnBkLw {\r\n    z-index: 2;\r\n    position: absolute;\r\n    height: 370px;\r\n    background: white;\r\n    padding: 5px;\r\n    border: 1px solid #aeaeae;\r\n    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);\r\n    margin-top: 4px; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 {\r\n    border: 1px solid #cccccc; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 i {\r\n      margin-left: 5px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._2D0bGS4aEp0tKsovBy0Jz4 input {\r\n      padding: 5px 4px 5px 4px;\r\n      border: none;\r\n      outline: none; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs div {\r\n    height: 30px;\r\n    line-height: 30px; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2QASiqPtb3qYjATZ683_WX {\r\n    padding-left: 5px;\r\n    padding-right: 5px;\r\n    cursor: pointer; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2QASiqPtb3qYjATZ683_WX:hover {\r\n    background-color: #eeeeee; }\r\n  ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz {\r\n    position: absolute;\r\n    bottom: 10px;\r\n    width: 100%;\r\n    text-align: center;\r\n    -moz-user-select: none;\r\n    -ms-user-select: none;\r\n    -webkit-user-select: none; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button {\r\n      border: none;\r\n      outline: none;\r\n      background-color: transparent;\r\n      font-weight: bolder;\r\n      font-size: 14px;\r\n      cursor: pointer;\r\n      padding-left: 10px;\r\n      padding-right: 10px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button:hover {\r\n      background-color: #eeeeee; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button._2Jp9oSnWnqJW3zLYNPwWuv {\r\n      margin-right: 5px; }\r\n    ._222DZKqaODtJpHhYBit1C5 ._3GuqBgyOmXBAuCE-78XSCs ._2NvOQS_QITQoljAzCVrbGz button._32oA9BNxqhql9E8VB0jNg_ {\r\n      margin-left: 5px; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
