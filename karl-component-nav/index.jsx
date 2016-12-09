@@ -4,16 +4,15 @@ require("font-awesome-webpack");
 let $ = require("jquery");
 
 /**
- * data an array,element like {text:"a",child:["a1","a2"]}
+ *
  */
 class nav extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
-            content: [],
-            activeNav: "",
-            height: 300
+            activeDom: "",
+            activeId: ""
         };
         let bindArr = [];
         bindArr.forEach(d => {
@@ -22,55 +21,40 @@ class nav extends React.Component {
     }
 
     componentDidMount() {
-        this.setMenuHeight();
-
+        //设置菜单和内容的宽度和高度自适应
+        this.setSize();
         window.addEventListener("resize", e => {
-            this.setMenuHeight();
+            this.setSize();
         });
 
-        let activeNav = "";
         let data = this.props.data;
-        if (data[0].hasOwnProperty("child")) {
-            activeNav = data[0].child[0];
-        } else {
-            activeNav = data[0].text;
-        }
+        let activeId = data[0].id;
+        let activeDom = data[0].dom;
 
+        let json = {
+            data: data,
+            activeId: activeId,
+            activeDom: activeDom
+        };
+
+        //根据锚点设置默认选中的菜单
         let hash = window.location.hash.replace(/#/g, "");
         if (hash != "") {
-            let isFind = false;
-            data.forEach(d => {
-                if (d.hasOwnProperty("child")) {
-                    if (d.child.includes(hash)) {
-                        isFind = true;
-                    }
-                } else {
-                    if (hash == d.text) {
-                        isFind = true;
-                    }
-                }
+            let active = data.find(d => {
+                return d.id == hash;
             });
-            if (isFind) {
-                activeNav = hash;
+            if (active != undefined) {
+                json.activeId = hash;
+                json["group-show-"+active.group] = true;
             }
         }
 
-        this.setState({
-            data: data,
-            activeNav: activeNav,
-            content: this.props.children,
-            height: this.props.height ? this.props.height : 300
-        });
-
+        this.setState(json);
 
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.children != nextProps.children) {
-            this.setState({
-                content: nextProps.children
-            });
-        }
+
     }
 
     render() {
@@ -96,77 +80,107 @@ class nav extends React.Component {
         );
     }
 
-    setMenuHeight() {
+    setSize() {
         let marginTop = $(this.base).offset().top;
         let height = $(window).height() - marginTop;
+        let width = $(window).width() - 200;
         $(this.menu).css({height: height});
-        $(this.content).css({height: height});
+        $(this.content).css({
+            height: height,
+            width: width
+        });
     }
 
     setMenu() {
-        return this.state.data.map((d, i) => {
-            let li = "";
-            if (d.hasOwnProperty("child")) {
-                li = <div key={i}>
-                    <div className={css.li} onClick={() => {
-                        let isShow = this.state["li" + i + "show"];
-                        let json = {};
-                        json["li" + i + "show"] = !isShow;
-                        this.setState(json);
-                    }}>
-                        <i className={this.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right"}></i>
-                        {d.text}
-                    </div>
-                    <div style={this.state["li" + i + "show"] ? {} : {"display": "none"}}>
-                        {
-                            d.child.map((d1, j) => {
-                                let active = (d1 == this.state.activeNav) ? css.active : "";
-                                let li2 = <div key={j} className={css.li + " " + css.li2 + " " + active}
-                                               onClick={() => {
-                                                   this.setState({activeNav: d1});
-                                               }}>
-                                    {d1}
-                                </div>;
-                                return li2;
-                            })
-                        }
-                    </div>
-                </div>;
-            } else {
-                let active = (d.text == this.state.activeNav) ? css.active : "";
-                li = <div key={i} className={css.li + " " + active} onClick={() => {
-                    this.setState({activeNav: d.text});
-                }}>{d.text}</div>;
+        let groups = [];
+        this.state.data.forEach(d => {
+            if (!groups.includes(d.group)) {
+                groups.push(d.group);
             }
-            return li;
         });
+
+        let liArr = [];
+        this.state.data.forEach(d => {
+            if (d.hasOwnProperty("group")) {
+                //如果含有group,判断是否添加过该group
+                let hasInclude = liArr.find(d1 => {
+                    return d1.group == d.group;
+                });
+
+                if (hasInclude != undefined) {
+                    //如果添加过该group,则将新的数据合并到该一级菜单下
+                    let li = <div onClick={() => {
+                        this.setState({
+                            activeId: d.id
+                        });
+                    }} key={d.id} className={this.state.activeId == d.id ?
+                        (css.active + " " + css.li + " " + css.li1) : (css.li + " " + css.li1)}>{d.name}</div>;
+                    liArr = liArr.map(d1 => {
+                        if (d1.group == d.group) {
+                            let arr = d1.dom.concat();
+                            arr.push(li);
+                            d1.dom = arr;
+                            return d1;
+                        } else {
+                            return d1;
+                        }
+                    })
+                } else {
+                    //如果没有添加过group,则新添加一个一级菜单
+                    let li = <div onClick={() => {
+                        this.setState({
+                            activeId: d.id
+                        });
+                    }} key={d.id} className={this.state.activeId == d.id ?
+                        (css.active + " " + css.li + " " + css.li1) : (css.li + " " + css.li1)}>{d.name}</div>;
+                    liArr.push({group: d.group, dom: [li]})
+                }
+            } else {
+                //如果不含有group属性，则为第一级菜单
+                let li = <div className={this.state.activeId == d.id ? (css.active + " " + css.li) : css.li}
+                              onClick={() => {
+                                  this.setState({
+                                      activeId: d.id
+                                  });
+                              }}>
+                    {d.name}
+                </div>;
+                liArr.push({dom: li});
+            }
+        });
+
+        let menu = liArr.map((d, i) => {
+            let showName = "group-show-" + d.group;
+            if (d.hasOwnProperty("group")) {
+                return <div key={i}>
+                    <div className={css.li} onClick={() => {
+                        let json = {};
+                        json[showName] = !this.state[showName];
+                        this.setState(json);
+                    }}><i
+                        className={this.state[showName] ? "fa fa-caret-down" : "fa fa-caret-right"}></i>{d.group}
+                    </div>
+                    <div style={this.state[showName] ? {} : {display: "none"}}>{d.dom}</div>
+                </div>
+            } else {
+                return <div key={i}>{d.dom}</div>;
+            }
+        });
+        return menu;
+
     }
 
     setContent() {
-        let firstIndex = -1, secondIndex = -1;
-        this.state.data.forEach((d, i) => {
-            if (d.hasOwnProperty("child")) {
-                d.child.map((d1, j) => {
-                    if (d1 == this.state.activeNav) {
-                        firstIndex = i;
-                        secondIndex = j;
-                    }
-                });
-            } else {
-                if (d.text == this.state.activeNav) {
-                    firstIndex = i;
-                }
-            }
+        let active = this.state.data.find(d => {
+            return d.id == this.state.activeId;
         });
-        let activeContent = "";
-        if (firstIndex >= 0) {
-            activeContent = this.state.content[firstIndex];
-            if (secondIndex >= 0) {
-                activeContent = activeContent.props.children[secondIndex];
-            }
+        if (active != undefined) {
+            window.location.hash = active.id;
         }
-        return activeContent;
 
+        return this.state.data.map((d, i) => {
+            return <div key={i} style={d.id == this.state.activeId ? {} : {display: "none"}}>{d.dom}</div>;
+        });
     }
 
 }

@@ -5,31 +5,14 @@ let Com = require("../karl-component-nav/index");
 let Radio = require("../karl-component-radio");
 
 ReactDom.render(
-    <div>
-        <Com data={[
-            {text: 1, child: ["a", "b"]},
-            {text: 2},
-            {text: 3, child: ["c", "d"]}
-        ]}>
-            <div>
-                <div>
-                    <Radio data={[1, 2, 3]}/>
-                    <Radio data={[1, 2, 3]}/>
-                    <Radio data={[1, 2, 3]}/>
-                    <Radio data={[1, 2, 3]}/>
-                    <Radio data={[1, 2, 3]}/>
-                    <Radio data={[1, 2, 3]}/>
-                    <div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div><div>1</div>
-                </div>
-                <div>bb</div>
-            </div>
-            <div>2</div>
-            <div>
-                <div>cc</div>
-                <div>dd</div>
-            </div>
-        </Com>
-    </div>
+    <Com data={[
+        {id: "a", name: "gasga", group: "1", dom: <div><Radio data={[1, 2, 3]}/></div>},
+        {id: "e", name: "sagas", dom: <div><Radio data={[1, 2, 3]}/></div>},
+        {id: "b", name: "safas", group: "1", dom: <div><Radio data={[4, 5, 6]}/></div>},
+        {id: "c", name: "gasgsa", group: "2", dom: <div><Radio data={[7, 8]}/></div>},
+        {id: "d", name: "gas12rgsa", group: "2", dom: <div><Radio data={["a","b"]}/></div>},
+        {id: "f", name: "sagas1", dom: <div><Radio data={[1, 2, 3]}/></div>}
+    ]}/>
     , document.getElementById("test"));
 
 // ReactDom.render(<Com data={[1,2,3]}/>,document.getElementById("test"));
@@ -37,5 +20,4 @@ ReactDom.render(
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
-let $ = require("jquery");
-console.log($(window).height());
+

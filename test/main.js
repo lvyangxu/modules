@@ -6,124 +6,36 @@ var ReactDom = require("react-dom");
 var Com = require("../karl-component-nav/index");
 var Radio = require("../karl-component-radio");
 
-ReactDom.render(React.createElement(
-    "div",
-    null,
-    React.createElement(
-        Com,
-        { data: [{ text: 1, child: ["a", "b"] }, { text: 2 }, { text: 3, child: ["c", "d"] }] },
-        React.createElement(
+ReactDom.render(React.createElement(Com, { data: [{ id: "a", name: "gasga", group: "1", dom: React.createElement(
             "div",
             null,
-            React.createElement(
-                "div",
-                null,
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(Radio, { data: [1, 2, 3] }),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                ),
-                React.createElement(
-                    "div",
-                    null,
-                    "1"
-                )
-            ),
-            React.createElement(
-                "div",
-                null,
-                "bb"
-            )
-        ),
-        React.createElement(
+            React.createElement(Radio, { data: [1, 2, 3] })
+        ) }, { id: "e", name: "sagas", dom: React.createElement(
             "div",
             null,
-            "2"
-        ),
-        React.createElement(
+            React.createElement(Radio, { data: [1, 2, 3] })
+        ) }, { id: "b", name: "safas", group: "1", dom: React.createElement(
             "div",
             null,
-            React.createElement(
-                "div",
-                null,
-                "cc"
-            ),
-            React.createElement(
-                "div",
-                null,
-                "dd"
-            )
-        )
-    )
-), document.getElementById("test"));
+            React.createElement(Radio, { data: [4, 5, 6] })
+        ) }, { id: "c", name: "gasgsa", group: "2", dom: React.createElement(
+            "div",
+            null,
+            React.createElement(Radio, { data: [7, 8] })
+        ) }, { id: "d", name: "gas12rgsa", group: "2", dom: React.createElement(
+            "div",
+            null,
+            React.createElement(Radio, { data: ["a", "b"] })
+        ) }, { id: "f", name: "sagas1", dom: React.createElement(
+            "div",
+            null,
+            React.createElement(Radio, { data: [1, 2, 3] })
+        ) }] }), document.getElementById("test"));
 
 // ReactDom.render(<Com data={[1,2,3]}/>,document.getElementById("test"));
 // {id: "o", name: "o"},
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
-var $ = require("jquery");
-console.log($(window).height());
 
 //# sourceMappingURL=main.js.map

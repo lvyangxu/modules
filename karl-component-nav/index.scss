@@ -11,9 +11,6 @@
         font-size: 13px;
         width: 200px;
         background-color: $backColor;
-        .menu1{
-            height: 120%;
-        }
 
         .li {
             user-select: none;
@@ -21,10 +18,11 @@
             height: 40px;
             line-height: 40px;
             padding-top: 10px;
-            font-size: 16px;
+            font-size: 13px;
             cursor: pointer;
             color: $fontColor;
-            i{
+
+            i {
                 margin-right: 5px;
             }
         }
@@ -35,7 +33,7 @@
             font-weight: bold;
             color: $activeFontColor !important;
         }
-        .li2{
+        .li1 {
             margin-left: 20px;
         }
     }

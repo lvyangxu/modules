@@ -52,125 +52,37 @@
 	var Com = __webpack_require__(185);
 	var Radio = __webpack_require__(202);
 
-	ReactDom.render(React.createElement(
-	    "div",
-	    null,
-	    React.createElement(
-	        Com,
-	        { data: [{ text: 1, child: ["a", "b"] }, { text: 2 }, { text: 3, child: ["c", "d"] }] },
-	        React.createElement(
+	ReactDom.render(React.createElement(Com, { data: [{ id: "a", name: "gasga", group: "1", dom: React.createElement(
 	            "div",
 	            null,
-	            React.createElement(
-	                "div",
-	                null,
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(Radio, { data: [1, 2, 3] }),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                ),
-	                React.createElement(
-	                    "div",
-	                    null,
-	                    "1"
-	                )
-	            ),
-	            React.createElement(
-	                "div",
-	                null,
-	                "bb"
-	            )
-	        ),
-	        React.createElement(
+	            React.createElement(Radio, { data: [1, 2, 3] })
+	        ) }, { id: "e", name: "sagas", dom: React.createElement(
 	            "div",
 	            null,
-	            "2"
-	        ),
-	        React.createElement(
+	            React.createElement(Radio, { data: [1, 2, 3] })
+	        ) }, { id: "b", name: "safas", group: "1", dom: React.createElement(
 	            "div",
 	            null,
-	            React.createElement(
-	                "div",
-	                null,
-	                "cc"
-	            ),
-	            React.createElement(
-	                "div",
-	                null,
-	                "dd"
-	            )
-	        )
-	    )
-	), document.getElementById("test"));
+	            React.createElement(Radio, { data: [4, 5, 6] })
+	        ) }, { id: "c", name: "gasgsa", group: "2", dom: React.createElement(
+	            "div",
+	            null,
+	            React.createElement(Radio, { data: [7, 8] })
+	        ) }, { id: "d", name: "gas12rgsa", group: "2", dom: React.createElement(
+	            "div",
+	            null,
+	            React.createElement(Radio, { data: ["a", "b"] })
+	        ) }, { id: "f", name: "sagas1", dom: React.createElement(
+	            "div",
+	            null,
+	            React.createElement(Radio, { data: [1, 2, 3] })
+	        ) }] }), document.getElementById("test"));
 
 	// ReactDom.render(<Com data={[1,2,3]}/>,document.getElementById("test"));
 	// {id: "o", name: "o"},
 	// {id: "p", name: "p"},
 	// {id: "q", name: "q"},
 	// {id: "r", name: "r"}
-	var $ = __webpack_require__(201);
-	console.log($(window).height());
 
 	//# sourceMappingURL=main.js.map
 
@@ -21574,7 +21486,7 @@
 	var $ = __webpack_require__(201);
 
 	/**
-	 * data an array,element like {text:"a",child:["a1","a2"]}
+	 *
 	 */
 
 	var nav = function (_React$Component) {
@@ -21587,9 +21499,8 @@
 
 	        _this.state = {
 	            data: [],
-	            content: [],
-	            activeNav: "",
-	            height: 300
+	            activeDom: "",
+	            activeId: ""
 	        };
 	        var bindArr = [];
 	        bindArr.forEach(function (d) {
@@ -21603,55 +21514,39 @@
 	        value: function componentDidMount() {
 	            var _this2 = this;
 
-	            this.setMenuHeight();
-
+	            //设置菜单和内容的宽度和高度自适应
+	            this.setSize();
 	            window.addEventListener("resize", function (e) {
-	                _this2.setMenuHeight();
+	                _this2.setSize();
 	            });
 
-	            var activeNav = "";
 	            var data = this.props.data;
-	            if (data[0].hasOwnProperty("child")) {
-	                activeNav = data[0].child[0];
-	            } else {
-	                activeNav = data[0].text;
-	            }
+	            var activeId = data[0].id;
+	            var activeDom = data[0].dom;
 
+	            var json = {
+	                data: data,
+	                activeId: activeId,
+	                activeDom: activeDom
+	            };
+
+	            //根据锚点设置默认选中的菜单
 	            var hash = window.location.hash.replace(/#/g, "");
 	            if (hash != "") {
-	                var isFind = false;
-	                data.forEach(function (d) {
-	                    if (d.hasOwnProperty("child")) {
-	                        if (d.child.includes(hash)) {
-	                            isFind = true;
-	                        }
-	                    } else {
-	                        if (hash == d.text) {
-	                            isFind = true;
-	                        }
-	                    }
+	                var active = data.find(function (d) {
+	                    return d.id == hash;
 	                });
-	                if (isFind) {
-	                    activeNav = hash;
+	                if (active != undefined) {
+	                    json.activeId = hash;
+	                    json["group-show-" + active.group] = true;
 	                }
 	            }
 
-	            this.setState({
-	                data: data,
-	                activeNav: activeNav,
-	                content: this.props.children,
-	                height: this.props.height ? this.props.height : 300
-	            });
+	            this.setState(json);
 	        }
 	    }, {
 	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {
-	            if (this.props.children != nextProps.children) {
-	                this.setState({
-	                    content: nextProps.children
-	                });
-	            }
-	        }
+	        value: function componentWillReceiveProps(nextProps) {}
 	    }, {
 	        key: "render",
 	        value: function render() {
@@ -21679,94 +21574,141 @@
 	            );
 	        }
 	    }, {
-	        key: "setMenuHeight",
-	        value: function setMenuHeight() {
+	        key: "setSize",
+	        value: function setSize() {
 	            var marginTop = $(this.base).offset().top;
 	            var height = $(window).height() - marginTop;
+	            var width = $(window).width() - 200;
 	            $(this.menu).css({ height: height });
-	            $(this.content).css({ height: height });
+	            $(this.content).css({
+	                height: height,
+	                width: width
+	            });
 	        }
 	    }, {
 	        key: "setMenu",
 	        value: function setMenu() {
 	            var _this4 = this;
 
-	            return this.state.data.map(function (d, i) {
-	                var li = "";
-	                if (d.hasOwnProperty("child")) {
-	                    li = React.createElement(
+	            var groups = [];
+	            this.state.data.forEach(function (d) {
+	                if (!groups.includes(d.group)) {
+	                    groups.push(d.group);
+	                }
+	            });
+
+	            var liArr = [];
+	            this.state.data.forEach(function (d) {
+	                if (d.hasOwnProperty("group")) {
+	                    //如果含有group,判断是否添加过该group
+	                    var hasInclude = liArr.find(function (d1) {
+	                        return d1.group == d.group;
+	                    });
+
+	                    if (hasInclude != undefined) {
+	                        (function () {
+	                            //如果添加过该group,则将新的数据合并到该一级菜单下
+	                            var li = React.createElement(
+	                                "div",
+	                                { onClick: function onClick() {
+	                                        _this4.setState({
+	                                            activeId: d.id
+	                                        });
+	                                    }, key: d.id, className: _this4.state.activeId == d.id ? css.active + " " + css.li + " " + css.li1 : css.li + " " + css.li1 },
+	                                d.name
+	                            );
+	                            liArr = liArr.map(function (d1) {
+	                                if (d1.group == d.group) {
+	                                    var arr = d1.dom.concat();
+	                                    arr.push(li);
+	                                    d1.dom = arr;
+	                                    return d1;
+	                                } else {
+	                                    return d1;
+	                                }
+	                            });
+	                        })();
+	                    } else {
+	                        //如果没有添加过group,则新添加一个一级菜单
+	                        var _li = React.createElement(
+	                            "div",
+	                            { onClick: function onClick() {
+	                                    _this4.setState({
+	                                        activeId: d.id
+	                                    });
+	                                }, key: d.id, className: _this4.state.activeId == d.id ? css.active + " " + css.li + " " + css.li1 : css.li + " " + css.li1 },
+	                            d.name
+	                        );
+	                        liArr.push({ group: d.group, dom: [_li] });
+	                    }
+	                } else {
+	                    //如果不含有group属性，则为第一级菜单
+	                    var _li2 = React.createElement(
+	                        "div",
+	                        { className: _this4.state.activeId == d.id ? css.active + " " + css.li : css.li,
+	                            onClick: function onClick() {
+	                                _this4.setState({
+	                                    activeId: d.id
+	                                });
+	                            } },
+	                        d.name
+	                    );
+	                    liArr.push({ dom: _li2 });
+	                }
+	            });
+
+	            var menu = liArr.map(function (d, i) {
+	                var showName = "group-show-" + d.group;
+	                if (d.hasOwnProperty("group")) {
+	                    return React.createElement(
 	                        "div",
 	                        { key: i },
 	                        React.createElement(
 	                            "div",
 	                            { className: css.li, onClick: function onClick() {
-	                                    var isShow = _this4.state["li" + i + "show"];
 	                                    var json = {};
-	                                    json["li" + i + "show"] = !isShow;
+	                                    json[showName] = !_this4.state[showName];
 	                                    _this4.setState(json);
 	                                } },
-	                            React.createElement("i", { className: _this4.state["li" + i + "show"] ? "fa fa-caret-down" : "fa fa-caret-right" }),
-	                            d.text
+	                            React.createElement("i", {
+	                                className: _this4.state[showName] ? "fa fa-caret-down" : "fa fa-caret-right" }),
+	                            d.group
 	                        ),
 	                        React.createElement(
 	                            "div",
-	                            { style: _this4.state["li" + i + "show"] ? {} : { "display": "none" } },
-	                            d.child.map(function (d1, j) {
-	                                var active = d1 == _this4.state.activeNav ? css.active : "";
-	                                var li2 = React.createElement(
-	                                    "div",
-	                                    { key: j, className: css.li + " " + css.li2 + " " + active,
-	                                        onClick: function onClick() {
-	                                            _this4.setState({ activeNav: d1 });
-	                                        } },
-	                                    d1
-	                                );
-	                                return li2;
-	                            })
+	                            { style: _this4.state[showName] ? {} : { display: "none" } },
+	                            d.dom
 	                        )
 	                    );
 	                } else {
-	                    var active = d.text == _this4.state.activeNav ? css.active : "";
-	                    li = React.createElement(
+	                    return React.createElement(
 	                        "div",
-	                        { key: i, className: css.li + " " + active, onClick: function onClick() {
-	                                _this4.setState({ activeNav: d.text });
-	                            } },
-	                        d.text
+	                        { key: i },
+	                        d.dom
 	                    );
 	                }
-	                return li;
 	            });
+	            return menu;
 	        }
 	    }, {
 	        key: "setContent",
 	        value: function setContent() {
 	            var _this5 = this;
 
-	            var firstIndex = -1,
-	                secondIndex = -1;
-	            this.state.data.forEach(function (d, i) {
-	                if (d.hasOwnProperty("child")) {
-	                    d.child.map(function (d1, j) {
-	                        if (d1 == _this5.state.activeNav) {
-	                            firstIndex = i;
-	                            secondIndex = j;
-	                        }
-	                    });
-	                } else {
-	                    if (d.text == _this5.state.activeNav) {
-	                        firstIndex = i;
-	                    }
-	                }
+	            var active = this.state.data.find(function (d) {
+	                return d.id == _this5.state.activeId;
 	            });
-	            var activeContent = "";
-	            if (firstIndex >= 0) {
-	                activeContent = this.state.content[firstIndex];
-	                if (secondIndex >= 0) {
-	                    activeContent = activeContent.props.children[secondIndex];
-	                }
+	            if (active != undefined) {
+	                window.location.hash = active.id;
 	            }
-	            return activeContent;
+
+	            return this.state.data.map(function (d, i) {
+	                return React.createElement(
+	                    "div",
+	                    { key: i, style: d.id == _this5.state.activeId ? {} : { display: "none" } },
+	                    d.dom
+	                );
+	            });
 	        }
 	    }]);
 
@@ -21812,16 +21754,15 @@
 
 
 	// module
-	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  position: relative; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    position: absolute;\r\n    overflow-y: auto;\r\n    font-size: 13px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._2atOT8qBdCaEE1i-Qm6BtS {\r\n      height: 120%; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      padding-top: 10px;\r\n      font-size: 16px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n      ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt i {\r\n        margin-right: 5px; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt._3oyE8Ie-pJ8eqE-6rTn4TJ {\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._1dRrkLjWTNkrGHbuO2l8vq {\r\n      margin-left: 20px; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    margin-left: 200px;\r\n    vertical-align: top;\r\n    overflow-y: auto; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
+	exports.push([module.id, "._1A-b3DJMO6F7jyLvZD4rDi {\r\n  position: relative; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh {\r\n    position: absolute;\r\n    overflow-y: auto;\r\n    font-size: 13px;\r\n    width: 200px;\r\n    background-color: #f2f2f2; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      padding-left: 40px;\r\n      height: 40px;\r\n      line-height: 40px;\r\n      padding-top: 10px;\r\n      font-size: 13px;\r\n      cursor: pointer;\r\n      color: #444444; }\r\n      ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt i {\r\n        margin-right: 5px; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt:hover {\r\n      background-color: #e5e5e5 !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh ._4WnbxbM2pEnCoDp2dsUHt._3oyE8Ie-pJ8eqE-6rTn4TJ {\r\n      font-weight: bold;\r\n      color: rgba(0, 0, 0, 0.8) !important; }\r\n    ._1A-b3DJMO6F7jyLvZD4rDi ._1kxhjIqOtZhkA58fdoNdfh .mOvnkx4Rv57t-2SW2J-0j {\r\n      margin-left: 20px; }\r\n  ._1A-b3DJMO6F7jyLvZD4rDi .LNS1JtUh7jb4KsrigQC3n {\r\n    display: inline-block;\r\n    margin-left: 200px;\r\n    vertical-align: top;\r\n    overflow-y: auto; }\r\n\r\n/*# sourceMappingURL=index.css.map */\r\n", ""]);
 
 	// exports
 	exports.locals = {
 		"base": "_1A-b3DJMO6F7jyLvZD4rDi",
 		"menu": "_1kxhjIqOtZhkA58fdoNdfh",
-		"menu1": "_2atOT8qBdCaEE1i-Qm6BtS",
 		"li": "_4WnbxbM2pEnCoDp2dsUHt",
 		"active": "_3oyE8Ie-pJ8eqE-6rTn4TJ",
-		"li2": "_1dRrkLjWTNkrGHbuO2l8vq",
+		"li1": "mOvnkx4Rv57t-2SW2J-0j",
 		"content": "LNS1JtUh7jb4KsrigQC3n"
 	};
 

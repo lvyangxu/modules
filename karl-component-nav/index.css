@@ -6,15 +6,13 @@
     font-size: 13px;
     width: 200px;
     background-color: #f2f2f2; }
-    .base .menu .menu1 {
-      height: 120%; }
     .base .menu .li {
       user-select: none;
       padding-left: 40px;
       height: 40px;
       line-height: 40px;
       padding-top: 10px;
-      font-size: 16px;
+      font-size: 13px;
       cursor: pointer;
       color: #444444; }
       .base .menu .li i {
@@ -24,7 +22,7 @@
     .base .menu .li.active {
       font-weight: bold;
       color: rgba(0, 0, 0, 0.8) !important; }
-    .base .menu .li2 {
+    .base .menu .li1 {
       margin-left: 20px; }
   .base .content {
     display: inline-block;
