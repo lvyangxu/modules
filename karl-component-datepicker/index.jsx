@@ -1,4 +1,3 @@
-let http = require("karl-http");
 let React = require("react");
 let css = require("./index.css");
 require("font-awesome-webpack");
@@ -14,9 +13,8 @@ class radio extends React.Component {
         super(props);
         this.state = {
             panelShow: false,
-            startYear: 1900,
-            endYear: 2100,
-            type: this.props.type ? this.props.type : "day"
+            type: this.props.type ? this.props.type : "day",
+            currentPanel: "month"
         };
         let bindArr = ["panelToggle"];
         bindArr.forEach(d => {
@@ -25,6 +23,12 @@ class radio extends React.Component {
     }
 
     componentDidMount() {
+        let date = new Date();
+
+        this.setState({
+            startYear: date.getFullYear() - 100,
+            endYear: date.getFullYear() + 100,
+        });
 
         window.addEventListener("click", () => {
             if (this.state.panelShow) {
@@ -39,8 +43,8 @@ class radio extends React.Component {
 
     render() {
         return (
-            <div className={css.base + " react-radio"}>
-                <div className={css.display} onClick={this.panelToggle}>
+            <div className={css.base + " react-datepicker"}>
+                <div className={css.input} onClick={this.panelToggle}>
                     {this.state.value}<i className="fa fa-calendar"></i>
                 </div>
                 <div className={css.panel}
@@ -48,6 +52,9 @@ class radio extends React.Component {
                          e.stopPropagation();
                      }}
                      style={(this.state.panelShow) ? {} : {display: "none"}}>
+                    {
+                        this.setPanel()
+                    }
                 </div>
             </div>
         );
@@ -60,6 +67,51 @@ class radio extends React.Component {
         });
     }
 
+    setPanel() {
+        let content;
+        if (this.state.startYear == undefined || this.state.endYear == undefined) {
+            return "";
+        }
+
+        switch (this.state.type) {
+            case "day":
+                switch (this.state.currentPanel) {
+                    case "year":
+                        break;
+                    case "month":
+                        content = <div className={css.content}>
+                            <div className={css.contentHead}>
+                            </div>
+                            <div className={css.contentBody}>
+                                <div className={css.month}></div>
+                            </div>
+                        </div>;
+                        break;
+                    case "day":
+                        break;
+                }
+                break;
+            case "month":
+                switch (this.state.currentPanel) {
+                    case "year":
+                        break;
+                    case "month":
+                        break;
+                }
+                break;
+            case "week":
+                switch (this.state.currentPanel) {
+                    case "year":
+                        break;
+                    case "month":
+                        break;
+                    case "day":
+                        break;
+                }
+                break;
+        }
+        return content;
+    }
 
 }
 

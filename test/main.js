@@ -3,7 +3,7 @@
 var React = require("react");
 var ReactDom = require("react-dom");
 
-var Com = require("../karl-component-nav/index");
+var Com = require("../karl-component-datepicker/index");
 var Radio = require("../karl-component-radio");
 
 ReactDom.render(React.createElement(Com, { data: [{ id: "a", name: "gasga", group: "1", dom: React.createElement(
@@ -37,5 +37,3 @@ ReactDom.render(React.createElement(Com, { data: [{ id: "a", name: "gasga", grou
 // {id: "p", name: "p"},
 // {id: "q", name: "q"},
 // {id: "r", name: "r"}
-
-//# sourceMappingURL=main.js.map

@@ -8,7 +8,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var http = require("karl-http");
 var React = require("react");
 var css = require("./index.css");
 require("font-awesome-webpack");
@@ -30,9 +29,8 @@ var radio = function (_React$Component) {
 
         _this.state = {
             panelShow: false,
-            startYear: 1900,
-            endYear: 2100,
-            type: _this.props.type ? _this.props.type : "day"
+            type: _this.props.type ? _this.props.type : "day",
+            currentPanel: "month"
         };
         var bindArr = ["panelToggle"];
         bindArr.forEach(function (d) {
@@ -45,6 +43,13 @@ var radio = function (_React$Component) {
         key: "componentDidMount",
         value: function componentDidMount() {
             var _this2 = this;
+
+            var date = new Date();
+
+            this.setState({
+                startYear: date.getFullYear() - 100,
+                endYear: date.getFullYear() + 100
+            });
 
             window.addEventListener("click", function () {
                 if (_this2.state.panelShow) {
@@ -60,18 +65,22 @@ var radio = function (_React$Component) {
         value: function render() {
             return React.createElement(
                 "div",
-                { className: css.base + " react-radio" },
+                { className: css.base + " react-datepicker" },
                 React.createElement(
                     "div",
-                    { className: css.display, onClick: this.panelToggle },
+                    { className: css.input, onClick: this.panelToggle },
                     this.state.value,
                     React.createElement("i", { className: "fa fa-calendar" })
                 ),
-                React.createElement("div", { className: css.panel,
-                    onClick: function onClick(e) {
-                        e.stopPropagation();
-                    },
-                    style: this.state.panelShow ? {} : { display: "none" } })
+                React.createElement(
+                    "div",
+                    { className: css.panel,
+                        onClick: function onClick(e) {
+                            e.stopPropagation();
+                        },
+                        style: this.state.panelShow ? {} : { display: "none" } },
+                    this.setPanel()
+                )
             );
         }
     }, {
@@ -82,11 +91,59 @@ var radio = function (_React$Component) {
                 panelShow: !this.state.panelShow
             });
         }
+    }, {
+        key: "setPanel",
+        value: function setPanel() {
+            var content = void 0;
+            if (this.state.startYear == undefined || this.state.endYear == undefined) {
+                return "";
+            }
+
+            switch (this.state.type) {
+                case "day":
+                    switch (this.state.currentPanel) {
+                        case "year":
+                            break;
+                        case "month":
+                            content = React.createElement(
+                                "div",
+                                { className: css.content },
+                                React.createElement("div", { className: css.contentHead }),
+                                React.createElement(
+                                    "div",
+                                    { className: css.contentBody },
+                                    React.createElement("div", { className: css.month })
+                                )
+                            );
+                            break;
+                        case "day":
+                            break;
+                    }
+                    break;
+                case "month":
+                    switch (this.state.currentPanel) {
+                        case "year":
+                            break;
+                        case "month":
+                            break;
+                    }
+                    break;
+                case "week":
+                    switch (this.state.currentPanel) {
+                        case "year":
+                            break;
+                        case "month":
+                            break;
+                        case "day":
+                            break;
+                    }
+                    break;
+            }
+            return content;
+        }
     }]);
 
     return radio;
 }(React.Component);
 
 module.exports = radio;
-
-//# sourceMappingURL=index.js.map

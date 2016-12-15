@@ -1,7 +1,7 @@
 let React = require("react");
 let ReactDom = require("react-dom");
 
-let Com = require("../karl-component-nav/index");
+let Com = require("../karl-component-datepicker/index");
 let Radio = require("../karl-component-radio");
 
 ReactDom.render(
