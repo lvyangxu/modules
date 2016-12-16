@@ -3,8 +3,8 @@
     <properties>
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/karl-tcp-server/index.js" />
-        <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/karl-cookie/index.js" />
+        <item url="file://$PROJECT_DIR$/test.js" />
         <item url="file://$PROJECT_DIR$/karl-component-carousel/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
         <item url="file://$PROJECT_DIR$/karl-extend/index.js" />
@@ -13,11 +13,10 @@
         <item url="file://$PROJECT_DIR$/tcp/server.js" />
         <item url="file://$PROJECT_DIR$/test/main.js" />
         <item url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
+        <item url="file://$PROJECT_DIR$/gulp.js" />
         <item url="file://$PROJECT_DIR$/karl-xml/index.js" />
-        <item url="file://$PROJECT_DIR$/test.js" />
         <item url="file://$PROJECT_DIR$/karl-http/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-select/index.js" />
-        <item url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
       </sourceFilesUrls>
     </properties>
@@ -31,8 +30,8 @@
       <root url="file://$PROJECT_DIR$/test/tcpTest.js" />
       <root url="file://$PROJECT_DIR$/test/tcpTest.js" />
       <root url="file://$PROJECT_DIR$/karl-tcp-server/index.js" />
-      <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/karl-cookie/index.js" />
+      <root url="file://$PROJECT_DIR$/test.js" />
       <root url="file://$PROJECT_DIR$/karl-component-carousel/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
       <root url="file://$PROJECT_DIR$/karl-extend/index.js" />
@@ -41,11 +40,10 @@
       <root url="file://$PROJECT_DIR$/tcp/server.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
       <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
+      <root url="file://$PROJECT_DIR$/gulp.js" />
       <root url="file://$PROJECT_DIR$/karl-xml/index.js" />
-      <root url="file://$PROJECT_DIR$/test.js" />
       <root url="file://$PROJECT_DIR$/karl-http/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
     </CLASSES>
     <SOURCES />
