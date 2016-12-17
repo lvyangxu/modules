@@ -6,7 +6,16 @@ var ReactDom = require("react-dom");
 var Com = require("../karl-component-datepicker/index");
 var Radio = require("../karl-component-radio");
 
-ReactDom.render(React.createElement(Com, { type: "month" }), document.getElementById("test"));
+ReactDom.render(React.createElement(
+    "div",
+    null,
+    React.createElement(Com, { type: "month", callback: function callback(d) {
+            console.log(d);
+        } }),
+    React.createElement(Com, { type: "day", callback: function callback(d) {
+            console.log(d);
+        } })
+), document.getElementById("test"));
 // data={[
 //     {id: "a", name: "gasga", group: "1", dom: <div><Radio data={[1, 2, 3]}/></div>},
 // {id: "e", name: "sagas", dom: <div><Radio data={[1, 2, 3]}/></div>},

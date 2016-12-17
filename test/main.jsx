@@ -5,7 +5,14 @@ let Com = require("../karl-component-datepicker/index");
 let Radio = require("../karl-component-radio");
 
 ReactDom.render(
-    <Com type="month"/>
+    <div>
+        <Com type="month" callback={d => {
+            console.log(d);
+        }}/>
+        <Com type="day" callback={d => {
+            console.log(d);
+        }}/>
+    </div>
     , document.getElementById("test"));
 // data={[
 //     {id: "a", name: "gasga", group: "1", dom: <div><Radio data={[1, 2, 3]}/></div>},

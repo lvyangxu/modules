@@ -39,6 +39,7 @@
     "karl-component-nav": "file:karl-component-nav",
     "karl-component-radio": "^0.1.17",
     "karl-component-select": "^0.1.5",
+    "karl-date": "file:karl-date",
     "karl-extend": "^0.1.2",
     "karl-http": "latest",
     "less": "^2.7.1",

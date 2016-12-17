@@ -41,9 +41,12 @@
     margin-top: 4px; }
     .base .panel .content .contentHead {
       margin-top: 10px;
-      margin-bottom: 10px; }
+      margin-bottom: 10px;
+      width: 140px;
+      font-size: 0; }
       .base .panel .content .contentHead .left, .base .panel .content .contentHead .middle, .base .panel .content .contentHead .right {
         display: inline-block;
+        font-size: 12px;
         text-align: center;
         padding-top: 5px;
         padding-bottom: 5px; }
@@ -58,9 +61,10 @@
         cursor: pointer;
         background: linear-gradient(to bottom, #ededed, #dbdbdb);
         box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
-    .base .panel .content .contentBody .month .row {
+    .base .panel .content .contentBody .year .row, .base .panel .content .contentBody .month .row, .base .panel .content .contentBody .day .row {
       width: 140px; }
-      .base .panel .content .contentBody .month .row .monthCell {
+      .base .panel .content .contentBody .year .row .yearCell, .base .panel .content .contentBody .year .row .monthCell, .base .panel .content .contentBody .month .row .yearCell, .base .panel .content .contentBody .month .row .monthCell, .base .panel .content .contentBody .day .row .yearCell, .base .panel .content .contentBody .day .row .monthCell {
+        cursor: pointer;
         user-select: none;
         text-align: center;
         width: 35px;
@@ -68,9 +72,24 @@
         line-height: 35px;
         float: left;
         font-size: 12px; }
-      .base .panel .content .contentBody .month .row .monthCell:hover {
+      .base .panel .content .contentBody .year .row .dayCell, .base .panel .content .contentBody .month .row .dayCell, .base .panel .content .contentBody .day .row .dayCell {
         cursor: pointer;
+        user-select: none;
+        text-align: center;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        float: left;
+        font-size: 12px; }
+      .base .panel .content .contentBody .year .row .dayCell.title, .base .panel .content .contentBody .month .row .dayCell.title, .base .panel .content .contentBody .day .row .dayCell.title {
+        cursor: auto; }
+      .base .panel .content .contentBody .year .row .dayCell.title:hover, .base .panel .content .contentBody .month .row .dayCell.title:hover, .base .panel .content .contentBody .day .row .dayCell.title:hover {
+        background: inherit;
+        box-shadow: none; }
+      .base .panel .content .contentBody .year .row .dayCell.dark, .base .panel .content .contentBody .month .row .dayCell.dark, .base .panel .content .contentBody .day .row .dayCell.dark {
+        color: rgba(150, 150, 150, 0.6); }
+      .base .panel .content .contentBody .year .row .yearCell:hover, .base .panel .content .contentBody .year .row .monthCell:hover, .base .panel .content .contentBody .year .row .dayCell:hover, .base .panel .content .contentBody .month .row .yearCell:hover, .base .panel .content .contentBody .month .row .monthCell:hover, .base .panel .content .contentBody .month .row .dayCell:hover, .base .panel .content .contentBody .day .row .yearCell:hover, .base .panel .content .contentBody .day .row .monthCell:hover, .base .panel .content .contentBody .day .row .dayCell:hover {
         background: linear-gradient(to bottom, #ededed, #dbdbdb);
         box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
-      .base .panel .content .contentBody .month .row .monthCell.active {
+      .base .panel .content .contentBody .year .row .yearCell.active, .base .panel .content .contentBody .year .row .monthCell.active, .base .panel .content .contentBody .year .row .dayCell.active, .base .panel .content .contentBody .month .row .yearCell.active, .base .panel .content .contentBody .month .row .monthCell.active, .base .panel .content .contentBody .month .row .dayCell.active, .base .panel .content .contentBody .day .row .yearCell.active, .base .panel .content .contentBody .day .row .monthCell.active, .base .panel .content .contentBody .day .row .dayCell.active {
         background: linear-gradient(to bottom, #ededed, #dbdbdb); }
