@@ -1,8 +1,8 @@
 {
   "name": "karl-component-carousel",
-  "version": "0.1.1",
+  "version": "2.0.0",
   "description": "react component carousel",
-  "main": "index.js",
+  "main": "index.jsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,5 +1,3 @@
-'use strict';
-
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -12,11 +10,13 @@ var webpack = require('webpack-stream');
 var gutil = require('gulp-util');
 
 gulp.task('build', function () {
-    var config = require('./webpack.config.js');
-    gulp.src('test/main.js').pipe(webpack(config)).on('error', function (err) {
-        gutil.log('Error!', err.message);
-        this.end();
-    }).pipe(gulp.dest('test/'));
+    let config = require('./webpack.config.js');
+    gulp.src('test/main.jsx')
+        .pipe(webpack(config))
+        .on('error', function (err) {
+            gutil.log('Error!', err.message);
+            this.end();
+        })
+        .pipe(gulp.dest('test/'));
 });
 
-//# sourceMappingURL=gulp.js.map

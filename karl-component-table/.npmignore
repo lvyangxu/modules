@@ -1,3 +1,7 @@
+*.es6
+*.map
+*.scss
 *.log
+*.jsx
 .npmignore
 .gitignore

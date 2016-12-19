@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .base {
     position: relative;
     overflow: hidden;
@@ -12,6 +11,9 @@
             .inner {
                 background-color: white;
                 margin: 10px;
+                img {
+                    width: 100%;
+                }
             }
         }
 

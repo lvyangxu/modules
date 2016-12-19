@@ -15,11 +15,12 @@ module.exports = {
             },
             {test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader"},
             {
-                test: /\.js$/,
+                test: /\.js$|\.jsx$/,
                 exclude: /(node_modules|bower_components)/,
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015']
+                    presets: ['es2015','react'],
+                    "plugins": ["syntax-async-functions","transform-regenerator"]
                 }
             }
         ]

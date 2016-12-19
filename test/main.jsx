@@ -1,17 +1,23 @@
 let React = require("react");
 let ReactDom = require("react-dom");
 
-let Com = require("../karl-component-datepicker/index");
-let Radio = require("../karl-component-radio");
+let Com = require("../karl-component-chart/index.jsx");
 
 ReactDom.render(
     <div>
-        <Com type="month" callback={d => {
-            console.log(d);
-        }}/>
-        <Com type="day" callback={d => {
-            console.log(d);
-        }}/>
+        <Com title="chart" yAxisText="kg" x="date"
+             y={[
+                 {id: "apple", name: "apple"},
+                 {id: "banana", name: "banana"},
+                 {id: "pear", name: "pear"},
+             ]}
+             data={[
+                 {date: "2016-9-11", apple: 1, banana: 2, pear: 3},
+                 {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2},
+                 {date: "2016-9-12", apple: 5, banana: 47},
+                 {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4},
+                 {date: "2016-9-15", apple: 0.08, banana: 6}
+             ]}/>
     </div>
     , document.getElementById("test"));
 // data={[

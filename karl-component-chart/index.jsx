@@ -1,16 +1,30 @@
-let React = require("react");
-let css = require("./index.css");
-require("karl-extend");
-let $ = require("jquery");
+import React from "react";
+import css from "./index.scss";
+import "karl-extend";
+import $ from "jquery";
 
 /**
- * chart component,props means:
- * title: text on the svg top
- * yAxisText: text on the yAxis left
- * type: svg chart type,curve or bar,default curve
- * x: svg xAxis id
- * y: svg yAxis json,like {id:id,name:name}
- * data: json contains keys of x and y[id]
+ * react图表组件
+ * title：顶部的文字
+ * yAxisText: Y轴左边的文字
+ * type: 图表类型curve或bar，默认为curve
+ * x: 代表x轴的id
+ * y: 代表y轴的json，例如{id:id,name:name}
+ * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
+ *
+ * 示例：
+ * <Chart title="chart" yAxisText="kg" x="date" y={[
+ *               {id: "apple", name: "apple"},
+ *               {id: "banana", name: "banana"},
+ *               {id: "pear", name: "pear"}
+ *           ]} data={[
+ *               {date: "2016-9-11", apple: 1, banana: 2, pear: 3},
+ *               {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2},
+ *               {date: "2016-9-12", apple: 5, banana: 47},
+ *               {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4},
+ *               {date: "2016-9-15", apple: 0.08, banana: 6}
+ *           ]}/>
+ *
  */
 class chart extends React.Component {
     constructor(props) {
@@ -120,8 +134,8 @@ class chart extends React.Component {
             <g>
                 {
                     this.state.title ? <g className={css.title}>
-                        <text x="50" y="3">{this.state.title}</text>
-                    </g> : ""
+                            <text x="50" y="3">{this.state.title}</text>
+                        </g> : ""
                 }
                 <g className={css.xAxis}>
                     <path d="M10 55 h 80"/>
@@ -147,8 +161,8 @@ class chart extends React.Component {
                 </g>
                 {
                     this.state.yAxisText ? <g className={css.yAxisText}>
-                        <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
-                    </g> : ""
+                            <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
+                        </g> : ""
                 }
 
                 <g className={css.xGrid}>
@@ -265,7 +279,7 @@ class chart extends React.Component {
     }
 
     /**
-     * set type list icon
+     * 设置所有类型的 icon
      * @returns {XML}
      */
     setTypeList() {
@@ -301,9 +315,9 @@ class chart extends React.Component {
     }
 
     /**
-     * sort data by x axis value
+     * 如果x坐标类型为日期，则自动根据日期大小对x轴进行排序
      * @param d
-     * @returns {Array.<T>|string|Buffer|*|{options, browsertest, dist, rhino, rhinolessc}}
+     * @returns {Array.<T>|*|{options, browsertest, dist, rhino, rhinolessc}|string}
      */
     sortData(d) {
         let data = d.concat();
@@ -330,7 +344,7 @@ class chart extends React.Component {
     }
 
     /**
-     * fill 0 if y don't have value
+     * 如果data中未指定该y的值，则默认设置为0
      * @param data
      * @param y
      * @returns {*}
@@ -348,7 +362,7 @@ class chart extends React.Component {
     }
 
     /**
-     *
+     * 获取y轴的值数组
      * @param yData this.props.y
      * @param data this.props.data
      * @returns {Array}
@@ -491,7 +505,7 @@ class chart extends React.Component {
     }
 
     /**
-     * transform vector x,y to svg coordinates
+     * 将自然坐标 x,y 转化为 svg 坐标系的值
      * @param vector
      * @returns {{x: *, y: *}}
      */
@@ -503,7 +517,7 @@ class chart extends React.Component {
     }
 
     /**
-     * transform x to svg coordinates
+     * 将自然坐标 x 转化为 svg 坐标系的值
      * @param x
      * @returns {number|*}
      */
@@ -514,7 +528,7 @@ class chart extends React.Component {
     }
 
     /**
-     * transform y to svg coordinates
+     * 将自然坐标 y 转化为 svg 坐标系的值
      * @param y
      * @returns {*}
      */
@@ -539,7 +553,7 @@ class chart extends React.Component {
     }
 
     /**
-     * transform y to natural coordinates
+     * 将svg坐标 y 转化为自然坐标系的值
      * @param y
      * @returns {number|*}
      */
@@ -563,7 +577,7 @@ class chart extends React.Component {
     }
 
     /**
-     * get bezier curve point x1,y1 and x2,y2
+     * 获取贝塞尔曲线两个点的左边 x1,y1 和 x2,y2
      * @param lastX
      * @param lastY
      * @param x
@@ -587,11 +601,11 @@ class chart extends React.Component {
         x1 = Number.parseInt(lastX - anglePoint1X);
         x2 = Number.parseInt(x - anglePoint2X);
         if (y > lastY) {
-            //line goes lower
+            //曲线走势向下
             y1 = Number.parseInt(lastY + anglePoint1Y);
             y2 = Number.parseInt(y + anglePoint2Y);
         } else {
-            //line goes higher
+            //曲线走势向上
             y1 = Number.parseInt(lastY - anglePoint1Y);
             y2 = Number.parseInt(y - anglePoint2Y);
         }
@@ -607,7 +621,7 @@ class chart extends React.Component {
     }
 
     /**
-     * get dots symbol
+     * 获取符号的svg路径dom
      * @param index
      * @param x
      * @param y
@@ -618,32 +632,32 @@ class chart extends React.Component {
         let dots, r;
         let color = this.state.y[index].color;
         switch (index % 5) {
-            //circle
+            //圆
             case 0:
                 r = 0.3;
                 dots = <circle stroke={color} fill={color} cx={x} cy={y} r={r}
                                style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
-            //square
+            //正方形
             case 1:
                 r = 0.4;
                 dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}
                              style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
-            //square rotate -45 angle
+            //正方形逆时针旋转45度
             case 2:
                 r = 0.4;
                 dots = <path stroke={color} fill={color} transform={`rotate(-45,${x},${y})`}
                              d={`M${x - r / 2} ${y - r / 2} h${r} v${r} h-${r} z`}
                              style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
-            //triangle
+            //三角形
             case 3:
                 r = 0.4;
                 dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y + r / 2} h${r} L${x} ${y - r / 2} z`}
                              style={this.state["dot-" + id + "-active"] ? {strokeWidth: 0.6} : {}}/>;
                 break;
-            //inverted triangle
+            //反三角形
             case 4:
                 r = 0.4;
                 dots = <path stroke={color} fill={color} d={`M${x - r / 2} ${y - r / 2} h${r} L${x} ${y + r / 2} z`}
@@ -655,7 +669,7 @@ class chart extends React.Component {
     }
 
     /**
-     * set active when mouse hover
+     * 根据鼠标位置设置激活的系列
      * @param e
      */
     setActive(e) {
@@ -687,7 +701,7 @@ class chart extends React.Component {
     }
 
     /**
-     * find the nearest series
+     * 寻找最近的系列
      * @param x svgX
      * @param y svgY
      * @returns {*} series
@@ -700,7 +714,7 @@ class chart extends React.Component {
 
             switch (this.state.type) {
                 case "curve":
-                    //find the corresponding y by x and slope
+                    //根据x和斜率寻找最近的y
                     let yMap = [];
                     if (x <= 10 + w / 2) {
                         tipsX = 10 + w / 2;
@@ -797,7 +811,7 @@ class chart extends React.Component {
     }
 
     /**
-     * render data by chart type
+     * 根据图表类型渲染dom
      * @returns {*}
      */
     renderData() {
@@ -861,7 +875,7 @@ class chart extends React.Component {
     }
 
     /**
-     * set color
+     * 设置随机颜色
      * @param propsY
      * @returns {*}
      */
@@ -885,7 +899,7 @@ class chart extends React.Component {
     }
 
     /**
-     * set tips text
+     * 设置鼠标悬浮时提示的文字
      * @returns {XML}
      */
     setTipsText() {
@@ -907,7 +921,7 @@ class chart extends React.Component {
     }
 
     /**
-     * set tips border
+     * 设置鼠标悬浮时提示的边框
      * @returns {*}
      */
     setTips() {

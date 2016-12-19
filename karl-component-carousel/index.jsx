@@ -1,19 +1,30 @@
-let React = require("react");
-let css = require("./index.css");
-let $ = require("jquery");
+import React from "react";
+import css from "./index.scss";
+import $ from "jquery";
 
-
+/**
+ * react轮播组件,组件第一级子元素为进行轮播的dom
+ * dots：为false或"false"时不显示，默认显示
+ * arrows：为false或"false"时不显示，默认显示(未开发)
+ * auto：为false或"false"时不自动播放，默认自动播放，间隔为5秒
+ *
+ * 示例：
+ * <Carousel>
+ *     <img src="1.png"/>
+ *     <img src="2.png"/>
+ *     <img src="3.png"/>
+ * </Carousel>
+ */
 class carousel extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             content: [],
-            itemWidth: 200,
             index: 1,
             isMouseDown: false
         };
         let bindArr = ["delegateMouse", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove", "autoPlay"];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
@@ -47,15 +58,13 @@ class carousel extends React.Component {
                 <div style={{
                     width: 100 * this.state.content.length + "%",
                     marginLeft: "-100%"
-                }} className={css.container} ref={(d)=> {
+                }} className={css.container} ref={(d) => {
                     this.container = d;
                 }}>
                     {
-                        this.state.content.map((d, i)=> {
-                            return <div key={i} style={{
-                                width: 100 / (this.state.content.length) + "%"
-                            }}
-                                        className={css.item}>
+                        this.state.content.map((d, i) => {
+                            let style = {width: 100 / (this.state.content.length) + "%"};
+                            return <div key={i} style={style} className={css.item}>
                                 <div className={css.inner}>{d}</div>
                             </div>
                         })
@@ -63,16 +72,16 @@ class carousel extends React.Component {
                 </div>
                 <div className={css.dots} style={this.state.dots ? {} : {display: "none"}}>
                     {
-                        this.state.content.filter((d, i)=> {
+                        this.state.content.filter((d, i) => {
                             if (i == 0 || i == this.state.content.length - 1) {
                                 return false;
                             } else {
                                 return true;
                             }
-                        }).map((d, i)=> {
+                        }).map((d, i) => {
                             return <div key={i}
                                         className={(this.state.index - 1 == i) ? (css.dot + " " + css.active) : css.dot}
-                                        onClick={()=> {
+                                        onClick={() => {
                                             this.animateTo(i + 1);
                                         }}></div>
                         })
@@ -83,11 +92,11 @@ class carousel extends React.Component {
     }
 
     autoPlay() {
-        setTimeout(()=> {
+        setTimeout(() => {
             if (this.state.manual) {
                 return;
             }
-            if(!this.state.isHover){
+            if (!this.state.isHover) {
                 if (this.state.index == this.state.content.length - 2) {
                     this.cssTo(0);
                     this.animateTo(1);
@@ -198,7 +207,7 @@ class carousel extends React.Component {
             e.preventDefault();
             this.doMove(e.touches[0].pageX);
         }, false);
-        this.container.addEventListener('touchend', e=> {
+        this.container.addEventListener('touchend', e => {
             e.preventDefault();
             this.endMove();
         });
@@ -208,7 +217,7 @@ class carousel extends React.Component {
         this.container.addEventListener('mouseover', e => {
             e.preventDefault();
             this.setState({
-                isHover:true
+                isHover: true
             });
         }, false);
         this.container.addEventListener('mousedown', e => {
@@ -222,7 +231,7 @@ class carousel extends React.Component {
         this.container.addEventListener('mouseleave', e => {
             e.preventDefault();
             this.setState({
-                isHover:false
+                isHover: false
             });
             this.endMove();
         }, false);
