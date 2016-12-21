@@ -1,13 +1,16 @@
-let http = require("karl-http");
-let React = require("react");
-let css = require("./index.css");
-require("font-awesome-webpack");
+import React from "react";
+import css from "./index.scss";
+import "font-awesome-webpack";
+import http from "karl-http";
 
 /**
- * radio component,props means:
- * data:an array,element can be string or number
- * defaultBlank:if this props exits,then default value is "",else default value is the first option
- * callback:function after value change,param is current select value
+ * react单选组件
+ * data:单选值数组，元素可为数字或字符串
+ * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
+ * callback：值改变时执行的回调
+ *
+ * 示例：
+ * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
 class radio extends React.Component {
     constructor(props) {
@@ -22,22 +25,22 @@ class radio extends React.Component {
             pageIndex: 0
         };
         let bindArr = ["panelToggle", "filterChange", "select", "setOptionHtml", "slicePageData"];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
 
     componentDidMount() {
         if (this.props.url != undefined) {
-            http.post(this.props.url).then(d=> {
+            http.post(this.props.url).then(d => {
                 let pageData = this.slicePageData(d, 0);
                 this.setState({
-                    value: this.props.defaultBlank ? "" : d[0],
+                    value: (this.props.defaultBlank != undefined) ? "" : d[0],
                     sourceData: d,
                     filterData: d,
                     pageData: pageData
                 });
-            }).catch(d=> {
+            }).catch(d => {
                 console.log("init radio failed:" + d);
             });
 
@@ -45,14 +48,14 @@ class radio extends React.Component {
             let data = this.props.data;
             let pageData = this.slicePageData(data, 0);
             this.setState({
-                value: this.props.defaultBlank ? "" : data[0],
+                value: (this.props.defaultBlank != undefined) ? "" : data[0],
                 sourceData: data,
                 filterData: data,
                 pageData: pageData
             });
         }
 
-        window.addEventListener("click", ()=> {
+        window.addEventListener("click", () => {
             if (this.state.panelShow) {
                 this.setState({panelShow: false});
             }
@@ -74,7 +77,7 @@ class radio extends React.Component {
                     {this.state.value}<i className="fa fa-caret-down"></i>
                 </div>
                 <div className={css.panel}
-                     onClick={(e)=>{
+                     onClick={(e) => {
                          e.stopPropagation();
                      }}
                      style={(this.state.panelShow) ? {} : {display: "none"}}>
@@ -85,31 +88,31 @@ class radio extends React.Component {
                     </div>
                     <div className={css.options}>
                         {
-                            this.state.pageData.map((d, i)=> {
-                                return <div key={i} className={css.option} onClick={()=> {
+                            this.state.pageData.map((d, i) => {
+                                return <div key={i} className={css.option} onClick={() => {
                                     this.select(d)
                                 }} dangerouslySetInnerHTML={this.setOptionHtml(d)}></div>
                             })
                         }
                         <div className={css.page}>
-                            <button className={css.pageLeft} onClick={()=> {
+                            <button className={css.pageLeft} onClick={() => {
                                 this.pageToStart();
                             }}>
                                 <i className="fa fa-angle-double-left"></i>
                             </button>
-                            <button className={css.pageLeft} onClick={()=> {
+                            <button className={css.pageLeft} onClick={() => {
                                 this.pageLeft();
                             }}>
                                 <i className="fa fa-angle-left"></i>
                             </button>
                             {(this.state.pageIndex + 1) + "/" + ((Math.ceil(this.state.filterData.length / 10) == 0)
                                 ? 1 : Math.ceil(this.state.filterData.length / 10))}
-                            <button className={css.pageRight} onClick={()=> {
+                            <button className={css.pageRight} onClick={() => {
                                 this.pageRight();
                             }}>
                                 <i className="fa fa-angle-right"></i>
                             </button>
-                            <button className={css.pageRight} onClick={()=> {
+                            <button className={css.pageRight} onClick={() => {
                                 this.pageToEnd();
                             }}>
                                 <i className="fa fa-angle-double-right"></i>
@@ -129,7 +132,7 @@ class radio extends React.Component {
     }
 
     filterChange(e) {
-        let filterData = this.state.sourceData.filter(d=> {
+        let filterData = this.state.sourceData.filter(d => {
             return d.toString().includes(e.target.value);
         });
         let pageData = this.slicePageData(filterData, 0);
@@ -159,7 +162,7 @@ class radio extends React.Component {
         if (v == "") {
             return {__html: d};
         } else {
-            let result = d.toString().replace(regex, ()=> {
+            let result = d.toString().replace(regex, () => {
                 return "<strong>" + v + "</strong>";
             });
             return {__html: result};
@@ -198,7 +201,7 @@ class radio extends React.Component {
         });
     }
 
-    pageToStart(){
+    pageToStart() {
         let i = 0;
         this.setState({
             pageIndex: i,
@@ -206,7 +209,7 @@ class radio extends React.Component {
         });
     }
 
-    pageToEnd(){
+    pageToEnd() {
         let end = Math.ceil(this.state.filterData.length / 10);
         let i = end - 1;
         this.setState({

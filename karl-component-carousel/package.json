@@ -1,6 +1,6 @@
 {
   "name": "karl-component-carousel",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "react component carousel",
   "main": "index.jsx",
   "scripts": {
@@ -8,8 +8,10 @@
   },
   "author": "lvyangxu",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "react": "latest",
+    "jquery": "latest"
+  },
   "dependencies": {
-
   }
 }

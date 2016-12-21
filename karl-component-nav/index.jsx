@@ -1,10 +1,25 @@
-let React = require("react");
-let css = require("./index.css");
-require("font-awesome-webpack");
-let $ = require("jquery");
+import React from "react";
+import css from "./index.scss";
+import "font-awesome-webpack";
+import $ from "jquery";
 
 /**
+ * react左侧菜单导航组件
+ * data：菜单json数组，例如{id:"a",name:"啊",group:"哈",dom:<div>1</div>}
+ *       id表示该菜单的id，用户锚点定位
+ *       name表示菜单显示的文本
+ *       group表示该二级菜单所属的一级菜单，如果没有group属性，表示自身是一级菜单
+ *       dom表示该菜单对应的dom
  *
+ * 示例：
+ * <Nav data={[
+ *     {id: "a", name: "gasga", group: "1级菜单a", dom: <div>fasfs</div>},
+ *     {id: "e", name: "sagas", dom: <div>afafs</div>},
+ *     {id: "b", name: "safas", group: "1级菜单a", dom: <div>4324</div>},
+ *     {id: "c", name: "gasgsa", group: "1级菜单b", dom: <div>43q4</div>},
+ *     {id: "d", name: "gas12rgsa", group: "1级菜单b", dom: <div>123</div>},
+ *     {id: "f", name: "sagas1", dom: <div>1wrq</div>}
+ * ]}/>
  */
 class nav extends React.Component {
     constructor(props) {

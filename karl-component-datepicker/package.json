@@ -1,6 +1,6 @@
 {
   "name": "karl-component-datepicker",
-  "version": "0.1.0",
+  "version": "2.0.2",
   "description": "react component datepicker",
   "main": "index.js",
   "scripts": {
@@ -9,9 +9,10 @@
   "author": "lvyangxu",
   "license": "ISC",
   "devDependencies": {
+    "react": "latest",
+    "font-awesome-webpack": "latest",
     "karl-date": "latest"
   },
   "dependencies": {
-
   }
 }

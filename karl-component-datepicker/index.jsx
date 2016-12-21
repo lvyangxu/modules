@@ -1,15 +1,19 @@
-let React = require("react");
-let css = require("./index.scss");
-require("font-awesome-webpack");
-let date = require("karl-date");
+import React from "react";
+import css from "./index.scss";
+import "font-awesome-webpack";
+import date from "karl-date";
 
 /**
- * radio component,props means:
- * data:an array,element can be string or number
- * defaultBlank:if this props exits,then default value is "",else default value is the first option
- * callback:function after value change,param is current select value
+ * react日期组件
+ * type：日期类型，day或month，默认为day
+ * callback：日期改变时执行的回调
+ *
+ * 示例：
+ * <Datepicker type="month" callback={d=>{
+ *         console.log('date is '+d);
+ *     }}/>
  */
-class radio extends React.Component {
+class datepicker extends React.Component {
     constructor(props) {
         super(props);
         let type = this.props.type ? this.props.type : "day";
@@ -45,8 +49,6 @@ class radio extends React.Component {
     }
 
     componentDidMount() {
-
-
         window.addEventListener("click", () => {
             if (this.state.panelShow) {
                 this.setState({panelShow: false});
@@ -517,4 +519,4 @@ class radio extends React.Component {
     }
 
 }
-module.exports = radio;
+module.exports = datepicker;

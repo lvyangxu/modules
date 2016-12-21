@@ -1,6 +1,6 @@
 {
   "name": "karl-component-chart",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "react component chart",
   "main": "index.jsx",
   "scripts": {
@@ -8,8 +8,11 @@
   },
   "author": "lvyangxu",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "react": "latest",
+    "karl-extend": "latest",
+    "jquery": "latest"
+  },
   "dependencies": {
-    "karl-extend": "latest"
   }
 }

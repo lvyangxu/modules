@@ -1,6 +1,6 @@
 {
   "name": "karl-component-select",
-  "version": "0.1.8",
+  "version": "2.0.0",
   "description": "react component select",
   "main": "index.js",
   "scripts": {
@@ -8,8 +8,10 @@
   },
   "author": "lvyangxu",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "react": "latest",
+    "font-awesome-webpack": "latest"
+  },
   "dependencies": {
-
   }
 }

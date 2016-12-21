@@ -1,14 +1,24 @@
-let React = require("react");
-let css = require("./index.css");
-require("font-awesome-webpack");
+import React from "react";
+import css from "./index.scss";
+import "font-awesome-webpack";
 
 /**
- * select component,props means:
- * text:display text
- * data:a json array,json struct is {id:*,name:*,checked:*}
- * optionNumPerColumn:how many options display in one column
- * lang:ui language,default en
- * callback:function after value change,param is current data
+ * react多选组件
+ * text:显示的文字
+ * data:值得json数组,例如{id:string,name:string,checked:boolean}
+ * optionNumPerColumn:每一列显示option的数量，默认为10
+ * lang:界面语言,en或ch，默认为en
+ * callback:值改变后的回调，参数为值改变后对应的data数组
+ *
+ * 示例：
+ * <Select text="呵呵" data=[
+ *         {id:"a",name:"大概",checked:true},
+ *         {id:"b",name:"asf",checked:true},
+ *         {id:"c",name:"sf方式",checked:false},
+ *     ] optionNumPerColumn={5} lang="ch" callback={d=>{
+ *         console.log("data array is");
+ *         console.log(data);
+ *     }}/>
  */
 class select extends React.Component {
     constructor(props) {
@@ -21,7 +31,7 @@ class select extends React.Component {
             lang: this.props.lang == "ch" ? "ch" : "en"
         };
         let bindArr = ["panelToggle", "setData", "check", "allCheck"];
-        bindArr.forEach(d=> {
+        bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
@@ -30,7 +40,7 @@ class select extends React.Component {
         let data = this.setData(this.props.data);
         this.setState({data: data});
 
-        window.addEventListener("click", ()=> {
+        window.addEventListener("click", () => {
             if (this.state.panelShow) {
                 this.setState({panelShow: false});
             }
@@ -49,11 +59,11 @@ class select extends React.Component {
                     {this.props.text}<i className="fa fa-caret-down"></i>
                 </div>
                 <div className={css.panel} style={(this.state.panelShow) ? {} : {display: "none"}}
-                     onClick={(e)=> {
+                     onClick={(e) => {
                          e.stopPropagation();
                      }}>
                     <div className={css.allCheck}>
-                        <input type="checkbox" onChange={(e)=> {
+                        <input type="checkbox" onChange={(e) => {
                             this.allCheck(e);
                         }} checked={this.state.allChecked}/>
                         <label>
@@ -62,12 +72,12 @@ class select extends React.Component {
                     </div>
                     <div className={css.options}>
                         {
-                            this.state.data.map((d, i)=> {
+                            this.state.data.map((d, i) => {
                                 return <div key={i} className={css.column}>
                                     {
-                                        d.map((d1, j)=> {
+                                        d.map((d1, j) => {
                                             return <div className={css.option} key={j}>
-                                                <input type="checkbox" onChange={(e)=> {
+                                                <input type="checkbox" onChange={(e) => {
                                                     this.check(e, d1.id);
                                                 }} checked={d1.checked}/><label>{d1.name}</label>
                                             </div>;
@@ -102,8 +112,8 @@ class select extends React.Component {
 
     check(e, id) {
         e.target.parentNode.parentNode.parentNode.parentNode.parentNode.focus();
-        let data = this.state.data.map(d=> {
-            d = d.map(d1=> {
+        let data = this.state.data.map(d => {
+            d = d.map(d1 => {
                 if (d1.id == id) {
                     d1.checked = !d1.checked;
                 }
@@ -116,8 +126,8 @@ class select extends React.Component {
         });
         if (this.props.callback) {
             let sourceData = [];
-            this.state.data.forEach(d=> {
-                d.forEach(d1=> {
+            this.state.data.forEach(d => {
+                d.forEach(d1 => {
                     sourceData.push(d1);
                 });
             });
@@ -128,8 +138,8 @@ class select extends React.Component {
     allCheck(e) {
         e.target.parentNode.parentNode.parentNode.focus();
         let isAllChecked = !this.state.allChecked;
-        let data = this.state.data.map(d=> {
-            d.map(d1=> {
+        let data = this.state.data.map(d => {
+            d.map(d1 => {
                 d1.checked = isAllChecked;
             });
             return d;
@@ -140,8 +150,8 @@ class select extends React.Component {
         });
         if (this.props.callback) {
             let sourceData = [];
-            this.state.data.forEach(d=> {
-                d.forEach(d1=> {
+            this.state.data.forEach(d => {
+                d.forEach(d1 => {
                     sourceData.push(d1);
                 });
             });
