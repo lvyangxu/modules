@@ -1,8 +1,8 @@
 {
   "name": "karl-component-datepicker",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "react component datepicker",
-  "main": "index.js",
+  "main": "index.jsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
