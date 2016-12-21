@@ -1,6 +1,6 @@
 {
   "name": "karl-xml",
-  "version": "0.1.4",
+  "version": "2.0.0",
   "description": "xml read and write",
   "main": "index.js",
   "scripts": {

@@ -1,10 +1,10 @@
-let fs = require('fs');
-let xml2js = require('xml2js');
+import fs from "fs";
+import xml2js from "xml2js";
 let parser = new xml2js.Parser();
 let builder = new xml2js.Builder();
 module.exports = {
     /**
-     * read xml file async
+     * 异步读取xml
      * @param path
      * @returns {Promise}
      */
@@ -26,7 +26,7 @@ module.exports = {
         });
     },
     /**
-     * write json to xml file sync
+     * 同步写入json到xml
      * @param json
      * @param path
      */

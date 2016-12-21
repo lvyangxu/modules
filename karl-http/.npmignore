@@ -1,2 +1,3 @@
-*.es6
-*.js.map
+*.log
+.npmignore
+.gitignore
