@@ -1,7 +1,8 @@
 import React from "react";
-import css from "./index.scss";
+import css from "./index.css";
 import "font-awesome-webpack";
 import $ from "jquery";
+
 
 /**
  * react左侧菜单导航组件

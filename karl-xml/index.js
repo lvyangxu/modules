@@ -1,16 +1,26 @@
-import fs from "fs";
-import xml2js from "xml2js";
-let parser = new xml2js.Parser();
-let builder = new xml2js.Builder();
+"use strict";
+
+var _fs = require("fs");
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _xml2js = require("xml2js");
+
+var _xml2js2 = _interopRequireDefault(_xml2js);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var parser = new _xml2js2.default.Parser();
+var builder = new _xml2js2.default.Builder();
 module.exports = {
     /**
      * 异步读取xml
      * @param path
      * @returns {Promise}
      */
-    read: (path) => {
-        return new Promise((resolve, reject) => {
-            fs.readFile(path, function (err, data) {
+    read: function read(path) {
+        return new Promise(function (resolve, reject) {
+            _fs2.default.readFile(path, function (err, data) {
                 if (err) {
                     reject("read xml error:" + err);
                     return;
@@ -30,15 +40,15 @@ module.exports = {
      * @param json
      * @param path
      */
-    write: (json, path) => {
-        let xml = builder.buildObject(json);
-        let arr = path.split("/");
-        for (let end = 1; end < arr.length; end++) {
-            let parentFolder = arr.slice(0, end).join("/");
-            if (!fs.existsSync(parentFolder)) {
-                fs.mkdirSync(parentFolder);
+    write: function write(json, path) {
+        var xml = builder.buildObject(json);
+        var arr = path.split("/");
+        for (var end = 1; end < arr.length; end++) {
+            var parentFolder = arr.slice(0, end).join("/");
+            if (!_fs2.default.existsSync(parentFolder)) {
+                _fs2.default.mkdirSync(parentFolder);
             }
         }
-        fs.writeFileSync(path, xml);
+        _fs2.default.writeFileSync(path, xml);
     }
 };

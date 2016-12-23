@@ -1,5 +1,5 @@
 import React from "react";
-import css from "./index.scss";
+import css from "./index.css";
 import "karl-extend";
 import $ from "jquery";
 

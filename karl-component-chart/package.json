@@ -1,11 +1,8 @@
 {
   "name": "karl-component-chart",
-  "version": "2.0.1",
+  "version": "4.0.1",
   "description": "react component chart",
-  "main": "index.jsx",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "index.js",
   "author": "lvyangxu",
   "license": "ISC",
   "devDependencies": {

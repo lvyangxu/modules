@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<root>
+  <host>localhost</host>
+  <user>root</user>
+  <password>root</password>
+  <database>log_nuclear</database>
+</root>
