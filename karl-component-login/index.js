@@ -94,7 +94,7 @@ var login = function (_React$Component) {
     }, {
         key: "getItemName",
         value: function getItemName() {
-            var data, project, item, json;
+            var data;
             return regeneratorRuntime.async(function getItemName$(_context) {
                 while (1) {
                     switch (_context.prev = _context.next) {
@@ -105,37 +105,25 @@ var login = function (_React$Component) {
 
                         case 3:
                             data = _context.sent;
-                            project = data.project;
-                            item = localStorage.getItem(project);
-                            json = {
-                                project: project,
-                                loginRedirect: data.loginRedirect
-                            };
-                            //如果localStorage存储了账号密码，则取历史记录
 
-                            if (item != null) {
-                                console.log(item);
-                                if (item.hasOwnProperty("username") && item.hasOwnProperty("password")) {
-                                    json.username = item.username;
-                                    json.password = item.password;
-                                }
-                            }
-                            this.setState(json);
-                            _context.next = 14;
+                            this.setState({
+                                loginRedirect: data.loginRedirect
+                            });
+                            _context.next = 10;
                             break;
 
-                        case 11:
-                            _context.prev = 11;
+                        case 7:
+                            _context.prev = 7;
                             _context.t0 = _context["catch"](0);
 
                             this.setState({ "tips": "an error occured:" + _context.t0 });
 
-                        case 14:
+                        case 10:
                         case "end":
                             return _context.stop();
                     }
                 }
-            }, null, this, [[0, 11]]);
+            }, null, this, [[0, 7]]);
         }
     }, {
         key: "usernameChange",
@@ -168,23 +156,22 @@ var login = function (_React$Component) {
                             return regeneratorRuntime.awrap(_karlHttp2.default.post("../account/login", data));
 
                         case 4:
-                            localStorage.setItem(this.state.project, data);
                             window.location.href = "../" + this.state.loginRedirect + "/";
-                            _context2.next = 11;
+                            _context2.next = 10;
                             break;
 
-                        case 8:
-                            _context2.prev = 8;
+                        case 7:
+                            _context2.prev = 7;
                             _context2.t0 = _context2["catch"](1);
 
                             this.setState({ "tips": _context2.t0.message });
 
-                        case 11:
+                        case 10:
                         case "end":
                             return _context2.stop();
                     }
                 }
-            }, null, this, [[1, 8]]);
+            }, null, this, [[1, 7]]);
         }
     }]);
 

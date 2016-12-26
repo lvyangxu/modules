@@ -1,6 +1,0 @@
-[2016-12-23 14:18:09.770] [INFO] server - mysql init success
-[2016-12-23 14:18:09.910] [INFO] server - get database structure successfully
-[2016-12-23 14:27:03.295] [INFO] server - mysql init success
-[2016-12-23 14:27:03.363] [INFO] server - get database structure successfully
-[2016-12-23 14:37:42.365] [INFO] server - mysql init success
-[2016-12-23 14:37:42.436] [INFO] server - get database structure successfully

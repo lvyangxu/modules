@@ -762,13 +762,15 @@ import "font-awesome-webpack";
 import Select from "karl-component-select";
 import Datepicker from "karl-component-datepicker";
 
+
 class table extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             tableId: this.props.tableId,
-            sectionStyle: this.props.sectionStyle ? {} : sectionStyle
+            project: this.props.project,
+            sectionStyle: this.props.sectionStyle ? this.props.sectionStyle : {}
         };
 
         let bindArr = [];
@@ -780,7 +782,8 @@ class table extends React.Component {
 
     async componentDidMount() {
         try {
-            let data = await http.post("../table/" + this.state.tableId + "/init");
+            let data = await request("init");
+            console.log(data);
         } catch (e) {
             console.log("init table " + this.state.tableId + " failed");
         }
@@ -791,9 +794,27 @@ class table extends React.Component {
 
     }
 
+    /**
+     * 带jwt的http请求
+     */
+    async request(action, data) {
+        data = (data == undefined) ? {} : data;
+        let jwt = localStorage.getItem(this.state.project + "-jwt");
+        // let promise = new Promise((resolve,reject)=>{
+        //
+        // });
+
+        if (jwt == null) {
+            location.href = "../login/";
+        } else {
+            let data = await http.post("../table/" + this.state.tableId + "/" + action, data);
+            return data;
+        }
+    }
+
     render() {
         return (
-            <div className={css.base + " react-table"}>
+            <div style={this.state.sectionStyle} className={css.base + " react-table"}>
                 {
                     this.setTop()
                 }

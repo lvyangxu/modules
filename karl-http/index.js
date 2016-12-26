@@ -63,6 +63,9 @@ var http = function () {
                             return;
                         }
                         if (d.success == "true") {
+                            if (d.hasOwnProperty("project") && d.hasOwnProperty("jwt")) {
+                                localStorage[d.project + "-jwt"] = d.jwt;
+                            }
                             resolve(d.message);
                         } else {
                             if (d.message == "unauthorized") {
@@ -104,6 +107,9 @@ var http = function () {
                             return;
                         }
                         if (d.success == "true") {
+                            if (d.hasOwnProperty("project") && d.hasOwnProperty("jwt")) {
+                                localStorage[d.project + "-jwt"] = d.jwt;
+                            }
                             resolve(d.message);
                         } else {
                             if (d.message == "unauthorized") {

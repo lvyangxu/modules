@@ -55,10 +55,8 @@
 	ReactDom.render(React.createElement(
 	    "div",
 	    null,
-	    React.createElement(Com, { tableId: "create_data", sectionStyle: { padding: "50px" } })
+	    React.createElement(Com, { project: "G02DataAnalysis", tableId: "create_data", sectionStyle: { padding: "50px" } })
 	), document.getElementById("display"));
-
-	//autoprefixer babel-cli babel-core babel-loader babel-plugin-transform-async-to-generator babel-plugin-transform-es3-member-expression-literals babel-plugin-transform-es3-property-literals babel-polyfill babel-preset-es2015 babel-preset-react css-loader del file-loader font-awesome-webpack gulp gulp-clean-css gulp-concat-css gulp-css-url-rebase gulp-htmlmin gulp-postcss gulp-rename gulp-replace gulp-uglify gulp-util jquery karl-component-nav karl-component-radio karl-component-select karl-date karl-extend karl-http less node-sass postcss postcss-loader react react-addons-css-transition-group react-addons-transition-group react-dom sass-loader style-loader url-loader webpack webpack-stream xml2js
 
 /***/ },
 /* 1 */,
@@ -30356,7 +30354,8 @@
 
 	        _this.state = {
 	            tableId: _this.props.tableId,
-	            sectionStyle: _this.props.sectionStyle ? {} : sectionStyle
+	            project: _this.props.project,
+	            sectionStyle: _this.props.sectionStyle ? _this.props.sectionStyle : {}
 	        };
 
 	        var bindArr = [];
@@ -30377,33 +30376,79 @@
 	                        case 0:
 	                            _context.prev = 0;
 	                            _context.next = 3;
-	                            return regeneratorRuntime.awrap(_karlHttp2.default.post("../table/" + this.state.tableId + "/init"));
+	                            return regeneratorRuntime.awrap(request("init"));
 
 	                        case 3:
 	                            data = _context.sent;
-	                            _context.next = 9;
+
+	                            console.log(data);
+	                            _context.next = 10;
 	                            break;
 
-	                        case 6:
-	                            _context.prev = 6;
+	                        case 7:
+	                            _context.prev = 7;
 	                            _context.t0 = _context["catch"](0);
 
 	                            console.log("init table " + this.state.tableId + " failed");
 
-	                        case 9:
+	                        case 10:
 	                        case "end":
 	                            return _context.stop();
 	                    }
 	                }
-	            }, null, this, [[0, 6]]);
+	            }, null, this, [[0, 7]]);
 	        }
 	    }, {
 	        key: "componentWillReceiveProps",
 	        value: function componentWillReceiveProps(nextProps) {}
+
+	        /**
+	         * 带jwt的http请求
+	         */
+
+	    }, {
+	        key: "request",
+	        value: function request(action, data) {
+	            var jwt, _data;
+
+	            return regeneratorRuntime.async(function request$(_context2) {
+	                while (1) {
+	                    switch (_context2.prev = _context2.next) {
+	                        case 0:
+	                            data = data == undefined ? {} : data;
+	                            jwt = localStorage.getItem(this.state.project + "-jwt");
+	                            // let promise = new Promise((resolve,reject)=>{
+	                            //
+	                            // });
+
+	                            if (!(jwt == null)) {
+	                                _context2.next = 6;
+	                                break;
+	                            }
+
+	                            location.href = "../login/";
+	                            _context2.next = 10;
+	                            break;
+
+	                        case 6:
+	                            _context2.next = 8;
+	                            return regeneratorRuntime.awrap(_karlHttp2.default.post("../table/" + this.state.tableId + "/" + action, _data));
+
+	                        case 8:
+	                            _data = _context2.sent;
+	                            return _context2.abrupt("return", _data);
+
+	                        case 10:
+	                        case "end":
+	                            return _context2.stop();
+	                    }
+	                }
+	            }, null, this);
+	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            return _react2.default.createElement("div", { className: _index2.default.base + " react-table" }, this.setTop(), this.setTable(), this.setBottom());
+	            return _react2.default.createElement("div", { style: this.state.sectionStyle, className: _index2.default.base + " react-table" }, this.setTop(), this.setTable(), this.setBottom());
 	        }
 	    }, {
 	        key: "setTop",

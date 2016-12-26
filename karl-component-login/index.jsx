@@ -48,21 +48,9 @@ class login extends React.Component {
     async getItemName() {
         try {
             let data = await http.post("../account/getItemName");
-            let project = data.project;
-            let item = localStorage.getItem(project);
-            let json = {
-                project: project,
+            this.setState({
                 loginRedirect: data.loginRedirect
-            };
-            //如果localStorage存储了账号密码，则取历史记录
-            if (item != null) {
-                console.log(item);
-                if (item.hasOwnProperty("username") && item.hasOwnProperty("password")) {
-                    json.username = item.username;
-                    json.password = item.password;
-                }
-            }
-            this.setState(json);
+            });
         } catch (e) {
             this.setState({"tips": "an error occured:" + e});
         }
@@ -87,7 +75,6 @@ class login extends React.Component {
         };
         try {
             await http.post("../account/login", data);
-            localStorage.setItem(this.state.project, data);
             window.location.href = "../" + this.state.loginRedirect + "/";
         } catch (e) {
             this.setState({"tips": e.message});

@@ -797,7 +797,8 @@ var table = function (_React$Component) {
 
         _this.state = {
             tableId: _this.props.tableId,
-            sectionStyle: _this.props.sectionStyle ? {} : sectionStyle
+            project: _this.props.project,
+            sectionStyle: _this.props.sectionStyle ? _this.props.sectionStyle : {}
         };
 
         var bindArr = [];
@@ -818,35 +819,81 @@ var table = function (_React$Component) {
                         case 0:
                             _context.prev = 0;
                             _context.next = 3;
-                            return regeneratorRuntime.awrap(_karlHttp2.default.post("../table/" + this.state.tableId + "/init"));
+                            return regeneratorRuntime.awrap(request("init"));
 
                         case 3:
                             data = _context.sent;
-                            _context.next = 9;
+
+                            console.log(data);
+                            _context.next = 10;
                             break;
 
-                        case 6:
-                            _context.prev = 6;
+                        case 7:
+                            _context.prev = 7;
                             _context.t0 = _context["catch"](0);
 
                             console.log("init table " + this.state.tableId + " failed");
 
-                        case 9:
+                        case 10:
                         case "end":
                             return _context.stop();
                     }
                 }
-            }, null, this, [[0, 6]]);
+            }, null, this, [[0, 7]]);
         }
     }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {}
+
+        /**
+         * 带jwt的http请求
+         */
+
+    }, {
+        key: "request",
+        value: function request(action, data) {
+            var jwt, _data;
+
+            return regeneratorRuntime.async(function request$(_context2) {
+                while (1) {
+                    switch (_context2.prev = _context2.next) {
+                        case 0:
+                            data = data == undefined ? {} : data;
+                            jwt = localStorage.getItem(this.state.project + "-jwt");
+                            // let promise = new Promise((resolve,reject)=>{
+                            //
+                            // });
+
+                            if (!(jwt == null)) {
+                                _context2.next = 6;
+                                break;
+                            }
+
+                            location.href = "../login/";
+                            _context2.next = 10;
+                            break;
+
+                        case 6:
+                            _context2.next = 8;
+                            return regeneratorRuntime.awrap(_karlHttp2.default.post("../table/" + this.state.tableId + "/" + action, _data));
+
+                        case 8:
+                            _data = _context2.sent;
+                            return _context2.abrupt("return", _data);
+
+                        case 10:
+                        case "end":
+                            return _context2.stop();
+                    }
+                }
+            }, null, this);
+        }
     }, {
         key: "render",
         value: function render() {
             return _react2.default.createElement(
                 "div",
-                { className: _index2.default.base + " react-table" },
+                { style: this.state.sectionStyle, className: _index2.default.base + " react-table" },
                 this.setTop(),
                 this.setTable(),
                 this.setBottom()

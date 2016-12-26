@@ -28,5 +28,5 @@ gulp.task('buildG02', function () {
             gutil.log('Error!', err.message);
             this.end();
         })
-        .pipe(gulp.dest('dist/G02DataAnalysis/client/login'));
+        .pipe(gulp.dest('dist/G02DataAnalysis/client/display'));
 });

@@ -43,6 +43,9 @@ class http {
                         return;
                     }
                     if (d.success == "true") {
+                        if (d.hasOwnProperty("project") && d.hasOwnProperty("jwt")) {
+                            localStorage[d.project + "-jwt"] = d.jwt;
+                        }
                         resolve(d.message);
                     } else {
                         if (d.message == "unauthorized") {
@@ -81,6 +84,9 @@ class http {
                         return;
                     }
                     if (d.success == "true") {
+                        if (d.hasOwnProperty("project") && d.hasOwnProperty("jwt")) {
+                            localStorage[d.project + "-jwt"] = d.jwt;
+                        }
                         resolve(d.message);
                     } else {
                         if (d.message == "unauthorized") {
