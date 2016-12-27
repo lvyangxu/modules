@@ -23,9 +23,9 @@ class jwt {
     }
 
     encryptJWT(header, payload, signature) {
-        header = this.encrypt(JSON.stringify(header));
-        payload = this.encrypt(JSON.stringify(payload));
-        signature = this.encrypt(JSON.stringify(signature));
+        header = this.encrypt(header);
+        payload = this.encrypt(payload);
+        signature = this.encrypt(signature);
         let jwtString = header + "." + payload + "." + signature;
         return jwtString;
     }
@@ -33,13 +33,19 @@ class jwt {
     decryptJWT(encrypted) {
         let json = {};
         let arr = encrypted.split(".");
-        if (arr.length != 2) {
+        if (arr.length != 3) {
             return json;
         }
+        let [header,payload,signature] = arr.map(d=> {
+            d = this.decrypt(d);
+            d = JSON.parse(d);
+            return d;
+        })
+
         json = {
-            header: this.decrypt(arr[0]),
-            payload: this.decrypt(arr[1]),
-            signature: this.decrypt(arr[2])
+            header: header,
+            payload: payload,
+            signature: signature
         };
         return json;
     }

@@ -19,14 +19,3 @@ gulp.task('build', function () {
         })
         .pipe(gulp.dest('test/'));
 });
-
-gulp.task('buildG02', function () {
-    let config = require('./webpack.config.js');
-    gulp.src('test/main.jsx')
-        .pipe(webpack(config))
-        .on('error', function (err) {
-            gutil.log('Error!', err.message);
-            this.end();
-        })
-        .pipe(gulp.dest('dist/G02DataAnalysis/client/display'));
-});

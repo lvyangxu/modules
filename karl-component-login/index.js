@@ -57,13 +57,13 @@ var login = function (_React$Component) {
                 _react2.default.createElement(
                     "div",
                     { className: _index2.default.row },
-                    _react2.default.createElement("input", { value: this.state.username, onChange: this.usernameChange, placeholder: "username",
+                    _react2.default.createElement("input", { value: this.state.username, onLoad: this.usernameChange, onChange: this.usernameChange, placeholder: "username",
                         name: "karl-username", type: "text" })
                 ),
                 _react2.default.createElement(
                     "div",
                     { className: _index2.default.row },
-                    _react2.default.createElement("input", { value: this.state.password, onChange: this.passwordChange, placeholder: "password",
+                    _react2.default.createElement("input", { value: this.state.password, onLoad: this.passwordChange, onChange: this.passwordChange, placeholder: "password",
                         name: "karl-password", type: "password" })
                 ),
                 _react2.default.createElement(
@@ -142,7 +142,7 @@ var login = function (_React$Component) {
     }, {
         key: "submit",
         value: function submit() {
-            var data;
+            var data, d;
             return regeneratorRuntime.async(function submit$(_context2) {
                 while (1) {
                     switch (_context2.prev = _context2.next) {
@@ -156,22 +156,25 @@ var login = function (_React$Component) {
                             return regeneratorRuntime.awrap(_karlHttp2.default.post("../account/login", data));
 
                         case 4:
+                            d = _context2.sent;
+
+                            localStorage.setItem(d.project + "-jwt", d.jwt);
                             window.location.href = "../" + this.state.loginRedirect + "/";
-                            _context2.next = 10;
+                            _context2.next = 12;
                             break;
 
-                        case 7:
-                            _context2.prev = 7;
+                        case 9:
+                            _context2.prev = 9;
                             _context2.t0 = _context2["catch"](1);
 
                             this.setState({ "tips": _context2.t0.message });
 
-                        case 10:
+                        case 12:
                         case "end":
                             return _context2.stop();
                     }
                 }
-            }, null, this, [[1, 7]]);
+            }, null, this, [[1, 9]]);
         }
     }]);
 

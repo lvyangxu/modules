@@ -11,9 +11,10 @@ import $ from "jquery";
  *       name表示菜单显示的文本
  *       group表示该二级菜单所属的一级菜单，如果没有group属性，表示自身是一级菜单
  *       dom表示该菜单对应的dom
+ * sectionStyle：section自带的样式，可用于设置边距，例如{padding:"50px"}
  *
  * 示例：
- * <Nav data={[
+ * <Nav sectionStyle={{padding:"50px"}} data={[
  *     {id: "a", name: "gasga", group: "1级菜单a", dom: <div>fasfs</div>},
  *     {id: "e", name: "sagas", dom: <div>afafs</div>},
  *     {id: "b", name: "safas", group: "1级菜单a", dom: <div>4324</div>},
@@ -61,7 +62,7 @@ class nav extends React.Component {
             });
             if (active != undefined) {
                 json.activeId = hash;
-                json["group-show-"+active.group] = true;
+                json["group-show-" + active.group] = true;
             }
         }
 
@@ -85,9 +86,10 @@ class nav extends React.Component {
                         this.setMenu()
                     }
                 </div>
-                <div className={css.content} ref={d => {
-                    this.content = d;
-                }}>
+                <div style={this.props.sectionStyle == undefined ? {} : this.props.sectionStyle} className={css.content}
+                     ref={d => {
+                         this.content = d;
+                     }}>
                     {
                         this.setContent()
                     }

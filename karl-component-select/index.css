@@ -1,6 +1,7 @@
 .base {
   display: inline-block;
-  font-size: 13px; }
+  font-size: 13px;
+  user-select: none; }
   .base .input {
     min-width: 50px;
     height: 16px;
@@ -47,7 +48,6 @@
       .base .panel .options .column div {
         padding: 5px;
         height: 30px;
-        user-select: none;
         vertical-align: middle; }
         .base .panel .options .column div input[type=checkbox] {
           cursor: pointer;
@@ -58,5 +58,3 @@
           vertical-align: middle; }
       .base .panel .options .column div:hover {
         background-color: #eeeeee; }
-
-/*# sourceMappingURL=index.css.map */

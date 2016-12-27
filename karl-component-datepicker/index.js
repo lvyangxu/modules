@@ -27,10 +27,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * react日期组件
  * type：日期类型，day或month，默认为day
+ * add：默认值的偏移量，day为1日，month为1月，week为1周
  * callback：日期改变时执行的回调
  *
  * 示例：
- * <Datepicker type="month" callback={d=>{
+ * <Datepicker add="2" type="month" callback={d=>{
  *         console.log('date is '+d);
  *     }}/>
  */
@@ -43,12 +44,29 @@ var datepicker = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (datepicker.__proto__ || Object.getPrototypeOf(datepicker)).call(this, props));
 
         var type = _this.props.type ? _this.props.type : "day";
+        var add = _this.props.add ? _this.props.add : 0;
+        add = Number.parseInt(add);
         var currentPanel = type == "day" ? "day" : "month";
         var date = new Date();
-        var _ref = [date.getFullYear(), date.getMonth() + 1, date.getDay()],
+        var _ref = [date.getFullYear(), date.getMonth() + 1, date.getDate()],
             year = _ref[0],
             month = _ref[1],
             day = _ref[2];
+
+        switch (type) {
+            case "day":
+                day = day + add;
+                break;
+            case "month":
+                month = month + add;
+                break;
+        }
+        var newDate = new Date(year, month - 1, day);
+        var _ref2 = [newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate()];
+        year = _ref2[0];
+        month = _ref2[1];
+        day = _ref2[2];
+
 
         var value = _this.buildValue({
             type: type,
@@ -345,9 +363,9 @@ var datepicker = function (_React$Component) {
             var _this5 = this;
 
             var arr = [];
-            var _ref2 = [this.state.year, this.state.month],
-                year = _ref2[0],
-                month = _ref2[1];
+            var _ref3 = [this.state.year, this.state.month],
+                year = _ref3[0],
+                month = _ref3[1];
 
             var titleArr = ["一", "二", "三", "四", "五", "六", "日"];
             var daysOfMonth = _karlDate2.default.getDaysOfMonth(year, month);
@@ -436,9 +454,9 @@ var datepicker = function (_React$Component) {
                                     return _react2.default.createElement(
                                         "div",
                                         { key: j, className: className, onClick: function onClick() {
-                                                var _ref3 = [_this5.state.year, _this5.state.month],
-                                                    year = _ref3[0],
-                                                    month = _ref3[1];
+                                                var _ref4 = [_this5.state.year, _this5.state.month],
+                                                    year = _ref4[0],
+                                                    month = _ref4[1];
 
                                                 if (d1.add == -1) {
                                                     if (month == 1) {
@@ -476,12 +494,10 @@ var datepicker = function (_React$Component) {
     }, {
         key: "setYear",
         value: function setYear(y) {
-            var _this6 = this;
-
-            var _ref4 = [y, this.state.month, this.state.day],
-                year = _ref4[0],
-                month = _ref4[1],
-                day = _ref4[2];
+            var _ref5 = [y, this.state.month, this.state.day],
+                year = _ref5[0],
+                month = _ref5[1],
+                day = _ref5[2];
 
             var value = this.buildValue({
                 year: year,
@@ -495,10 +511,6 @@ var datepicker = function (_React$Component) {
                 year: year,
                 month: month,
                 value: value
-            }, function () {
-                if (_this6.props.callback) {
-                    _this6.props.callback(value);
-                }
             });
         }
 
@@ -510,12 +522,12 @@ var datepicker = function (_React$Component) {
     }, {
         key: "setMonth",
         value: function setMonth(m) {
-            var _this7 = this;
+            var _this6 = this;
 
-            var _ref5 = [this.state.year, m, this.state.day],
-                year = _ref5[0],
-                month = _ref5[1],
-                day = _ref5[2];
+            var _ref6 = [this.state.year, m, this.state.day],
+                year = _ref6[0],
+                month = _ref6[1],
+                day = _ref6[2];
 
             var value = this.buildValue({
                 year: year,
@@ -537,8 +549,8 @@ var datepicker = function (_React$Component) {
             }
 
             this.setState(json, function () {
-                if (_this7.props.callback) {
-                    _this7.props.callback(value);
+                if (_this6.state.type == "month" && _this6.props.callback) {
+                    _this6.props.callback(value);
                 }
             });
         }
@@ -551,7 +563,7 @@ var datepicker = function (_React$Component) {
     }, {
         key: "setDay",
         value: function setDay(y, m, d) {
-            var _this8 = this;
+            var _this7 = this;
 
             var year = y,
                 month = m,
@@ -573,8 +585,8 @@ var datepicker = function (_React$Component) {
                 day: day,
                 value: value
             }, function () {
-                if (_this8.props.callback) {
-                    _this8.props.callback(value);
+                if (_this7.props.callback) {
+                    _this7.props.callback(value);
                 }
             });
         }
@@ -621,19 +633,19 @@ var datepicker = function (_React$Component) {
                         year: this.state.year - 1
                     });
                 case "day":
-                    var _ref6 = [this.state.year, this.state.month],
-                        year = _ref6[0],
-                        month = _ref6[1];
+                    var _ref7 = [this.state.year, this.state.month],
+                        year = _ref7[0],
+                        _month = _ref7[1];
 
-                    if (month == 1) {
+                    if (_month == 1) {
                         year--;
-                        month = 12;
+                        _month = 12;
                     } else {
-                        month--;
+                        _month--;
                     }
                     this.setState({
                         year: year,
-                        month: month
+                        month: _month
                     });
                     break;
             }
@@ -658,19 +670,19 @@ var datepicker = function (_React$Component) {
                     });
                     break;
                 case "day":
-                    var _ref7 = [this.state.year, this.state.month],
-                        year = _ref7[0],
-                        month = _ref7[1];
+                    var _ref8 = [this.state.year, this.state.month],
+                        year = _ref8[0],
+                        _month2 = _ref8[1];
 
-                    if (month == 12) {
+                    if (_month2 == 12) {
                         year++;
-                        month = 1;
+                        _month2 = 1;
                     } else {
-                        month++;
+                        _month2++;
                     }
                     this.setState({
                         year: year,
-                        month: month
+                        month: _month2
                     });
                     break;
             }

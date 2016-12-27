@@ -25,11 +25,11 @@ class login extends React.Component {
         return (
             <div className={css.base + " react-login"}>
                 <div className={css.row}>
-                    <input value={this.state.username} onChange={this.usernameChange} placeholder="username"
+                    <input value={this.state.username} onLoad={this.usernameChange} onChange={this.usernameChange} placeholder="username"
                            name="karl-username" type="text"/>
                 </div>
                 <div className={css.row}>
-                    <input value={this.state.password} onChange={this.passwordChange} placeholder="password"
+                    <input value={this.state.password} onLoad={this.passwordChange} onChange={this.passwordChange} placeholder="password"
                            name="karl-password" type="password"/>
                 </div>
                 <div className={css.row}>
@@ -74,7 +74,8 @@ class login extends React.Component {
             password: this.state.password
         };
         try {
-            await http.post("../account/login", data);
+            let d = await http.post("../account/login", data);
+            localStorage.setItem(d.project+"-jwt",d.jwt);
             window.location.href = "../" + this.state.loginRedirect + "/";
         } catch (e) {
             this.setState({"tips": e.message});

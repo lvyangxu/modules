@@ -26,6 +26,7 @@
       margin-left: 20px; }
   .base .content {
     display: inline-block;
+    box-sizing: border-box;
     margin-left: 200px;
     vertical-align: top;
     overflow-y: auto; }

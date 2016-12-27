@@ -6,10 +6,11 @@ import date from "karl-date";
 /**
  * react日期组件
  * type：日期类型，day或month，默认为day
+ * add：默认值的偏移量，day为1日，month为1月，week为1周
  * callback：日期改变时执行的回调
  *
  * 示例：
- * <Datepicker type="month" callback={d=>{
+ * <Datepicker add="2" type="month" callback={d=>{
  *         console.log('date is '+d);
  *     }}/>
  */
@@ -17,9 +18,22 @@ class datepicker extends React.Component {
     constructor(props) {
         super(props);
         let type = this.props.type ? this.props.type : "day";
+        let add = this.props.add ? this.props.add : 0;
+        add = Number.parseInt(add);
         let currentPanel = type == "day" ? "day" : "month";
         let date = new Date();
-        let [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDay()];
+        let [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+        switch (type) {
+            case "day":
+                day = day + add;
+                break;
+            case "month":
+                month = month + add;
+                break;
+        }
+        let newDate = new Date(year, month - 1, day);
+        [year, month, day] = [newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate()];
+
         let value = this.buildValue({
             type: type,
             year: year,
@@ -351,10 +365,6 @@ class datepicker extends React.Component {
             year: year,
             month: month,
             value: value
-        }, () => {
-            if (this.props.callback) {
-                this.props.callback(value);
-            }
         });
     }
 
@@ -384,7 +394,7 @@ class datepicker extends React.Component {
         }
 
         this.setState(json, () => {
-            if (this.props.callback) {
+            if (this.state.type == "month" && this.props.callback) {
                 this.props.callback(value);
             }
         });

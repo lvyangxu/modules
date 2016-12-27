@@ -31,9 +31,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  *       name表示菜单显示的文本
  *       group表示该二级菜单所属的一级菜单，如果没有group属性，表示自身是一级菜单
  *       dom表示该菜单对应的dom
+ * sectionStyle：section自带的样式，可用于设置边距，例如{padding:"50px"}
  *
  * 示例：
- * <Nav data={[
+ * <Nav sectionStyle={{padding:"50px"}} data={[
  *     {id: "a", name: "gasga", group: "1级菜单a", dom: <div>fasfs</div>},
  *     {id: "e", name: "sagas", dom: <div>afafs</div>},
  *     {id: "b", name: "safas", group: "1级菜单a", dom: <div>4324</div>},
@@ -119,7 +120,8 @@ var nav = function (_React$Component) {
                 ),
                 _react2.default.createElement(
                     "div",
-                    { className: _index2.default.content, ref: function ref(d) {
+                    { style: this.props.sectionStyle == undefined ? {} : this.props.sectionStyle, className: _index2.default.content,
+                        ref: function ref(d) {
                             _this3.content = d;
                         } },
                     this.setContent()

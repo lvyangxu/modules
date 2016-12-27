@@ -2,6 +2,7 @@
     display: inline-block;
     $min-width: 50px;
     font-size: 13px;
+    user-select: none;
     .input {
         min-width: $min-width;
         height: 16px;
@@ -63,7 +64,6 @@
                 div {
                     padding: 5px;
                     height: 30px;
-                    user-select: none;
                     vertical-align: middle;
                     input[type=checkbox] {
                         cursor: pointer;
