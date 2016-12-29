@@ -8,6 +8,7 @@ import date from "karl-date";
  * type：日期类型，day或month，默认为day
  * add：默认值的偏移量，day为1日，month为1月，week为1周
  * callback：日期改变时执行的回调
+ * initCallback：初始化后执行的回调
  *
  * 示例：
  * <Datepicker add="2" type="month" callback={d=>{
@@ -68,6 +69,9 @@ class datepicker extends React.Component {
                 this.setState({panelShow: false});
             }
         }, false);
+        if (this.props.initCallback) {
+            this.props.initCallback(this.state.value);
+        }
     }
 
     componentWillReceiveProps(nextProps) {

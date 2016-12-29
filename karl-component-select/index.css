@@ -1,5 +1,7 @@
 .base {
+  position: relative;
   display: inline-block;
+  white-space: nowrap;
   font-size: 13px;
   user-select: none; }
   .base .input {
@@ -17,7 +19,7 @@
     font-weight: bold;
     text-align: left; }
     .base .input i {
-      float: right; }
+      margin-left: 5px; }
   .base .input:hover {
     background: linear-gradient(to bottom, #ededed, #dbdbdb);
     box-shadow: inset 0px 0px 2px 2px #c8c8c8; }

@@ -27,7 +27,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * react图表组件
  * title：顶部的文字
- * yAxisText: Y轴左边的文字
+ * yAxisText: Y轴左边的文字，如果为undefined则显示为""
  * type: 图表类型curve或bar，默认为curve
  * x: 代表x轴的id
  * y: 代表y轴的json，例如{id:id,name:name}
@@ -55,22 +55,15 @@ var chart = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (chart.__proto__ || Object.getPrototypeOf(chart)).call(this, props));
 
-        var data = _this.sortData(_this.props.data);
-        data = _this.fillData(data, _this.props.y);
-        var yAxisNumArr = _this.getYAxisNumArr(_this.props.y, data);
-        var y = _this.setColor(_this.props.y);
-
         _this.state = {
             x: _this.props.x,
-            y: y,
-            title: _this.props.title,
-            yAxisText: _this.props.yAxisText,
-            type: _this.props.type ? _this.props.type : "curve",
-            data: data,
+            y: [],
+            data: [],
+            yAxisNumArr: [],
             lineDots: [],
-            yAxisNumArr: yAxisNumArr,
-            xUnitLength: 100 * 0.8 / data.length,
-            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+            title: _this.props.title,
+            yAxisText: _this.props.yAxisText == undefined ? "" : _this.props.yAxisText,
+            type: _this.props.type ? _this.props.type : "curve",
             angleNum: _this.props.angleNum ? _this.props.angleNum : 12,
             endPointLineLength: _this.props.endPointLineLength ? _this.props.endPointLineLength : 0.1,
             tipsRaisedX: 0.2,
@@ -81,7 +74,7 @@ var chart = function (_React$Component) {
             tipsPaddingLeft: 1,
             tipsPaddingRight: 1
         };
-        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
+        var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -89,32 +82,64 @@ var chart = function (_React$Component) {
     }
 
     _createClass(chart, [{
+        key: "componentWillMount",
+        value: function componentWillMount() {
+            this.doUpdate(this.props.data);
+        }
+    }, {
         key: "componentDidMount",
         value: function componentDidMount() {
+            this.setSvgAnimate();
+        }
+    }, {
+        key: "doUpdate",
+        value: function doUpdate(data) {
             var _this2 = this;
 
-            var lineDots = this.state.y.map(function (d) {
-                var vectors = _this2.state.data.map(function (d1, j) {
-                    var id = d.id;
-                    var x = _this2.xTransformToSvg(j);
-                    var y = _this2.yTransformToSvg(d1[id]);
-                    var vector = { x: x, y: y };
-                    return vector;
+            data = this.sortData(data);
+            data = this.fillData(data, this.props.y);
+            var yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
+            var y = this.setColor(this.props.y);
+            this.setState({
+                yAxisNumArr: yAxisNumArr,
+                xUnitLength: 100 * 0.8 / data.length,
+                yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1)
+            }, function () {
+                var lineDots = y.map(function (d) {
+                    var vectors = data.map(function (d1, j) {
+                        var id = d.id;
+                        var x = _this2.xTransformToSvg(j);
+                        var y = _this2.yTransformToSvg(d1[id]);
+                        var vector = { x: x, y: y };
+                        return vector;
+                    });
+                    return { id: d.id, vectors: vectors };
                 });
-                return { id: d.id, vectors: vectors };
+                _this2.setState({
+                    y: y,
+                    data: data,
+                    lineDots: lineDots
+                });
             });
-            var json = { lineDots: lineDots };
+        }
+    }, {
+        key: "setSvgAnimate",
+        value: function setSvgAnimate() {
+            var _this3 = this;
+
             var ua = window.navigator.userAgent;
             if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
-                json.isIE = true;
-                json.svgWidth = (0, _jquery2.default)(this.svg).width();
-                json.svgHeight = (0, _jquery2.default)(this.svg).width() * 60 / 110;
+                this.setState({
+                    isIE: true,
+                    svgWidth: (0, _jquery2.default)(this.svg).width(),
+                    svgHeight: (0, _jquery2.default)(this.svg).width() * 60 / 110
+                });
             } else {
                 switch (this.state.type) {
                     case "curve":
                         this.state.y.forEach(function (d) {
-                            var length = _this2["curve" + d.id].getTotalLength();
-                            (0, _jquery2.default)(_this2["curve" + d.id]).css({
+                            var length = _this3["curve" + d.id].getTotalLength();
+                            (0, _jquery2.default)(_this3["curve" + d.id]).css({
                                 "stroke-dasharray": length,
                                 "stroke-dashoffset": length
                             });
@@ -122,9 +147,9 @@ var chart = function (_React$Component) {
                         break;
                     case "bar":
                         this.state.y.forEach(function (d) {
-                            _this2.state.data.forEach(function (d1, i) {
-                                var length = _this2["bar" + d.id + i].getTotalLength();
-                                (0, _jquery2.default)(_this2["bar" + d.id + i]).css({
+                            _this3.state.data.forEach(function (d1, i) {
+                                var length = _this3["bar" + d.id + i].getTotalLength();
+                                (0, _jquery2.default)(_this3["bar" + d.id + i]).css({
                                     "stroke-dasharray": length,
                                     "stroke-dashoffset": length
                                 });
@@ -133,15 +158,18 @@ var chart = function (_React$Component) {
                         break;
                 }
             }
-
-            this.setState(json);
         }
     }, {
         key: "componentWillReceiveProps",
-        value: function componentWillReceiveProps(nextProps) {}
+        value: function componentWillReceiveProps(nextProps) {
+            if (this.props.data != nextProps.data) {
+                this.doUpdate(nextProps.data);
+            }
+        }
     }, {
         key: "componentDidUpdate",
         value: function componentDidUpdate(prevProps, prevState) {
+            //设置tips的宽度和高度
             if (!(prevState.tipsX == this.state.tipsX && prevState.tipsY == this.state.tipsY) && this.state.tipsX && this.state.tipsY) {
                 var w = (0, _jquery2.default)(this.tipsText).width() / (0, _jquery2.default)(this.svg).width() * 110;
                 w = w.toFixed(2);
@@ -158,7 +186,7 @@ var chart = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var svgChild = _react2.default.createElement(
                 "g",
@@ -177,7 +205,7 @@ var chart = function (_React$Component) {
                     { className: _index2.default.xAxis },
                     _react2.default.createElement("path", { d: "M10 55 h 80" }),
                     this.state.data.map(function (d, i) {
-                        var w = _this3.state.xUnitLength;
+                        var w = _this4.state.xUnitLength;
                         var x = i * w + 10;
                         return _react2.default.createElement(
                             "g",
@@ -186,7 +214,7 @@ var chart = function (_React$Component) {
                             _react2.default.createElement(
                                 "text",
                                 { x: x + w / 2, y: 60 },
-                                d[_this3.state.x]
+                                d[_this4.state.x]
                             )
                         );
                     })
@@ -195,7 +223,7 @@ var chart = function (_React$Component) {
                     "g",
                     { className: _index2.default.yAxis },
                     this.state.yAxisNumArr.map(function (d, i) {
-                        var y = 55 - i * _this3.state.yUnitLength;
+                        var y = 55 - i * _this4.state.yUnitLength;
                         var yTextDelta = 0;
                         return _react2.default.createElement(
                             "text",
@@ -217,7 +245,7 @@ var chart = function (_React$Component) {
                     "g",
                     { className: _index2.default.xGrid },
                     this.state.yAxisNumArr.map(function (d, i) {
-                        var y = 55 - i * _this3.state.yUnitLength;
+                        var y = 55 - i * _this4.state.yUnitLength;
                         return _react2.default.createElement("path", { key: i, d: "M10 " + y + " h 80" });
                     }),
                     _react2.default.createElement("path", { d: "M90 55 v1" })
@@ -228,7 +256,7 @@ var chart = function (_React$Component) {
                     { className: _index2.default.dots },
                     this.state.type == "curve" ? this.state.lineDots.map(function (d, i) {
                         return d.vectors.map(function (d1) {
-                            var dots = _this3.getDotsSymbol(i, d1.x, d1.y, d.id);
+                            var dots = _this4.getDotsSymbol(i, d1.x, d1.y, d.id);
                             return dots;
                         });
                     }) : ""
@@ -238,17 +266,17 @@ var chart = function (_React$Component) {
                     { className: _index2.default.declare },
                     this.state.y.map(function (d, i) {
                         var x = 91;
-                        var y = 15 + (40 - _this3.state.y.length * _this3.state.yUnitLength) / 2 + i * _this3.state.yUnitLength;
+                        var y = 15 + (40 - _this4.state.y.length * _this4.state.yUnitLength) / 2 + i * _this4.state.yUnitLength;
                         var color = d.color;
                         var symbol = void 0;
-                        switch (_this3.state.type) {
+                        switch (_this4.state.type) {
                             case "curve":
                                 symbol = _react2.default.createElement(
                                     "g",
                                     { key: i },
-                                    _react2.default.createElement("path", { style: _this3.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+                                    _react2.default.createElement("path", { style: _this4.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
                                         stroke: color, d: "M" + x + " " + y + " h3" }),
-                                    _this3.getDotsSymbol(i, 92.5, y, d.id),
+                                    _this4.getDotsSymbol(i, 92.5, y, d.id),
                                     _react2.default.createElement(
                                         "text",
                                         { x: "94.5", y: y + 1 },
@@ -257,8 +285,8 @@ var chart = function (_React$Component) {
                                 );
                                 break;
                             case "bar":
-                                var offsetX = _this3.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-                                var offsetY = _this3.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                                var offsetX = _this4.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                                var offsetY = _this4.state["dot-" + d.id + "-active"] ? 0.2 : 0;
                                 symbol = _react2.default.createElement(
                                     "g",
                                     { key: i },
@@ -277,7 +305,7 @@ var chart = function (_React$Component) {
                     _react2.default.createElement(
                         "g",
                         { className: _index2.default.setColor, onClick: function onClick() {
-                                _this3.setColor();
+                                _this4.setColor();
                             } },
                         this.state.y.map(function (d, i) {
                             var color = d.color;
@@ -308,13 +336,13 @@ var chart = function (_React$Component) {
                 { viewBox: "0 0 110 60", width: this.state.svgWidth, height: this.state.svgHeight,
                     onMouseMove: this.setActive,
                     ref: function ref(svg) {
-                        _this3.svg = svg;
+                        _this4.svg = svg;
                     } },
                 svgChild
             ) : _react2.default.createElement(
                 "svg",
                 { viewBox: "0 0 110 60", onMouseMove: this.setActive, ref: function ref(svg) {
-                        _this3.svg = svg;
+                        _this4.svg = svg;
                     } },
                 svgChild
             );
@@ -333,7 +361,7 @@ var chart = function (_React$Component) {
     }, {
         key: "setTypeList",
         value: function setTypeList() {
-            var _this4 = this;
+            var _this5 = this;
 
             var activeStyle = {};
             var inactiveStyle = { opacity: 0.3 };
@@ -345,7 +373,7 @@ var chart = function (_React$Component) {
                 _react2.default.createElement(
                     "g",
                     { className: _index2.default.typeIcon, onClick: function onClick() {
-                            _this4.setState({
+                            _this5.setState({
                                 type: "curve"
                             });
                         } },
@@ -356,7 +384,7 @@ var chart = function (_React$Component) {
                 _react2.default.createElement(
                     "g",
                     { className: _index2.default.typeIcon, onClick: function onClick() {
-                            _this4.setState({
+                            _this5.setState({
                                 type: "bar"
                             });
                         } },
@@ -381,17 +409,17 @@ var chart = function (_React$Component) {
     }, {
         key: "sortData",
         value: function sortData(d) {
-            var _this5 = this;
+            var _this6 = this;
 
             var data = d.concat();
             var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
             var isDate = data.every(function (d1) {
-                return regex.test(d1[_this5.props.x]);
+                return regex.test(d1[_this6.props.x]);
             });
             if (isDate) {
                 data.sort(function (a, b) {
-                    var arr1 = a[_this5.props.x].split("-");
-                    var arr2 = b[_this5.props.x].split("-");
+                    var arr1 = a[_this6.props.x].split("-");
+                    var arr2 = b[_this6.props.x].split("-");
                     if (arr1[0] != arr2[0]) {
                         return arr1[0] - arr2[0];
                     } else if (arr1[1] != arr2[1]) {
@@ -469,9 +497,11 @@ var chart = function (_React$Component) {
                         pStart--;
                     }
                 }
-                while (yEnd * 10 <= 1) {
-                    yEnd = yEnd * 10;
-                    pEnd--;
+                if (yEnd != 0) {
+                    while (yEnd * 10 <= 1) {
+                        yEnd = yEnd * 10;
+                        pEnd--;
+                    }
                 }
             } else {
                 //from 10 to bigger
@@ -773,7 +803,12 @@ var chart = function (_React$Component) {
     }, {
         key: "setActive",
         value: function setActive(e) {
-            var _this6 = this;
+            var _this7 = this;
+
+            //如果没有数据，则不执行操作
+            if (this.state.data.length == 0) {
+                return;
+            }
 
             var offset = (0, _jquery2.default)(this.svg).offset();
             var x = e.pageX - offset.left;
@@ -792,22 +827,22 @@ var chart = function (_React$Component) {
                     var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
                     json["dot-" + series + "-active"] = true;
                     json["curve-" + series + "-active"] = true;
-                    _this6.state.y.filter(function (d) {
+                    _this7.state.y.filter(function (d) {
                         return d.id != series;
                     }).forEach(function (d) {
                         json["dot-" + d.id + "-active"] = false;
                         json["curve-" + d.id + "-active"] = false;
                     });
-                    _this6.setState(json);
+                    _this7.setState(json);
                 })();
             } else {
                 (function () {
                     var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-                    _this6.state.y.forEach(function (d) {
+                    _this7.state.y.forEach(function (d) {
                         json["dot-" + d.id + "-active"] = false;
                         json["curve-" + d.id + "-active"] = false;
                     });
-                    _this6.setState(json);
+                    _this7.setState(json);
                 })();
             }
         }
@@ -822,7 +857,7 @@ var chart = function (_React$Component) {
     }, {
         key: "getNearestSeries",
         value: function getNearestSeries(x, y) {
-            var _this7 = this;
+            var _this8 = this;
 
             var series = void 0;
             var tipsX = void 0,
@@ -854,7 +889,7 @@ var chart = function (_React$Component) {
                             (function () {
                                 var startIndex = void 0,
                                     endIndex = void 0;
-                                for (var i = 0; i < _this7.state.data.length - 1; i++) {
+                                for (var i = 0; i < _this8.state.data.length - 1; i++) {
                                     var startX = 10 + i * w + w / 2;
                                     var endX = 10 + (i + 1) * w + w / 2;
                                     if (x >= startX && x <= endX) {
@@ -873,7 +908,7 @@ var chart = function (_React$Component) {
                                     index = endIndex;
                                 }
 
-                                yMap = _this7.state.lineDots.map(function (d) {
+                                yMap = _this8.state.lineDots.map(function (d) {
                                     var y1 = d.vectors[startIndex].y;
                                     var y2 = d.vectors[endIndex].y;
                                     var slope = (y2 - y1) / (x2 - x1);
@@ -903,9 +938,10 @@ var chart = function (_React$Component) {
                                 }
                             }
                         }
-                        var vectors = this.state.lineDots.find(function (d) {
+                        var findDots = this.state.lineDots.find(function (d) {
                             return d.id == series;
-                        }).vectors;
+                        });
+                        var vectors = findDots.vectors;
                         var vector = vectors[index];
                         tipsY = vector.y;
                         activeX = this.state.data[index][this.state.x];
@@ -940,7 +976,7 @@ var chart = function (_React$Component) {
     }, {
         key: "renderData",
         value: function renderData() {
-            var _this8 = this;
+            var _this9 = this;
 
             var g = void 0;
             switch (this.state.type) {
@@ -951,15 +987,15 @@ var chart = function (_React$Component) {
                         this.state.y.map(function (d, i) {
                             var lastX = void 0,
                                 lastY = void 0;
-                            var path = _this8.state.data.map(function (d1, j) {
+                            var path = _this9.state.data.map(function (d1, j) {
                                 var id = d.id;
-                                var x = _this8.xTransformToSvg(j);
-                                var y = _this8.yTransformToSvg(d1[id]);
+                                var x = _this9.xTransformToSvg(j);
+                                var y = _this9.yTransformToSvg(d1[id]);
                                 var p = "";
                                 if (j == 0) {
                                     p = "M " + x + " " + y;
                                 } else {
-                                    var _getBezierCurvesVecto = _this8.getBezierCurvesVector(lastX, lastY, x, y),
+                                    var _getBezierCurvesVecto = _this9.getBezierCurvesVector(lastX, lastY, x, y),
                                         x1 = _getBezierCurvesVecto.x1,
                                         y1 = _getBezierCurvesVecto.y1,
                                         x2 = _getBezierCurvesVecto.x2,
@@ -972,9 +1008,9 @@ var chart = function (_React$Component) {
                                 return p;
                             }).join(" ");
                             var color = d.color;
-                            var style = _this8.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+                            var style = _this9.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
                             return _react2.default.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-                                    _this8["curve" + d.id] = curve;
+                                    _this9["curve" + d.id] = curve;
                                 }, style: style });
                         })
                     );
@@ -984,16 +1020,16 @@ var chart = function (_React$Component) {
                         "g",
                         { className: _index2.default.bar },
                         this.state.y.map(function (d, i) {
-                            return _this8.state.data.map(function (d1, j) {
+                            return _this9.state.data.map(function (d1, j) {
                                 var id = d.id;
-                                var barWidth = _this8.state.xUnitLength / ((_this8.state.y.length + 2) * 1.5);
-                                var offsetX = (i - _this8.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
-                                var x = _this8.xTransformToSvg(j) + offsetX + barWidth / 2;
-                                var y = _this8.yTransformToSvg(d1[id]);
+                                var barWidth = _this9.state.xUnitLength / ((_this9.state.y.length + 2) * 1.5);
+                                var offsetX = (i - _this9.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+                                var x = _this9.xTransformToSvg(j) + offsetX + barWidth / 2;
+                                var y = _this9.yTransformToSvg(d1[id]);
                                 return _react2.default.createElement("path", { stroke: d.color, strokeWidth: barWidth,
-                                    d: "M" + x + " " + _this8.yTransformToSvg(0) + " L" + x + " " + y,
+                                    d: "M" + x + " " + _this9.yTransformToSvg(0) + " L" + x + " " + y,
                                     ref: function ref(bar) {
-                                        _this8["bar" + id + j] = bar;
+                                        _this9["bar" + id + j] = bar;
                                     } });
                             });
                         })
@@ -1016,12 +1052,16 @@ var chart = function (_React$Component) {
         key: "setColor",
         value: function setColor(propsY) {
             var y = propsY == undefined ? this.state.y : propsY;
-            y = y.map(function (d) {
-                var max = 230;
-                var r = Math.floor(Math.random() * max);
-                var g = Math.floor(Math.random() * max);
-                var b = Math.floor(Math.random() * max);
-                d.color = "rgba(" + r + "," + g + "," + b + ",1)";
+            var max = 360;
+            var step = Math.floor(max / y.length);
+            y = y.map(function (d, i) {
+                //设定颜色的波动范围为25%-75%个step之间
+                var h = step * i + step / 4;
+                var r = Math.floor(Math.random() * step / 2);
+                h = h + r;
+                var s = "50%";
+                var l = "50%";
+                d.color = "hsla(" + h + "," + s + "," + l + ",1)";
                 return d;
             });
             if (propsY != undefined) {
@@ -1041,23 +1081,26 @@ var chart = function (_React$Component) {
     }, {
         key: "setTipsText",
         value: function setTipsText() {
-            var _this9 = this;
+            var _this10 = this;
 
             var startX = this.state.tipsX;
             var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
             var color = this.state.y.find(function (d) {
-                return d.id == _this9.state.activeSeries;
+                return d.id == _this10.state.activeSeries;
             }).color;
             var xText = this.state.activeX;
             var yText = this.state.data.find(function (d) {
-                return d[_this9.state.x] == xText;
+                return d[_this10.state.x] == xText;
             })[this.state.activeSeries];
+            var activeText = this.state.y.find(function (d) {
+                return d.id == _this10.state.activeSeries;
+            }).name;
             var text = _react2.default.createElement(
                 "text",
                 { color: color, x: startX, y: startY, ref: function ref(d) {
-                        _this9.tipsText = d;
+                        _this10.tipsText = d;
                     } },
-                this.state.activeSeries,
+                activeText,
                 " : ",
                 yText
             );
@@ -1072,14 +1115,14 @@ var chart = function (_React$Component) {
     }, {
         key: "setTips",
         value: function setTips() {
-            var _this10 = this;
+            var _this11 = this;
 
             var arcRx = 0.5,
                 arcRy = 0.5;
             var startX = this.state.tipsX;
             var startY = this.state.tipsY - this.state.tipsMarginBottom;
             var color = this.state.y.find(function (d) {
-                return d.id == _this10.state.activeSeries;
+                return d.id == _this11.state.activeSeries;
             }).color;
             var path = this.state.tipsWidth ? _react2.default.createElement("path", { stroke: color,
                 d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";

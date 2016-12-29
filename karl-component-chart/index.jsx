@@ -6,7 +6,7 @@ import $ from "jquery";
 /**
  * react图表组件
  * title：顶部的文字
- * yAxisText: Y轴左边的文字
+ * yAxisText: Y轴左边的文字，如果为undefined则显示为""
  * type: 图表类型curve或bar，默认为curve
  * x: 代表x轴的id
  * y: 代表y轴的json，例如{id:id,name:name}
@@ -29,23 +29,15 @@ import $ from "jquery";
 class chart extends React.Component {
     constructor(props) {
         super(props);
-
-        let data = this.sortData(this.props.data);
-        data = this.fillData(data, this.props.y);
-        let yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
-        let y = this.setColor(this.props.y);
-
         this.state = {
             x: this.props.x,
-            y: y,
-            title: this.props.title,
-            yAxisText: this.props.yAxisText,
-            type: this.props.type ? this.props.type : "curve",
-            data: data,
+            y: [],
+            data: [],
+            yAxisNumArr: [],
             lineDots: [],
-            yAxisNumArr: yAxisNumArr,
-            xUnitLength: 100 * 0.8 / data.length,
-            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+            title: this.props.title,
+            yAxisText: this.props.yAxisText == undefined ? "" : this.props.yAxisText,
+            type: this.props.type ? this.props.type : "curve",
             angleNum: this.props.angleNum ? this.props.angleNum : 12,
             endPointLineLength: this.props.endPointLineLength ? this.props.endPointLineLength : 0.1,
             tipsRaisedX: 0.2,
@@ -57,29 +49,56 @@ class chart extends React.Component {
             tipsPaddingRight: 1
         };
         let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
-            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips"];
+            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
     }
 
+    componentWillMount() {
+        this.doUpdate(this.props.data);
+    }
+
     componentDidMount() {
-        let lineDots = this.state.y.map(d => {
-            let vectors = this.state.data.map((d1, j) => {
-                let id = d.id;
-                let x = this.xTransformToSvg(j);
-                let y = this.yTransformToSvg(d1[id]);
-                let vector = {x: x, y: y};
-                return vector;
+        this.setSvgAnimate();
+    }
+
+    doUpdate(data) {
+        data = this.sortData(data);
+        data = this.fillData(data, this.props.y);
+        let yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
+        let y = this.setColor(this.props.y);
+        this.setState({
+            yAxisNumArr: yAxisNumArr,
+            xUnitLength: 100 * 0.8 / data.length,
+            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+        }, ()=> {
+            let lineDots = y.map(d => {
+                let vectors = data.map((d1, j) => {
+                    let id = d.id;
+                    let x = this.xTransformToSvg(j);
+                    let y = this.yTransformToSvg(d1[id]);
+                    let vector = {x: x, y: y};
+                    return vector;
+                });
+                return {id: d.id, vectors: vectors};
             });
-            return {id: d.id, vectors: vectors};
+            this.setState({
+                y: y,
+                data: data,
+                lineDots: lineDots
+            })
         });
-        let json = {lineDots: lineDots};
+    }
+
+    setSvgAnimate() {
         let ua = window.navigator.userAgent;
         if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
-            json.isIE = true;
-            json.svgWidth = $(this.svg).width();
-            json.svgHeight = $(this.svg).width() * 60 / 110;
+            this.setState({
+                isIE: true,
+                svgWidth: $(this.svg).width(),
+                svgHeight: $(this.svg).width() * 60 / 110
+            });
         } else {
             switch (this.state.type) {
                 case "curve":
@@ -104,17 +123,16 @@ class chart extends React.Component {
                     break;
             }
         }
-
-        this.setState(json);
-
-
     }
 
     componentWillReceiveProps(nextProps) {
-
+        if (this.props.data != nextProps.data) {
+            this.doUpdate(nextProps.data);
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
+        //设置tips的宽度和高度
         if (!((prevState.tipsX == this.state.tipsX) && (prevState.tipsY == this.state.tipsY)) && this.state.tipsX && this.state.tipsY) {
             let w = $(this.tipsText).width() / $(this.svg).width() * 110;
             w = w.toFixed(2);
@@ -134,8 +152,8 @@ class chart extends React.Component {
             <g>
                 {
                     this.state.title ? <g className={css.title}>
-                            <text x="50" y="3">{this.state.title}</text>
-                        </g> : ""
+                        <text x="50" y="3">{this.state.title}</text>
+                    </g> : ""
                 }
                 <g className={css.xAxis}>
                     <path d="M10 55 h 80"/>
@@ -161,8 +179,8 @@ class chart extends React.Component {
                 </g>
                 {
                     this.state.yAxisText ? <g className={css.yAxisText}>
-                            <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
-                        </g> : ""
+                        <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
+                    </g> : ""
                 }
 
                 <g className={css.xGrid}>
@@ -398,10 +416,13 @@ class chart extends React.Component {
                     pStart--;
                 }
             }
-            while (yEnd * 10 <= 1) {
-                yEnd = yEnd * 10;
-                pEnd--;
+            if (yEnd != 0) {
+                while (yEnd * 10 <= 1) {
+                    yEnd = yEnd * 10;
+                    pEnd--;
+                }
             }
+
         } else {
             //from 10 to bigger
             pStart = 0;
@@ -673,6 +694,11 @@ class chart extends React.Component {
      * @param e
      */
     setActive(e) {
+        //如果没有数据，则不执行操作
+        if (this.state.data.length == 0) {
+            return;
+        }
+
         let offset = $(this.svg).offset();
         let x = e.pageX - offset.left;
         let y = e.pageY - offset.top;
@@ -780,9 +806,10 @@ class chart extends React.Component {
                             }
                         }
                     }
-                    let vectors = this.state.lineDots.find(d => {
+                    let findDots = this.state.lineDots.find(d => {
                         return d.id == series;
-                    }).vectors;
+                    });
+                    let vectors = findDots.vectors;
                     let vector = vectors[index];
                     tipsY = vector.y;
                     activeX = this.state.data[index][this.state.x];
@@ -881,12 +908,16 @@ class chart extends React.Component {
      */
     setColor(propsY) {
         let y = (propsY == undefined) ? this.state.y : propsY;
-        y = y.map(d => {
-            let max = 230;
-            let r = Math.floor(Math.random() * max);
-            let g = Math.floor(Math.random() * max);
-            let b = Math.floor(Math.random() * max);
-            d.color = `rgba(${r},${g},${b},1)`;
+        let max = 360;
+        let step = Math.floor(max / y.length);
+        y = y.map((d, i) => {
+            //设定颜色的波动范围为25%-75%个step之间
+            let h = step * i + step / 4;
+            let r = Math.floor(Math.random() * step / 2);
+            h = h + r;
+            let s = "50%";
+            let l = "50%";
+            d.color = `hsla(${h},${s},${l},1)`;
             return d;
         });
         if (propsY != undefined) {
@@ -912,10 +943,13 @@ class chart extends React.Component {
         let yText = this.state.data.find(d => {
             return d[this.state.x] == xText;
         })[this.state.activeSeries];
+        let activeText = this.state.y.find(d => {
+            return d.id == this.state.activeSeries;
+        }).name;
         let text = <text color={color} x={startX} y={startY} ref={d => {
             this.tipsText = d;
         }}>
-            {this.state.activeSeries} : {yText}
+            {activeText} : {yText}
         </text>;
         return text;
     }

@@ -27,6 +27,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * optionNumPerColumn:每一列显示option的数量，默认为10
  * lang:界面语言,en或ch，默认为en
  * callback:值改变后的回调，参数为值改变后对应的data数组
+ * initCallback：初始化后执行的回调，参数为data数组
  *
  * 示例：
  * <Select text="呵呵" data=[
@@ -73,6 +74,17 @@ var select = function (_React$Component) {
                     _this2.setState({ panelShow: false });
                 }
             }, false);
+            if (this.props.initCallback) {
+                (function () {
+                    var sourceData = [];
+                    data.forEach(function (d) {
+                        d.forEach(function (d1) {
+                            sourceData.push(d1);
+                        });
+                    });
+                    _this2.props.initCallback(sourceData);
+                })();
+            }
         }
     }, {
         key: "componentWillReceiveProps",

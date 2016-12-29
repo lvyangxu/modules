@@ -9,6 +9,7 @@ import "font-awesome-webpack";
  * optionNumPerColumn:每一列显示option的数量，默认为10
  * lang:界面语言,en或ch，默认为en
  * callback:值改变后的回调，参数为值改变后对应的data数组
+ * initCallback：初始化后执行的回调，参数为data数组
  *
  * 示例：
  * <Select text="呵呵" data=[
@@ -45,6 +46,15 @@ class select extends React.Component {
                 this.setState({panelShow: false});
             }
         }, false);
+        if (this.props.initCallback) {
+            let sourceData = [];
+            data.forEach(d => {
+                d.forEach(d1 => {
+                    sourceData.push(d1);
+                });
+            });
+            this.props.initCallback(sourceData);
+        }
     }
 
     componentWillReceiveProps(nextProps) {

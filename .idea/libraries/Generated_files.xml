@@ -9,6 +9,7 @@
         <item url="file://$PROJECT_DIR$/karl-jwt/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-table/index.js" />
         <item url="file://$PROJECT_DIR$/karl-http/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-login/index.js" />
@@ -16,17 +17,18 @@
       </sourceFilesUrls>
     </properties>
     <CLASSES>
+      <root url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-login/index.js" />
+      <root url="file://$PROJECT_DIR$/test/test.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/index.js" />
       <root url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
-      <root url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
       <root url="file://$PROJECT_DIR$/karl-jwt/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-table/index.js" />
       <root url="file://$PROJECT_DIR$/karl-http/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-login/index.js" />
-      <root url="file://$PROJECT_DIR$/test/test.js" />
     </CLASSES>
     <SOURCES />
   </library>
