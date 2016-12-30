@@ -51,11 +51,11 @@ $width: 132px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         margin-top: 4px;
         .content {
-            $monthWidth: 35px;
+            $rowWidth: 280px;
             .contentHead {
                 margin-top: 10px;
                 margin-bottom: 10px;
-                width: $monthWidth*4;
+                width: $rowWidth;
                 font-size: 0;
                 .left, .middle, .right {
                     display: inline-block;
@@ -65,16 +65,12 @@ $width: 132px;
                     padding-bottom: 5px;
                 }
 
-                .left {
-                    width: $monthWidth;
+                .left, .right {
+                    width: $rowWidth/4;
                 }
 
                 .middle {
-                    width: $monthWidth*2;
-                }
-
-                .right {
-                    width: $monthWidth;
+                    width: $rowWidth/2;
                 }
 
                 .left:hover, .middle:hover, .right:hover {
@@ -86,48 +82,56 @@ $width: 132px;
 
             }
             .contentBody {
-                .year, .month, .day {
+                .page {
                     .row {
-                        width: $monthWidth*4;
-                        .yearCell, .monthCell {
+                        width: $rowWidth;
+                        .cell {
                             cursor: pointer;
                             user-select: none;
                             text-align: center;
-                            width: $monthWidth;
-                            height: $monthWidth;
-                            line-height: $monthWidth;
                             float: left;
                             font-size: 12px;
                         }
-                        .dayCell {
-                            cursor: pointer;
-                            user-select: none;
-                            text-align: center;
-                            width: $monthWidth*4/7;
-                            height: $monthWidth*4/7;
-                            line-height: $monthWidth*4/7;
-                            float: left;
-                            font-size: 12px;
-                        }
-                        .dayCell.title {
-                            cursor: auto;
-                        }
-                        .dayCell.title:hover {
-                            background: inherit;
-                            box-shadow: none;
-                        }
-                        .dayCell.dark {
-                            color: rgba(150, 150, 150, 0.6);
-                        }
-
-                        .yearCell:hover, .monthCell:hover, .dayCell:hover {
+                        .cell:hover {
                             background: linear-gradient(to bottom, rgba(237, 237, 237, 1), rgba(219, 219, 219, 1));
                             box-shadow: inset 0px 0px 2px 2px rgba(200, 200, 200, 1);
                         }
-
-                        .yearCell.active, .monthCell.active, .dayCell.active {
+                        .cell.active {
                             background: linear-gradient(to bottom, rgba(237, 237, 237, 1), rgba(219, 219, 219, 1));
                         }
+
+                        .year, .month {
+                            width: $rowWidth/4;
+                            height: $rowWidth/4;
+                            line-height: $rowWidth/4;
+                        }
+                        .day {
+                            width: $rowWidth/7;
+                            height: $rowWidth/7;
+                            line-height: $rowWidth/7;
+                        }
+                        .hour {
+                            width: $rowWidth/6;
+                            height: $rowWidth/6;
+                            line-height: $rowWidth/6;
+                        }
+                        .minute, .second {
+                            width: $rowWidth/10;
+                            height: $rowWidth/10;
+                            line-height: $rowWidth/10;
+                        }
+
+                        .day.title {
+                            cursor: auto;
+                        }
+                        .day.title:hover {
+                            background: inherit;
+                            box-shadow: none;
+                        }
+                        .day.dark {
+                            color: rgba(150, 150, 150, 0.6);
+                        }
+                        
                     }
                 }
             }

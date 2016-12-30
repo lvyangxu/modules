@@ -5,7 +5,7 @@ import date from "karl-date";
 
 /**
  * react日期组件
- * type：日期类型，day或month，默认为day
+ * type：日期类型，day/month/second，默认为day
  * add：默认值的偏移量，day为1日，month为1月，week为1周
  * callback：日期改变时执行的回调
  * initCallback：初始化后执行的回调
@@ -21,25 +21,46 @@ class datepicker extends React.Component {
         let type = this.props.type ? this.props.type : "day";
         let add = this.props.add ? this.props.add : 0;
         add = Number.parseInt(add);
-        let currentPanel = type == "day" ? "day" : "month";
-        let date = new Date();
-        let [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+        let currentPanel;
         switch (type) {
             case "day":
-                day = day + add;
+                currentPanel = "day";
                 break;
             case "month":
-                month = month + add;
+                currentPanel = "month";
+                break;
+            case "second":
+                currentPanel = "second";
                 break;
         }
-        let newDate = new Date(year, month - 1, day);
-        [year, month, day] = [newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate()];
-
+        let {year:year1, month:month1, day:day1, hour:hour1, minute:minute1, second:second1} = date.add(new Date());
+        switch (type) {
+            case "day":
+                day1 = day1 + add;
+                break;
+            case "month":
+                month1 = month1 + add;
+                break;
+            case "second":
+                second1 = second1 + add;
+                break;
+        }
+        let {year, month, day, hour, minute, second} = date.add({
+            year: year1,
+            month: month1,
+            day: day1,
+            hour: hour1,
+            minute: minute1,
+            second: second1
+        });
         let value = this.buildValue({
             type: type,
             year: year,
             month: month,
-            day: day
+            day: day,
+            hour: hour,
+            minute: minute,
+            second: second
         });
         this.state = {
             panelShow: false,
@@ -50,9 +71,15 @@ class datepicker extends React.Component {
             year: year,
             month: month,
             day: day,
+            hour: hour,
+            minute: minute,
+            second: second,
             panelYear: year,
             panelMonth: month,
             panelDay: day,
+            panelHour: hour,
+            panelMinute: minute,
+            panelSecond: second,
             value: value
         };
 
@@ -114,104 +141,71 @@ class datepicker extends React.Component {
      * @returns {*}
      */
     setPanel() {
+
         let content;
-        switch (this.state.type) {
+        switch (this.state.currentPanel) {
             case "day":
-                switch (this.state.currentPanel) {
-                    case "year":
-                        content = this.drawYearPanel();
-                        break;
-                    case "month":
-                        content = this.drawMonthPanel();
-                        break;
-                    case "day":
-                        content = this.drawDayPanel();
-                        break;
-                }
+                content = this.drawDayPanel();
+                break;
+            default:
+                content = this.drawPanel(this.state.currentPanel);
+                break;
+        }
+        return content;
+    }
+
+    /**
+     * 绘制除日面板以外的所有面板
+     * @param type
+     * @returns {XML}
+     */
+    drawPanel(type) {
+        let arr = [];
+        let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+        let index = gradtion.findIndex(d=> {
+            return d == type;
+        });
+        let start, end, step, title;
+        switch (type) {
+            case "year":
+                let modNum = this.state.year % 12;
+                start = this.state.year - 12 + modNum + 1;
+                end = this.state.year + modNum;
+                step = 4;
+                title = `${start}-${end}`;
                 break;
             case "month":
-                switch (this.state.currentPanel) {
-                    case "year":
-                        content = this.drawYearPanel();
-                        break;
-                    case "month":
-                        content = this.drawMonthPanel();
-                        break;
-                }
+                start = 1;
+                end = 12;
+                step = 4;
+                title = `${this.state.year}年`;
                 break;
-            case "week":
-                switch (this.state.currentPanel) {
-                    case "year":
-                        content = this.drawYearPanel();
-                        break;
-                    case "month":
-                        content = this.drawMonthPanel();
-                        break;
-                    case "day":
-                        content = this.drawDayPanel();
-                        break;
-                }
+            case "hour":
+                start = 0;
+                end = 23;
+                step = 6;
+                title = `${this.state.year}年${this.state.month}月${this.state.day}日`;
                 break;
-        }
-        return content;
-    }
+            case "minute":
+                start = 0;
+                end = 59;
+                step = 10;
+                title = `${this.state.year}年${this.state.month}月${this.state.day}日${this.state.hour}时`;
+                break;
+            case "second":
+                start = 0;
+                end = 59;
+                step = 10;
+                title = `${this.state.year}年${this.state.month}月${this.state.day}日${this.state.hour}时${this.state.minute}分`;
+                break;
 
-    /**
-     * 绘制年面板
-     * @returns {XML}
-     */
-    drawYearPanel() {
-        let modNum = this.state.year % 12;
-        let startYear = this.state.year - 12 + modNum + 1;
-        let endYear = this.state.year + modNum;
-        let arr = [];
-        for (let i = startYear; i <= endYear; i = i + 4) {
-            arr.push([i, i + 1, i + 2, i + 3]);
         }
-        let content = <div className={css.content}>
-            <div className={css.contentHead}>
-                <div className={css.left} onClick={() => {
-                    this.doLeft();
-                }}><i className="fa fa-angle-double-left"/></div>
-                <div className={css.middle} onClick={() => {
-                    this.toMonthPanel();
-                }}>
-                    {
-                        `${startYear}-${endYear}`
-                    }
-                </div>
-                <div className={css.right} onClick={() => {
-                    this.doRight();
-                }}><i className="fa fa-angle-double-right"/></div>
-            </div>
-            <div className={css.contentBody}>
-                <div className={css.year}>
-                    {
-                        arr.map((d, i) => {
-                            return <div key={i} className={css.row}>{
-                                d.map((d1, j) => {
-                                    let className = (this.state.panelYear == d1) ? (css.yearCell + " " + css.active) : css.yearCell;
-                                    return <div key={j} className={className} onClick={() => {
-                                        this.setYear(d1);
-                                    }}>{d1}</div>;
-                                })
-                            }</div>
-                        })
-                    }
-                </div>
-            </div>
-        </div>;
-        return content;
-    }
 
-    /**
-     * 绘制月面板
-     * @returns {XML}
-     */
-    drawMonthPanel() {
-        let arr = [];
-        for (let i = 1; i <= 12; i = i + 4) {
-            let row = [i, i + 1, i + 2, i + 3];
+        for (let i = start; i <= end; i = i + step) {
+            let row = [];
+            for (let j = 0; j <= step - 1; j++) {
+                row.push(i + j);
+            }
             arr.push(row);
         }
 
@@ -221,25 +215,69 @@ class datepicker extends React.Component {
                     this.doLeft();
                 }}><i className="fa fa-angle-double-left"/></div>
                 <div className={css.middle} onClick={() => {
-                    this.toYearPanel();
-                }}>
-                    {
-                        this.state.year + "年"
+                    //返回上一级面板，如果已到最高层，则返回第2层
+                    let currentPanel;
+                    if (index == 0) {
+                        currentPanel = gradtion[1];
+                    } else {
+                        currentPanel = gradtion[index - 1];
                     }
-                </div>
+                    this.setState({
+                        currentPanel: currentPanel
+                    });
+                }}>{title}</div>
                 <div className={css.right} onClick={() => {
                     this.doRight();
                 }}><i className="fa fa-angle-double-right"/></div>
             </div>
             <div className={css.contentBody}>
-                <div className={css.month}>
+                <div className={css.page}>
                     {
                         arr.map((d, i) => {
                             return <div key={i} className={css.row}>{
                                 d.map((d1, j) => {
-                                    let className = (d1 == this.state.month && this.state.year == this.state.panelYear) ? (css.monthCell + " " + css.active) : css.monthCell;
+                                    let isEqual = false;
+                                    switch (type) {
+                                        case "year":
+                                            isEqual = this.state.year == d1;
+                                            break;
+                                        case "month":
+                                            isEqual = this.state.year == this.state.panelYear && this.state.month == d1;
+                                            break;
+                                        case "day":
+                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
+                                                this.state.day == d1;
+                                            break;
+                                        case "hour":
+                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
+                                                this.state.day == this.state.panelDay && this.state.hour == d1;
+                                            break;
+                                        case "minute":
+                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
+                                                this.state.day == this.state.panelDay && this.state.hour == this.state.panelHour &&
+                                                this.state.minute == d1;
+                                            break;
+                                        case "second":
+                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
+                                                this.state.day == this.state.panelDay && this.state.hour == this.state.panelHour &&
+                                                this.state.minute == this.state.panelMinute && this.state.second == d1;
+                                            break;
+                                    }
+
+                                    let className = isEqual ?
+                                        (css.cell + " " + css[type] + " " + css.active) :
+                                        (css.cell + " " + css[type]);
                                     return <div key={j} className={className} onClick={() => {
-                                        this.setMonth(d1);
+                                        let oldJson = {};
+                                        gradtion.forEach(d2=> {
+                                            if (d2 == type) {
+                                                oldJson[d2] = d1;
+                                            } else {
+                                                oldJson[d2] = this.state[d2];
+                                            }
+                                        });
+                                        let json = date.add(oldJson);
+                                        this.setValue(type, json);
                                     }}>{d1}</div>;
                                 })
                             }</div>;
@@ -257,6 +295,7 @@ class datepicker extends React.Component {
      */
     drawDayPanel() {
         let arr = [];
+        let gradtion = ["year", "month", "day", "hour", "minute", "second"];
         let [year, month] = [this.state.year, this.state.month];
         let titleArr = ["一", "二", "三", "四", "五", "六", "日"];
         let daysOfMonth = date.getDaysOfMonth(year, month);
@@ -290,7 +329,18 @@ class datepicker extends React.Component {
                     this.doLeft();
                 }}><i className="fa fa-angle-double-left"/></div>
                 <div className={css.middle} onClick={() => {
-                    this.toYearPanel();
+                    //返回上一级面板，如果已到最高层，则返回第2层
+                    let index = gradtion.findIndex(d=> {
+                        return d == "day";
+                    });
+                    if (index == 0) {
+                        index = 1;
+                    } else {
+                        index--;
+                    }
+                    this.setState({
+                        currentPanel: gradtion[index]
+                    });
                 }}>
                     {
                         `${this.state.year}年${this.state.month}月`
@@ -301,11 +351,11 @@ class datepicker extends React.Component {
                 }}><i className="fa fa-angle-double-right"/></div>
             </div>
             <div className={css.contentBody}>
-                <div className={css.day}>
+                <div className={css.page}>
                     <div className={css.row}>
                         {
                             titleArr.map((d, i) => {
-                                return <div key={i} className={css.dayCell + " " + css.title}>{d}</div>;
+                                return <div key={i} className={css.cell + " " + css.day + " " + css.title}>{d}</div>;
                             })
                         }
                     </div>
@@ -313,33 +363,24 @@ class datepicker extends React.Component {
                         arr.map((d, i) => {
                             return <div key={i} className={css.row}>{
                                 d.map((d1, j) => {
-                                    let className = css.dayCell;
                                     let isActive = this.state.panelYear == this.state.year;
                                     isActive = isActive && (this.state.panelMonth == this.state.month);
                                     isActive = isActive && (this.state.panelDay == d1.text);
                                     isActive = isActive && (d1.add == 0);
-                                    className = isActive ? (css.dayCell + " " + css.active) : className;
+                                    let className = isActive ? (css.cell + " " + css.day + " " + css.active) : (css.cell + " " + css.day);
                                     if (d1.add != 0) {
                                         className = className + " " + css.dark;
                                     }
                                     return <div key={j} className={className} onClick={() => {
-                                        let [year, month] = [this.state.year, this.state.month];
-                                        if (d1.add == -1) {
-                                            if (month == 1) {
-                                                year--;
-                                                month = 12;
-                                            } else {
-                                                month--;
-                                            }
-                                        } else if (d1.add == 1) {
-                                            if (month == 12) {
-                                                year++;
-                                                month = 1;
-                                            } else {
-                                                month++;
-                                            }
-                                        }
-                                        this.setDay(year, month, d1.text);
+                                        let json = date.add({
+                                            year: this.state.year,
+                                            month: this.state.month,
+                                            day: d1.text,
+                                            hour: this.state.hour,
+                                            minute: this.state.minute,
+                                            second: this.state.second
+                                        }, {month: d1.add});
+                                        this.setValue("day", json);
                                     }}>{d1.text}</div>;
                                 })
                             }</div>;
@@ -351,103 +392,80 @@ class datepicker extends React.Component {
         return content;
     }
 
-    /**
-     * 设置年的值
-     * @param y
-     */
-    setYear(y) {
-        let [year, month, day] = [y, this.state.month, this.state.day];
-        let value = this.buildValue({
-            year: year,
-            month: month,
-            day: day
-        });
-
-        this.setState({
-            currentPanel: "month",
-            panelYear: year,
-            year: year,
-            month: month,
-            value: value
-        });
-    }
-
-    /**
-     * 设置月的值
-     * @param m
-     */
-    setMonth(m) {
-        let [year, month, day] = [this.state.year, m, this.state.day];
-        let value = this.buildValue({
-            year: year,
-            month: month,
-            day: day
-        });
-        let json = {
-            panelYear: year,
-            panelMonth: month,
-            year: year,
-            month: month,
-            value: value
-        };
-
-        if (this.state.type == "month") {
-            json.panelShow = false;
-        } else if (this.state.type == "day") {
-            json.currentPanel = "day";
-        }
-
-        this.setState(json, () => {
-            if (this.state.type == "month" && this.props.callback) {
-                this.props.callback(value);
-            }
-        });
-    }
-
-    /**
-     * 设置日的值
-     * @param d
-     */
-    setDay(y, m, d) {
-        let [year, month, day] = [y, m, d];
-        let value = this.buildValue({
-            year: year,
-            month: month,
-            day: day
-        });
-
-        this.setState({
-            panelShow: false,
-            panelYear: year,
-            panelMonth: month,
-            panelDay: day,
+    setValue(type, json) {
+        let value = this.buildValue(json);
+        let {year, month, day, hour, minute, second} = json;
+        let newState = {
             year: year,
             month: month,
             day: day,
+            hour: hour,
+            minute: minute,
+            second: second,
+            panelYear: year,
+            panelMonth: month,
+            panelDay: day,
+            panelHour: hour,
+            panelMinute: minute,
+            panelSecond: second,
             value: value
-        }, () => {
-            if (this.props.callback) {
+        };
+        let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+        let endPanel;
+        switch (this.state.type) {
+            case "month":
+                endPanel = "month";
+                break;
+            case "day":
+                endPanel = "day";
+                break;
+            case "second":
+                endPanel = "second";
+                break;
+        }
+        let isLastPanel = false;
+        if (this.state.currentPanel == endPanel) {
+            //到达最后一级面板时关闭
+            isLastPanel = true;
+            newState.panelShow = false;
+        } else {
+            //跳转到下一级面板
+            let index = gradtion.findIndex(d=> {
+                return d == type;
+            });
+            index++;
+            newState.currentPanel = gradtion[index];
+        }
+        this.setState(newState, ()=> {
+            if (isLastPanel && this.props.callback) {
                 this.props.callback(value);
             }
         });
     }
 
     /**
-     * 根据年月日和日期类型构建显示的text value
+     * 根据年月日时分秒和日期类型构建显示的text value
      * @param json
      * @returns {*}
      */
     buildValue(json) {
         let type = json.hasOwnProperty("type") ? json.type : this.state.type;
+        let year = json.year;
         let month = json.month < 10 ? ("0" + json.month) : json.month;
         let day = json.day < 10 ? ("0" + json.day) : json.day;
+        let hour = json.hour < 10 ? ("0" + json.hour) : json.hour;
+        let minute = json.minute < 10 ? ("0" + json.minute) : json.minute;
+        let second = json.second < 10 ? ("0" + json.second) : json.second;
         let value;
         switch (type) {
             case "day":
-                value = json.year + "-" + month + "-" + day;
+                value = `${year}-${month}-${day}`;
                 break;
             case "month":
-                value = json.year + "-" + month;
+                value = `${year}-${month}`;
+                break;
+            case "second":
+                value = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
                 break;
         }
         return value;
@@ -463,21 +481,24 @@ class datepicker extends React.Component {
                     year: this.state.year - 12
                 });
                 break;
-            case "month":
-                this.setState({
-                    year: this.state.year - 1
+            default:
+                let json = {};
+                let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+                let index = gradtion.findIndex(d=>{
+                    return d == this.state.currentPanel;
                 });
-            case "day":
-                let [year, month] = [this.state.year, this.state.month];
-                if (month == 1) {
-                    year--;
-                    month = 12;
-                } else {
-                    month--;
-                }
-                this.setState({
-                    year: year,
-                    month: month
+                let changePanel = gradtion[index - 1];
+                json[changePanel] = this.state[changePanel] - 1;
+                this.setState(json, ()=> {
+                    let date = new Date(this.state.year, this.state.month - 1, this.state.day, this.state.hour, this.state.minute, this.state.second);
+                    this.setState({
+                        year: date.getFullYear(),
+                        month: date.getMonth() + 1,
+                        day: date.getDate(),
+                        hour: date.getHours(),
+                        minute: date.getMinutes(),
+                        second: date.getSeconds()
+                    })
                 });
                 break;
         }
@@ -493,43 +514,27 @@ class datepicker extends React.Component {
                     year: this.state.year + 12
                 });
                 break;
-            case "month":
-                this.setState({
-                    year: this.state.year + 1
+            default:
+                let json = {};
+                let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+                let index = gradtion.findIndex(d=>{
+                    return d == this.state.currentPanel;
                 });
-                break;
-            case "day":
-                let [year, month] = [this.state.year, this.state.month];
-                if (month == 12) {
-                    year++;
-                    month = 1;
-                } else {
-                    month++;
-                }
-                this.setState({
-                    year: year,
-                    month: month
+                let changePanel = gradtion[index - 1];
+                json[changePanel] = this.state[changePanel] + 1;
+                this.setState(json, ()=> {
+                    let date = new Date(this.state.year, this.state.month - 1, this.state.day, this.state.hour, this.state.minute, this.state.second);
+                    this.setState({
+                        year: date.getFullYear(),
+                        month: date.getMonth() + 1,
+                        day: date.getDate(),
+                        hour: date.getHours(),
+                        minute: date.getMinutes(),
+                        second: date.getSeconds()
+                    })
                 });
                 break;
         }
-    }
-
-    /**
-     * 转到年界面
-     */
-    toYearPanel() {
-        this.setState({
-            currentPanel: "year"
-        });
-    }
-
-    /**
-     * 转到月界面
-     */
-    toMonthPanel() {
-        this.setState({
-            currentPanel: "month"
-        });
     }
 
 }

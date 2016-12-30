@@ -2,7 +2,7 @@ require("babel-polyfill");
 let React = require("react");
 let ReactDom = require("react-dom");
 
-let Com = require("../karl-component-chart/index");
+let Com = require("../karl-component-datepicker/index");
 
 
 
@@ -47,8 +47,6 @@ class Xx extends React.Component {
 
 ReactDom.render(
     <div>
-        <Xx/>
+        <Com type="second"/>
     </div>
     , document.getElementById("test"));
-
-console.log([].hasOwnProperty("a"));

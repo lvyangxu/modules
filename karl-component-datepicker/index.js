@@ -26,7 +26,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 /**
  * react日期组件
- * type：日期类型，day或month，默认为day
+ * type：日期类型，day/month/second，默认为day
  * add：默认值的偏移量，day为1日，month为1月，week为1周
  * callback：日期改变时执行的回调
  * initCallback：初始化后执行的回调
@@ -47,33 +47,62 @@ var datepicker = function (_React$Component) {
         var type = _this.props.type ? _this.props.type : "day";
         var add = _this.props.add ? _this.props.add : 0;
         add = Number.parseInt(add);
-        var currentPanel = type == "day" ? "day" : "month";
-        var date = new Date();
-        var _ref = [date.getFullYear(), date.getMonth() + 1, date.getDate()],
-            year = _ref[0],
-            month = _ref[1],
-            day = _ref[2];
+        var currentPanel = void 0;
+        switch (type) {
+            case "day":
+                currentPanel = "day";
+                break;
+            case "month":
+                currentPanel = "month";
+                break;
+            case "second":
+                currentPanel = "second";
+                break;
+        }
+
+        var _date$add = _karlDate2.default.add(new Date()),
+            year1 = _date$add.year,
+            month1 = _date$add.month,
+            day1 = _date$add.day,
+            hour1 = _date$add.hour,
+            minute1 = _date$add.minute,
+            second1 = _date$add.second;
 
         switch (type) {
             case "day":
-                day = day + add;
+                day1 = day1 + add;
                 break;
             case "month":
-                month = month + add;
+                month1 = month1 + add;
+                break;
+            case "second":
+                second1 = second1 + add;
                 break;
         }
-        var newDate = new Date(year, month - 1, day);
-        var _ref2 = [newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate()];
-        year = _ref2[0];
-        month = _ref2[1];
-        day = _ref2[2];
 
+        var _date$add2 = _karlDate2.default.add({
+            year: year1,
+            month: month1,
+            day: day1,
+            hour: hour1,
+            minute: minute1,
+            second: second1
+        }),
+            year = _date$add2.year,
+            month = _date$add2.month,
+            day = _date$add2.day,
+            hour = _date$add2.hour,
+            minute = _date$add2.minute,
+            second = _date$add2.second;
 
         var value = _this.buildValue({
             type: type,
             year: year,
             month: month,
-            day: day
+            day: day,
+            hour: hour,
+            minute: minute,
+            second: second
         });
         _this.state = {
             panelShow: false,
@@ -84,9 +113,15 @@ var datepicker = function (_React$Component) {
             year: year,
             month: month,
             day: day,
+            hour: hour,
+            minute: minute,
+            second: second,
             panelYear: year,
             panelMonth: month,
             panelDay: day,
+            panelHour: hour,
+            panelMinute: minute,
+            panelSecond: second,
             value: value
         };
 
@@ -169,65 +204,82 @@ var datepicker = function (_React$Component) {
     }, {
         key: "setPanel",
         value: function setPanel() {
+
             var content = void 0;
-            switch (this.state.type) {
+            switch (this.state.currentPanel) {
                 case "day":
-                    switch (this.state.currentPanel) {
-                        case "year":
-                            content = this.drawYearPanel();
-                            break;
-                        case "month":
-                            content = this.drawMonthPanel();
-                            break;
-                        case "day":
-                            content = this.drawDayPanel();
-                            break;
-                    }
+                    content = this.drawDayPanel();
                     break;
-                case "month":
-                    switch (this.state.currentPanel) {
-                        case "year":
-                            content = this.drawYearPanel();
-                            break;
-                        case "month":
-                            content = this.drawMonthPanel();
-                            break;
-                    }
-                    break;
-                case "week":
-                    switch (this.state.currentPanel) {
-                        case "year":
-                            content = this.drawYearPanel();
-                            break;
-                        case "month":
-                            content = this.drawMonthPanel();
-                            break;
-                        case "day":
-                            content = this.drawDayPanel();
-                            break;
-                    }
+                default:
+                    content = this.drawPanel(this.state.currentPanel);
                     break;
             }
             return content;
         }
 
         /**
-         * 绘制年面板
+         * 绘制除日面板以外的所有面板
+         * @param type
          * @returns {XML}
          */
 
     }, {
-        key: "drawYearPanel",
-        value: function drawYearPanel() {
+        key: "drawPanel",
+        value: function drawPanel(type) {
             var _this3 = this;
 
-            var modNum = this.state.year % 12;
-            var startYear = this.state.year - 12 + modNum + 1;
-            var endYear = this.state.year + modNum;
             var arr = [];
-            for (var i = startYear; i <= endYear; i = i + 4) {
-                arr.push([i, i + 1, i + 2, i + 3]);
+            var gradtion = ["year", "month", "day", "hour", "minute", "second"];
+            var index = gradtion.findIndex(function (d) {
+                return d == type;
+            });
+            var start = void 0,
+                end = void 0,
+                step = void 0,
+                title = void 0;
+            switch (type) {
+                case "year":
+                    var modNum = this.state.year % 12;
+                    start = this.state.year - 12 + modNum + 1;
+                    end = this.state.year + modNum;
+                    step = 4;
+                    title = start + "-" + end;
+                    break;
+                case "month":
+                    start = 1;
+                    end = 12;
+                    step = 4;
+                    title = this.state.year + "\u5E74";
+                    break;
+                case "hour":
+                    start = 0;
+                    end = 23;
+                    step = 6;
+                    title = this.state.year + "\u5E74" + this.state.month + "\u6708" + this.state.day + "\u65E5";
+                    break;
+                case "minute":
+                    start = 0;
+                    end = 59;
+                    step = 10;
+                    title = this.state.year + "\u5E74" + this.state.month + "\u6708" + this.state.day + "\u65E5" + this.state.hour + "\u65F6";
+                    break;
+                case "second":
+                    start = 0;
+                    end = 59;
+                    step = 10;
+                    title = this.state.year + "\u5E74" + this.state.month + "\u6708" + this.state.day + "\u65E5" + this.state.hour + "\u65F6" + this.state.minute + "\u5206";
+                    break;
+
             }
+
+            for (var i = start; i <= end; i = i + step) {
+                var row = [];
+                for (var j = 0; j <= step - 1; j++) {
+                    row.push(i + j);
+                }
+                arr.push(row);
+            }
+
             var content = _react2.default.createElement(
                 "div",
                 { className: _index2.default.content },
@@ -244,9 +296,18 @@ var datepicker = function (_React$Component) {
                     _react2.default.createElement(
                         "div",
                         { className: _index2.default.middle, onClick: function onClick() {
-                                _this3.toMonthPanel();
+                                //返回上一级面板，如果已到最高层，则返回第2层
+                                var currentPanel = void 0;
+                                if (index == 0) {
+                                    currentPanel = gradtion[1];
+                                } else {
+                                    currentPanel = gradtion[index - 1];
+                                }
+                                _this3.setState({
+                                    currentPanel: currentPanel
+                                });
                             } },
-                        startYear + "-" + endYear
+                        title
                     ),
                     _react2.default.createElement(
                         "div",
@@ -261,89 +322,48 @@ var datepicker = function (_React$Component) {
                     { className: _index2.default.contentBody },
                     _react2.default.createElement(
                         "div",
-                        { className: _index2.default.year },
+                        { className: _index2.default.page },
                         arr.map(function (d, i) {
                             return _react2.default.createElement(
                                 "div",
                                 { key: i, className: _index2.default.row },
                                 d.map(function (d1, j) {
-                                    var className = _this3.state.panelYear == d1 ? _index2.default.yearCell + " " + _index2.default.active : _index2.default.yearCell;
+                                    var isEqual = false;
+                                    switch (type) {
+                                        case "year":
+                                            isEqual = _this3.state.year == d1;
+                                            break;
+                                        case "month":
+                                            isEqual = _this3.state.year == _this3.state.panelYear && _this3.state.month == d1;
+                                            break;
+                                        case "day":
+                                            isEqual = _this3.state.year == _this3.state.panelYear && _this3.state.month == _this3.state.panelMonth && _this3.state.day == d1;
+                                            break;
+                                        case "hour":
+                                            isEqual = _this3.state.year == _this3.state.panelYear && _this3.state.month == _this3.state.panelMonth && _this3.state.day == _this3.state.panelDay && _this3.state.hour == d1;
+                                            break;
+                                        case "minute":
+                                            isEqual = _this3.state.year == _this3.state.panelYear && _this3.state.month == _this3.state.panelMonth && _this3.state.day == _this3.state.panelDay && _this3.state.hour == _this3.state.panelHour && _this3.state.minute == d1;
+                                            break;
+                                        case "second":
+                                            isEqual = _this3.state.year == _this3.state.panelYear && _this3.state.month == _this3.state.panelMonth && _this3.state.day == _this3.state.panelDay && _this3.state.hour == _this3.state.panelHour && _this3.state.minute == _this3.state.panelMinute && _this3.state.second == d1;
+                                            break;
+                                    }
+
+                                    var className = isEqual ? _index2.default.cell + " " + _index2.default[type] + " " + _index2.default.active : _index2.default.cell + " " + _index2.default[type];
                                     return _react2.default.createElement(
                                         "div",
                                         { key: j, className: className, onClick: function onClick() {
-                                                _this3.setYear(d1);
-                                            } },
-                                        d1
-                                    );
-                                })
-                            );
-                        })
-                    )
-                )
-            );
-            return content;
-        }
-
-        /**
-         * 绘制月面板
-         * @returns {XML}
-         */
-
-    }, {
-        key: "drawMonthPanel",
-        value: function drawMonthPanel() {
-            var _this4 = this;
-
-            var arr = [];
-            for (var i = 1; i <= 12; i = i + 4) {
-                var row = [i, i + 1, i + 2, i + 3];
-                arr.push(row);
-            }
-
-            var content = _react2.default.createElement(
-                "div",
-                { className: _index2.default.content },
-                _react2.default.createElement(
-                    "div",
-                    { className: _index2.default.contentHead },
-                    _react2.default.createElement(
-                        "div",
-                        { className: _index2.default.left, onClick: function onClick() {
-                                _this4.doLeft();
-                            } },
-                        _react2.default.createElement("i", { className: "fa fa-angle-double-left" })
-                    ),
-                    _react2.default.createElement(
-                        "div",
-                        { className: _index2.default.middle, onClick: function onClick() {
-                                _this4.toYearPanel();
-                            } },
-                        this.state.year + "年"
-                    ),
-                    _react2.default.createElement(
-                        "div",
-                        { className: _index2.default.right, onClick: function onClick() {
-                                _this4.doRight();
-                            } },
-                        _react2.default.createElement("i", { className: "fa fa-angle-double-right" })
-                    )
-                ),
-                _react2.default.createElement(
-                    "div",
-                    { className: _index2.default.contentBody },
-                    _react2.default.createElement(
-                        "div",
-                        { className: _index2.default.month },
-                        arr.map(function (d, i) {
-                            return _react2.default.createElement(
-                                "div",
-                                { key: i, className: _index2.default.row },
-                                d.map(function (d1, j) {
-                                    var className = d1 == _this4.state.month && _this4.state.year == _this4.state.panelYear ? _index2.default.monthCell + " " + _index2.default.active : _index2.default.monthCell;
-                                    return _react2.default.createElement(
-                                        "div",
-                                        { key: j, className: className, onClick: function onClick() {
-                                                _this4.setMonth(d1);
+                                                var oldJson = {};
+                                                gradtion.forEach(function (d2) {
+                                                    if (d2 == type) {
+                                                        oldJson[d2] = d1;
+                                                    } else {
+                                                        oldJson[d2] = _this3.state[d2];
+                                                    }
+                                                });
+                                                var json = _karlDate2.default.add(oldJson);
+                                                _this3.setValue(type, json);
                                             } },
                                         d1
                                     );
@@ -364,12 +384,13 @@ var datepicker = function (_React$Component) {
     }, {
         key: "drawDayPanel",
         value: function drawDayPanel() {
-            var _this5 = this;
+            var _this4 = this;
 
             var arr = [];
-            var _ref3 = [this.state.year, this.state.month],
-                year = _ref3[0],
-                month = _ref3[1];
+            var gradtion = ["year", "month", "day", "hour", "minute", "second"];
+            var _ref = [this.state.year, this.state.month],
+                year = _ref[0],
+                month = _ref[1];
 
             var titleArr = ["一", "二", "三", "四", "五", "六", "日"];
             var daysOfMonth = _karlDate2.default.getDaysOfMonth(year, month);
@@ -405,21 +426,32 @@ var datepicker = function (_React$Component) {
                     _react2.default.createElement(
                         "div",
                         { className: _index2.default.left, onClick: function onClick() {
-                                _this5.doLeft();
+                                _this4.doLeft();
                             } },
                         _react2.default.createElement("i", { className: "fa fa-angle-double-left" })
                     ),
                     _react2.default.createElement(
                         "div",
                         { className: _index2.default.middle, onClick: function onClick() {
-                                _this5.toYearPanel();
+                                //返回上一级面板，如果已到最高层，则返回第2层
+                                var index = gradtion.findIndex(function (d) {
+                                    return d == "day";
+                                });
+                                if (index == 0) {
+                                    index = 1;
+                                } else {
+                                    index--;
+                                }
+                                _this4.setState({
+                                    currentPanel: gradtion[index]
+                                });
                             } },
                         this.state.year + "\u5E74" + this.state.month + "\u6708"
                     ),
                     _react2.default.createElement(
                         "div",
                         { className: _index2.default.right, onClick: function onClick() {
-                                _this5.doRight();
+                                _this4.doRight();
                             } },
                         _react2.default.createElement("i", { className: "fa fa-angle-double-right" })
                     )
@@ -429,14 +461,14 @@ var datepicker = function (_React$Component) {
                     { className: _index2.default.contentBody },
                     _react2.default.createElement(
                         "div",
-                        { className: _index2.default.day },
+                        { className: _index2.default.page },
                         _react2.default.createElement(
                             "div",
                             { className: _index2.default.row },
                             titleArr.map(function (d, i) {
                                 return _react2.default.createElement(
                                     "div",
-                                    { key: i, className: _index2.default.dayCell + " " + _index2.default.title },
+                                    { key: i, className: _index2.default.cell + " " + _index2.default.day + " " + _index2.default.title },
                                     d
                                 );
                             })
@@ -446,38 +478,26 @@ var datepicker = function (_React$Component) {
                                 "div",
                                 { key: i, className: _index2.default.row },
                                 d.map(function (d1, j) {
-                                    var className = _index2.default.dayCell;
-                                    var isActive = _this5.state.panelYear == _this5.state.year;
-                                    isActive = isActive && _this5.state.panelMonth == _this5.state.month;
-                                    isActive = isActive && _this5.state.panelDay == d1.text;
+                                    var isActive = _this4.state.panelYear == _this4.state.year;
+                                    isActive = isActive && _this4.state.panelMonth == _this4.state.month;
+                                    isActive = isActive && _this4.state.panelDay == d1.text;
                                     isActive = isActive && d1.add == 0;
-                                    className = isActive ? _index2.default.dayCell + " " + _index2.default.active : className;
+                                    var className = isActive ? _index2.default.cell + " " + _index2.default.day + " " + _index2.default.active : _index2.default.cell + " " + _index2.default.day;
                                     if (d1.add != 0) {
                                         className = className + " " + _index2.default.dark;
                                     }
                                     return _react2.default.createElement(
                                         "div",
                                         { key: j, className: className, onClick: function onClick() {
-                                                var _ref4 = [_this5.state.year, _this5.state.month],
-                                                    year = _ref4[0],
-                                                    month = _ref4[1];
-
-                                                if (d1.add == -1) {
-                                                    if (month == 1) {
-                                                        year--;
-                                                        month = 12;
-                                                    } else {
-                                                        month--;
-                                                    }
-                                                } else if (d1.add == 1) {
-                                                    if (month == 12) {
-                                                        year++;
-                                                        month = 1;
-                                                    } else {
-                                                        month++;
-                                                    }
-                                                }
-                                                _this5.setDay(year, month, d1.text);
+                                                var json = _karlDate2.default.add({
+                                                    year: _this4.state.year,
+                                                    month: _this4.state.month,
+                                                    day: d1.text,
+                                                    hour: _this4.state.hour,
+                                                    minute: _this4.state.minute,
+                                                    second: _this4.state.second
+                                                }, { month: d1.add });
+                                                _this4.setValue("day", json);
                                             } },
                                         d1.text
                                     );
@@ -489,114 +509,69 @@ var datepicker = function (_React$Component) {
             );
             return content;
         }
-
-        /**
-         * 设置年的值
-         * @param y
-         */
-
     }, {
-        key: "setYear",
-        value: function setYear(y) {
-            var _ref5 = [y, this.state.month, this.state.day],
-                year = _ref5[0],
-                month = _ref5[1],
-                day = _ref5[2];
+        key: "setValue",
+        value: function setValue(type, json) {
+            var _this5 = this;
 
-            var value = this.buildValue({
-                year: year,
-                month: month,
-                day: day
-            });
+            var value = this.buildValue(json);
+            var year = json.year,
+                month = json.month,
+                day = json.day,
+                hour = json.hour,
+                minute = json.minute,
+                second = json.second;
 
-            this.setState({
-                currentPanel: "month",
-                panelYear: year,
-                year: year,
-                month: month,
-                value: value
-            });
-        }
-
-        /**
-         * 设置月的值
-         * @param m
-         */
-
-    }, {
-        key: "setMonth",
-        value: function setMonth(m) {
-            var _this6 = this;
-
-            var _ref6 = [this.state.year, m, this.state.day],
-                year = _ref6[0],
-                month = _ref6[1],
-                day = _ref6[2];
-
-            var value = this.buildValue({
-                year: year,
-                month: month,
-                day: day
-            });
-            var json = {
-                panelYear: year,
-                panelMonth: month,
-                year: year,
-                month: month,
-                value: value
-            };
-
-            if (this.state.type == "month") {
-                json.panelShow = false;
-            } else if (this.state.type == "day") {
-                json.currentPanel = "day";
-            }
-
-            this.setState(json, function () {
-                if (_this6.state.type == "month" && _this6.props.callback) {
-                    _this6.props.callback(value);
-                }
-            });
-        }
-
-        /**
-         * 设置日的值
-         * @param d
-         */
-
-    }, {
-        key: "setDay",
-        value: function setDay(y, m, d) {
-            var _this7 = this;
-
-            var year = y,
-                month = m,
-                day = d;
-
-            var value = this.buildValue({
-                year: year,
-                month: month,
-                day: day
-            });
-
-            this.setState({
-                panelShow: false,
-                panelYear: year,
-                panelMonth: month,
-                panelDay: day,
+            var newState = {
                 year: year,
                 month: month,
                 day: day,
+                hour: hour,
+                minute: minute,
+                second: second,
+                panelYear: year,
+                panelMonth: month,
+                panelDay: day,
+                panelHour: hour,
+                panelMinute: minute,
+                panelSecond: second,
                 value: value
-            }, function () {
-                if (_this7.props.callback) {
-                    _this7.props.callback(value);
+            };
+            var gradtion = ["year", "month", "day", "hour", "minute", "second"];
+            var endPanel = void 0;
+            switch (this.state.type) {
+                case "month":
+                    endPanel = "month";
+                    break;
+                case "day":
+                    endPanel = "day";
+                    break;
+                case "second":
+                    endPanel = "second";
+                    break;
+            }
+            var isLastPanel = false;
+            if (this.state.currentPanel == endPanel) {
+                //到达最后一级面板时关闭
+                isLastPanel = true;
+                newState.panelShow = false;
+            } else {
+                //跳转到下一级面板
+                var index = gradtion.findIndex(function (d) {
+                    return d == type;
+                });
+                index++;
+                newState.currentPanel = gradtion[index];
+            }
+            this.setState(newState, function () {
+                if (isLastPanel && _this5.props.callback) {
+                    _this5.props.callback(value);
                 }
             });
         }
 
         /**
-         * 根据年月日和日期类型构建显示的text value
+         * 根据年月日时分秒和日期类型构建显示的text value
          * @param json
          * @returns {*}
          */
@@ -605,15 +580,22 @@ var datepicker = function (_React$Component) {
         key: "buildValue",
         value: function buildValue(json) {
             var type = json.hasOwnProperty("type") ? json.type : this.state.type;
+            var year = json.year;
             var month = json.month < 10 ? "0" + json.month : json.month;
             var day = json.day < 10 ? "0" + json.day : json.day;
+            var hour = json.hour < 10 ? "0" + json.hour : json.hour;
+            var minute = json.minute < 10 ? "0" + json.minute : json.minute;
+            var second = json.second < 10 ? "0" + json.second : json.second;
             var value = void 0;
             switch (type) {
                 case "day":
-                    value = json.year + "-" + month + "-" + day;
+                    value = year + "-" + month + "-" + day;
                     break;
                 case "month":
-                    value = json.year + "-" + month;
+                    value = year + "-" + month;
+                    break;
+                case "second":
+                    value = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
                     break;
             }
             return value;
@@ -626,30 +608,32 @@ var datepicker = function (_React$Component) {
     }, {
         key: "doLeft",
         value: function doLeft() {
+            var _this6 = this;
+
             switch (this.state.currentPanel) {
                 case "year":
                     this.setState({
                         year: this.state.year - 12
                     });
                     break;
-                case "month":
-                    this.setState({
-                        year: this.state.year - 1
+                default:
+                    var json = {};
+                    var gradtion = ["year", "month", "day", "hour", "minute", "second"];
+                    var index = gradtion.findIndex(function (d) {
+                        return d == _this6.state.currentPanel;
                     });
-                case "day":
-                    var _ref7 = [this.state.year, this.state.month],
-                        year = _ref7[0],
-                        _month = _ref7[1];
-
-                    if (_month == 1) {
-                        year--;
-                        _month = 12;
-                    } else {
-                        _month--;
-                    }
-                    this.setState({
-                        year: year,
-                        month: _month
+                    var changePanel = gradtion[index - 1];
+                    json[changePanel] = this.state[changePanel] - 1;
+                    this.setState(json, function () {
+                        var date = new Date(_this6.state.year, _this6.state.month - 1, _this6.state.day, _this6.state.hour, _this6.state.minute, _this6.state.second);
+                        _this6.setState({
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            day: date.getDate(),
+                            hour: date.getHours(),
+                            minute: date.getMinutes(),
+                            second: date.getSeconds()
+                        });
                     });
                     break;
             }
@@ -662,58 +646,35 @@ var datepicker = function (_React$Component) {
     }, {
         key: "doRight",
         value: function doRight() {
+            var _this7 = this;
+
             switch (this.state.currentPanel) {
                 case "year":
                     this.setState({
                         year: this.state.year + 12
                     });
                     break;
-                case "month":
-                    this.setState({
-                        year: this.state.year + 1
+                default:
+                    var json = {};
+                    var gradtion = ["year", "month", "day", "hour", "minute", "second"];
+                    var index = gradtion.findIndex(function (d) {
+                        return d == _this7.state.currentPanel;
                     });
-                    break;
-                case "day":
-                    var _ref8 = [this.state.year, this.state.month],
-                        year = _ref8[0],
-                        _month2 = _ref8[1];
-
-                    if (_month2 == 12) {
-                        year++;
-                        _month2 = 1;
-                    } else {
-                        _month2++;
-                    }
-                    this.setState({
-                        year: year,
-                        month: _month2
+                    var changePanel = gradtion[index - 1];
+                    json[changePanel] = this.state[changePanel] + 1;
+                    this.setState(json, function () {
+                        var date = new Date(_this7.state.year, _this7.state.month - 1, _this7.state.day, _this7.state.hour, _this7.state.minute, _this7.state.second);
+                        _this7.setState({
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            day: date.getDate(),
+                            hour: date.getHours(),
+                            minute: date.getMinutes(),
+                            second: date.getSeconds()
+                        });
                     });
                     break;
             }
-        }
-
-        /**
-         * 转到年界面
-         */
-
-    }, {
-        key: "toYearPanel",
-        value: function toYearPanel() {
-            this.setState({
-                currentPanel: "year"
-            });
-        }
-
-        /**
-         * 转到月界面
-         */
-
-    }, {
-        key: "toMonthPanel",
-        value: function toMonthPanel() {
-            this.setState({
-                currentPanel: "month"
-            });
         }
     }]);
 

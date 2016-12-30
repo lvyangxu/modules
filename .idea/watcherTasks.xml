@@ -46,7 +46,7 @@
       <option name="exitCodeBehavior" value="ERROR" />
       <option name="fileExtension" value="jsx" />
       <option name="immediateSync" value="true" />
-      <option name="name" value="Babel jsx" />
+      <option name="name" value="Babel" />
       <option name="output" value="$FileNameWithoutExtension$.js:$FileNameWithoutExtension$.js.map" />
       <option name="outputFilters">
         <array />

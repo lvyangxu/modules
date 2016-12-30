@@ -12,7 +12,7 @@ require("babel-polyfill");
 var React = require("react");
 var ReactDom = require("react-dom");
 
-var Com = require("../karl-component-chart/index");
+var Com = require("../karl-component-datepicker/index");
 
 var Xx = function (_React$Component) {
     _inherits(Xx, _React$Component);
@@ -55,7 +55,5 @@ var Xx = function (_React$Component) {
 ReactDom.render(React.createElement(
     "div",
     null,
-    React.createElement(Xx, null)
+    React.createElement(Com, { type: "second" })
 ), document.getElementById("test"));
-
-console.log([].hasOwnProperty("a"));

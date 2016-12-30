@@ -33,7 +33,7 @@ class chart extends React.Component {
             x: this.props.x,
             y: [],
             data: [],
-            yAxisNumArr: [],
+            yAxisNumArr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             lineDots: [],
             title: this.props.title,
             yAxisText: this.props.yAxisText == undefined ? "" : this.props.yAxisText,
@@ -158,7 +158,7 @@ class chart extends React.Component {
                 <g className={css.xAxis}>
                     <path d="M10 55 h 80"/>
                     {
-                        this.state.data.map((d, i) => {
+                        this.state.xUnitLength == Infinity ? "" : this.state.data.map((d, i) => {
                             let w = this.state.xUnitLength;
                             let x = i * w + 10;
                             return <g key={i}>
@@ -209,9 +209,9 @@ class chart extends React.Component {
                 </g>
                 <g className={css.declare}>
                     {
-                        this.state.y.map((d, i) => {
+                        this.state.data.length == 0 ? "" : this.state.y.map((d, i) => {
                             let x = 91;
-                            let y = 15 + (40 - this.state.y.length * this.state.yUnitLength) / 2 + i * this.state.yUnitLength;
+                            let y = 15 + i * 2;
                             let color = d.color;
                             let symbol;
                             switch (this.state.type) {
@@ -517,7 +517,7 @@ class chart extends React.Component {
 
         for (let i = calibrationStart; i <= calibrationEnd; i = i + step) {
             let d = i;
-            if (p <= 0) {
+            if (fixedNum >= 0) {
                 d = d.toFixed(fixedNum);
             }
             yAxisNumArr.push(d);
@@ -877,7 +877,7 @@ class chart extends React.Component {
                 g = <g className={css.bar}>
                     {
                         this.state.y.map((d, i) => {
-                            return this.state.data.map((d1, j) => {
+                            return this.state.xUnitLength == Infinity ? "" : this.state.data.map((d1, j) => {
                                 let id = d.id;
                                 let barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
                                 let offsetX = (i - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
@@ -931,7 +931,7 @@ class chart extends React.Component {
 
     /**
      * 设置鼠标悬浮时提示的文字
-     * @returns {XML}
+     * @returns {*}
      */
     setTipsText() {
         let startX = this.state.tipsX;
@@ -940,9 +940,13 @@ class chart extends React.Component {
             return d.id == this.state.activeSeries;
         }).color;
         let xText = this.state.activeX;
-        let yText = this.state.data.find(d => {
+        let findData = this.state.data.find(d => {
             return d[this.state.x] == xText;
-        })[this.state.activeSeries];
+        });
+        if (findData == undefined) {
+            return "";
+        }
+        let yText = findData[this.state.activeSeries];
         let activeText = this.state.y.find(d => {
             return d.id == this.state.activeSeries;
         }).name;

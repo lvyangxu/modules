@@ -42,7 +42,7 @@
     .base .panel .content .contentHead {
       margin-top: 10px;
       margin-bottom: 10px;
-      width: 140px;
+      width: 280px;
       font-size: 0; }
       .base .panel .content .contentHead .left, .base .panel .content .contentHead .middle, .base .panel .content .contentHead .right {
         display: inline-block;
@@ -50,46 +50,48 @@
         text-align: center;
         padding-top: 5px;
         padding-bottom: 5px; }
-      .base .panel .content .contentHead .left {
-        width: 35px; }
-      .base .panel .content .contentHead .middle {
+      .base .panel .content .contentHead .left, .base .panel .content .contentHead .right {
         width: 70px; }
-      .base .panel .content .contentHead .right {
-        width: 35px; }
+      .base .panel .content .contentHead .middle {
+        width: 140px; }
       .base .panel .content .contentHead .left:hover, .base .panel .content .contentHead .middle:hover, .base .panel .content .contentHead .right:hover {
         user-select: none;
         cursor: pointer;
         background: linear-gradient(to bottom, #ededed, #dbdbdb);
         box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
-    .base .panel .content .contentBody .year .row, .base .panel .content .contentBody .month .row, .base .panel .content .contentBody .day .row {
-      width: 140px; }
-      .base .panel .content .contentBody .year .row .yearCell, .base .panel .content .contentBody .year .row .monthCell, .base .panel .content .contentBody .month .row .yearCell, .base .panel .content .contentBody .month .row .monthCell, .base .panel .content .contentBody .day .row .yearCell, .base .panel .content .contentBody .day .row .monthCell {
+    .base .panel .content .contentBody .page .row {
+      width: 280px; }
+      .base .panel .content .contentBody .page .row .cell {
         cursor: pointer;
         user-select: none;
         text-align: center;
-        width: 35px;
-        height: 35px;
-        line-height: 35px;
         float: left;
         font-size: 12px; }
-      .base .panel .content .contentBody .year .row .dayCell, .base .panel .content .contentBody .month .row .dayCell, .base .panel .content .contentBody .day .row .dayCell {
-        cursor: pointer;
-        user-select: none;
-        text-align: center;
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
-        float: left;
-        font-size: 12px; }
-      .base .panel .content .contentBody .year .row .dayCell.title, .base .panel .content .contentBody .month .row .dayCell.title, .base .panel .content .contentBody .day .row .dayCell.title {
-        cursor: auto; }
-      .base .panel .content .contentBody .year .row .dayCell.title:hover, .base .panel .content .contentBody .month .row .dayCell.title:hover, .base .panel .content .contentBody .day .row .dayCell.title:hover {
-        background: inherit;
-        box-shadow: none; }
-      .base .panel .content .contentBody .year .row .dayCell.dark, .base .panel .content .contentBody .month .row .dayCell.dark, .base .panel .content .contentBody .day .row .dayCell.dark {
-        color: rgba(150, 150, 150, 0.6); }
-      .base .panel .content .contentBody .year .row .yearCell:hover, .base .panel .content .contentBody .year .row .monthCell:hover, .base .panel .content .contentBody .year .row .dayCell:hover, .base .panel .content .contentBody .month .row .yearCell:hover, .base .panel .content .contentBody .month .row .monthCell:hover, .base .panel .content .contentBody .month .row .dayCell:hover, .base .panel .content .contentBody .day .row .yearCell:hover, .base .panel .content .contentBody .day .row .monthCell:hover, .base .panel .content .contentBody .day .row .dayCell:hover {
+      .base .panel .content .contentBody .page .row .cell:hover {
         background: linear-gradient(to bottom, #ededed, #dbdbdb);
         box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
-      .base .panel .content .contentBody .year .row .yearCell.active, .base .panel .content .contentBody .year .row .monthCell.active, .base .panel .content .contentBody .year .row .dayCell.active, .base .panel .content .contentBody .month .row .yearCell.active, .base .panel .content .contentBody .month .row .monthCell.active, .base .panel .content .contentBody .month .row .dayCell.active, .base .panel .content .contentBody .day .row .yearCell.active, .base .panel .content .contentBody .day .row .monthCell.active, .base .panel .content .contentBody .day .row .dayCell.active {
+      .base .panel .content .contentBody .page .row .cell.active {
         background: linear-gradient(to bottom, #ededed, #dbdbdb); }
+      .base .panel .content .contentBody .page .row .year, .base .panel .content .contentBody .page .row .month {
+        width: 70px;
+        height: 70px;
+        line-height: 70px; }
+      .base .panel .content .contentBody .page .row .day {
+        width: 40px;
+        height: 40px;
+        line-height: 40px; }
+      .base .panel .content .contentBody .page .row .hour {
+        width: 46.66667px;
+        height: 46.66667px;
+        line-height: 46.66667px; }
+      .base .panel .content .contentBody .page .row .minute, .base .panel .content .contentBody .page .row .second {
+        width: 28px;
+        height: 28px;
+        line-height: 28px; }
+      .base .panel .content .contentBody .page .row .day.title {
+        cursor: auto; }
+      .base .panel .content .contentBody .page .row .day.title:hover {
+        background: inherit;
+        box-shadow: none; }
+      .base .panel .content .contentBody .page .row .day.dark {
+        color: rgba(150, 150, 150, 0.6); }

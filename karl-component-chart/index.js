@@ -59,7 +59,7 @@ var chart = function (_React$Component) {
             x: _this.props.x,
             y: [],
             data: [],
-            yAxisNumArr: [],
+            yAxisNumArr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             lineDots: [],
             title: _this.props.title,
             yAxisText: _this.props.yAxisText == undefined ? "" : _this.props.yAxisText,
@@ -204,7 +204,7 @@ var chart = function (_React$Component) {
                     "g",
                     { className: _index2.default.xAxis },
                     _react2.default.createElement("path", { d: "M10 55 h 80" }),
-                    this.state.data.map(function (d, i) {
+                    this.state.xUnitLength == Infinity ? "" : this.state.data.map(function (d, i) {
                         var w = _this4.state.xUnitLength;
                         var x = i * w + 10;
                         return _react2.default.createElement(
@@ -264,9 +264,9 @@ var chart = function (_React$Component) {
                 _react2.default.createElement(
                     "g",
                     { className: _index2.default.declare },
-                    this.state.y.map(function (d, i) {
+                    this.state.data.length == 0 ? "" : this.state.y.map(function (d, i) {
                         var x = 91;
-                        var y = 15 + (40 - _this4.state.y.length * _this4.state.yUnitLength) / 2 + i * _this4.state.yUnitLength;
+                        var y = 15 + i * 2;
                         var color = d.color;
                         var symbol = void 0;
                         switch (_this4.state.type) {
@@ -598,7 +598,7 @@ var chart = function (_React$Component) {
 
             for (var _i2 = calibrationStart; _i2 <= calibrationEnd; _i2 = _i2 + step) {
                 var d = _i2;
-                if (p <= 0) {
+                if (fixedNum >= 0) {
                     d = d.toFixed(fixedNum);
                 }
                 yAxisNumArr.push(d);
@@ -1020,7 +1020,7 @@ var chart = function (_React$Component) {
                         "g",
                         { className: _index2.default.bar },
                         this.state.y.map(function (d, i) {
-                            return _this9.state.data.map(function (d1, j) {
+                            return _this9.state.xUnitLength == Infinity ? "" : _this9.state.data.map(function (d1, j) {
                                 var id = d.id;
                                 var barWidth = _this9.state.xUnitLength / ((_this9.state.y.length + 2) * 1.5);
                                 var offsetX = (i - _this9.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
@@ -1075,7 +1075,7 @@ var chart = function (_React$Component) {
 
         /**
          * 设置鼠标悬浮时提示的文字
-         * @returns {XML}
+         * @returns {*}
          */
 
     }, {
@@ -1089,9 +1089,13 @@ var chart = function (_React$Component) {
                 return d.id == _this10.state.activeSeries;
             }).color;
             var xText = this.state.activeX;
-            var yText = this.state.data.find(function (d) {
+            var findData = this.state.data.find(function (d) {
                 return d[_this10.state.x] == xText;
-            })[this.state.activeSeries];
+            });
+            if (findData == undefined) {
+                return "";
+            }
+            var yText = findData[this.state.activeSeries];
             var activeText = this.state.y.find(function (d) {
                 return d.id == _this10.state.activeSeries;
             }).name;

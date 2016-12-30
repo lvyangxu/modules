@@ -84,6 +84,43 @@ var date = function () {
             var days = this.getDaysOfMonth(year, month);
             return days;
         }
+
+        /**
+         * 根据传入的日期和偏移量获取新的日期
+         * @param date 日期对象
+         * @param json 偏移量的json值
+         * @returns {{year: number, month: number, day: number, hour: number, minute: number, second: number}}
+         */
+
+    }, {
+        key: "add",
+        value: function add(date, json) {
+            var arr = [];
+            if (date instanceof Date) {
+                arr = [{ id: "year", value: date.getFullYear() }, { id: "month", value: date.getMonth() + 1 }, { id: "day", value: date.getDate() }, { id: "hour", value: date.getHours() }, { id: "minute", value: date.getMinutes() }, { id: "second", value: date.getSeconds() }];
+            } else {
+                arr = [{ id: "year", value: date.year }, { id: "month", value: date.month }, { id: "day", value: date.day }, { id: "hour", value: date.hour }, { id: "minute", value: date.minute }, { id: "second", value: date.second }];
+            }
+            if (json != undefined) {
+                arr = arr.map(function (d) {
+                    if (json.hasOwnProperty(d.id)) {
+                        d.value = d.value + json[d.id];
+                    }
+                    return d;
+                });
+            }
+
+            var newDate = new Date(arr[0].value, arr[1].value - 1, arr[2].value, arr[3].value, arr[4].value, arr[5].value);
+            var value = {
+                year: newDate.getFullYear(),
+                month: newDate.getMonth() + 1,
+                day: newDate.getDate(),
+                hour: newDate.getHours(),
+                minute: newDate.getMinutes(),
+                second: newDate.getSeconds()
+            };
+            return value;
+        }
     }]);
 
     return date;
