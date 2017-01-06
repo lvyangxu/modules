@@ -16,7 +16,7 @@
     text-decoration: none;
     text-shadow: 0 1px 0 #f2f2f2;
     font-weight: bold;
-    text-align: left; }
+    text-align: center; }
     .base .display i {
       float: right; }
   .base .display:hover {
@@ -71,5 +71,3 @@
       margin-right: 5px; }
     .base .options .page button.page-right {
       margin-left: 5px; }
-
-/*# sourceMappingURL=index.css.map */

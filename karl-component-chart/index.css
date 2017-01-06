@@ -16,14 +16,14 @@
     .base svg .xAxis {
       stroke-width: 0.2; }
       .base svg .xAxis path {
-        stroke: #ccd6eb; }
+        stroke: #e6e6e6; }
       .base svg .xAxis text {
         text-anchor: middle;
-        font-size: 1.5px; }
+        font-size: 1px; }
     .base svg .yAxis {
       stroke-width: 0.2; }
       .base svg .yAxis text {
-        font-size: 1.5px;
+        font-size: 1px;
         text-anchor: end; }
     .base svg .yAxisText {
       stroke-width: 0.2; }
@@ -50,7 +50,7 @@
       stroke-width: 0.3;
       text-anchor: start; }
       .base svg .declare text {
-        font-size: 1.5px; }
+        font-size: 1px; }
     .base svg .setColor {
       user-select: none;
       cursor: pointer;
@@ -73,5 +73,5 @@
       stroke-width: 0.1;
       fill: rgba(255, 255, 255, 0.8); }
     .base svg .tips text {
-      font-size: 1.5px;
+      font-size: 1px;
       text-anchor: middle; }

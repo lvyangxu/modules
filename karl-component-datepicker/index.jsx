@@ -6,7 +6,7 @@ import date from "karl-date";
 /**
  * react日期组件
  * type：日期类型，day/month/second，默认为day
- * add：默认值的偏移量，day为1日，month为1月，week为1周
+ * add：默认值的偏移量，默认为0
  * callback：日期改变时执行的回调
  * initCallback：初始化后执行的回调
  *
@@ -24,13 +24,11 @@ class datepicker extends React.Component {
         let currentPanel;
         switch (type) {
             case "day":
+            case "second":
                 currentPanel = "day";
                 break;
             case "month":
                 currentPanel = "month";
-                break;
-            case "second":
-                currentPanel = "second";
                 break;
         }
         let {year:year1, month:month1, day:day1, hour:hour1, minute:minute1, second:second1} = date.add(new Date());
@@ -106,10 +104,75 @@ class datepicker extends React.Component {
     }
 
     render() {
+        let ymdValue = this.state.value.match(/\d{4}-\d{2}-\d{2}/)[0];
+        let hmsValue = this.state.value.match(/\d{2}:\d{2}:\d{2}/);
+        let arr = [];
+        if (hmsValue != null) {
+            hmsValue = hmsValue[0];
+            arr = hmsValue.split(":");
+        }
+
+        let valueDom = this.state.type == "second" ?
+            <div className={css.value}>
+                <div className={css.left}>{ymdValue}</div>
+                <div className={css.right} onClick={e=> {
+                    e.stopPropagation();
+                }}>
+                    <input type="number" min="0" max="23" value={arr[0]} onWheel={e=> {
+                        this.doWheel(e, "hour");
+                    }} onClick={e=> {
+                        e.stopPropagation();
+                    }} onChange={e=> {
+                        let regex = /^(([0-1]?\d)|(2[0-3])|(0?((1\d)|(2[0-3]))))$/;
+                        let value = e.target.value;
+                        if (value.length == 3) {
+                            value = Number.parseInt(value);
+                        }
+                        if (regex.test(value)) {
+                            this.setValue("hour", {
+                                hour: value
+                            })
+                        }
+                    }}/>:
+                    <input type="number" min="0" max="59" value={arr[1]} onWheel={e=> {
+                        this.doWheel(e, "minute");
+                    }} onClick={(e)=> {
+                        e.stopPropagation();
+                    }} onChange={e=> {
+                        let regex = /^(0?\d|(0?[0-5]\d))$/;
+                        let value = e.target.value;
+                        if (value.length == 3) {
+                            value = Number.parseInt(value);
+                        }
+                        if (regex.test(value)) {
+                            this.setValue("minute", {
+                                minute: value
+                            })
+                        }
+                    }}/>:
+                    <input type="number" min="0" max="59" value={arr[2]} onWheel={e=> {
+                        this.doWheel(e, "second");
+                    }} onClick={(e)=> {
+                        e.stopPropagation();
+                    }} onChange={e=> {
+                        let regex = /^(0?\d|(0?[0-5]\d))$/;
+                        let value = e.target.value;
+                        if (value.length == 3) {
+                            value = Number.parseInt(value);
+                        }
+                        if (regex.test(value)) {
+                            this.setValue("second", {
+                                second: value
+                            })
+                        }
+                    }}/>
+                </div>
+            </div>
+            : <div className={css.value}>{ymdValue}</div>;
         return (
             <div className={css.base + " react-datepicker"}>
                 <div className={css.input} onClick={this.panelToggle}>
-                    <div className={css.value}>{this.state.value}</div>
+                    {valueDom}
                     <div className={css.icon}><i className="fa fa-calendar"></i></div>
                 </div>
                 <div className={css.panel}
@@ -180,25 +243,6 @@ class datepicker extends React.Component {
                 step = 4;
                 title = `${this.state.year}年`;
                 break;
-            case "hour":
-                start = 0;
-                end = 23;
-                step = 6;
-                title = `${this.state.year}年${this.state.month}月${this.state.day}日`;
-                break;
-            case "minute":
-                start = 0;
-                end = 59;
-                step = 10;
-                title = `${this.state.year}年${this.state.month}月${this.state.day}日${this.state.hour}时`;
-                break;
-            case "second":
-                start = 0;
-                end = 59;
-                step = 10;
-                title = `${this.state.year}年${this.state.month}月${this.state.day}日${this.state.hour}时${this.state.minute}分`;
-                break;
-
         }
 
         for (let i = start; i <= end; i = i + step) {
@@ -248,20 +292,6 @@ class datepicker extends React.Component {
                                             isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
                                                 this.state.day == d1;
                                             break;
-                                        case "hour":
-                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
-                                                this.state.day == this.state.panelDay && this.state.hour == d1;
-                                            break;
-                                        case "minute":
-                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
-                                                this.state.day == this.state.panelDay && this.state.hour == this.state.panelHour &&
-                                                this.state.minute == d1;
-                                            break;
-                                        case "second":
-                                            isEqual = this.state.year == this.state.panelYear && this.state.month == this.state.panelMonth &&
-                                                this.state.day == this.state.panelDay && this.state.hour == this.state.panelHour &&
-                                                this.state.minute == this.state.panelMinute && this.state.second == d1;
-                                            break;
                                     }
 
                                     let className = isEqual ?
@@ -295,7 +325,7 @@ class datepicker extends React.Component {
      */
     drawDayPanel() {
         let arr = [];
-        let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+        let gradtion = ["year", "month", "day"];
         let [year, month] = [this.state.year, this.state.month];
         let titleArr = ["一", "二", "三", "四", "五", "六", "日"];
         let daysOfMonth = date.getDaysOfMonth(year, month);
@@ -394,7 +424,13 @@ class datepicker extends React.Component {
 
     setValue(type, json) {
         let value = this.buildValue(json);
-        let {year, month, day, hour, minute, second} = json;
+        let [year,month,day,hour,minute,second] = ["year", "month", "day", "hour", "minute", "second"].map(d=> {
+            if (json.hasOwnProperty(d)) {
+                return json[d];
+            } else {
+                return this.state[d];
+            }
+        });
         let newState = {
             year: year,
             month: month,
@@ -410,17 +446,15 @@ class datepicker extends React.Component {
             panelSecond: second,
             value: value
         };
-        let gradtion = ["year", "month", "day", "hour", "minute", "second"];
+        let gradtion = ["year", "month", "day"];
         let endPanel;
         switch (this.state.type) {
             case "month":
                 endPanel = "month";
                 break;
             case "day":
-                endPanel = "day";
-                break;
             case "second":
-                endPanel = "second";
+                endPanel = "day";
                 break;
         }
         let isLastPanel = false;
@@ -450,12 +484,16 @@ class datepicker extends React.Component {
      */
     buildValue(json) {
         let type = json.hasOwnProperty("type") ? json.type : this.state.type;
-        let year = json.year;
-        let month = json.month < 10 ? ("0" + json.month) : json.month;
-        let day = json.day < 10 ? ("0" + json.day) : json.day;
-        let hour = json.hour < 10 ? ("0" + json.hour) : json.hour;
-        let minute = json.minute < 10 ? ("0" + json.minute) : json.minute;
-        let second = json.second < 10 ? ("0" + json.second) : json.second;
+        let [year,month,day,hour,minute,second] = ["year", "month", "day", "hour", "minute", "second"].map(d=> {
+            let v;
+            if (json.hasOwnProperty(d)) {
+                v = json[d];
+            } else {
+                v = this.state[d];
+            }
+            v = v < 10 ? ("0" + v) : v;
+            return v;
+        });
         let value;
         switch (type) {
             case "day":
@@ -483,8 +521,8 @@ class datepicker extends React.Component {
                 break;
             default:
                 let json = {};
-                let gradtion = ["year", "month", "day", "hour", "minute", "second"];
-                let index = gradtion.findIndex(d=>{
+                let gradtion = ["year", "month", "day"];
+                let index = gradtion.findIndex(d=> {
                     return d == this.state.currentPanel;
                 });
                 let changePanel = gradtion[index - 1];
@@ -516,8 +554,8 @@ class datepicker extends React.Component {
                 break;
             default:
                 let json = {};
-                let gradtion = ["year", "month", "day", "hour", "minute", "second"];
-                let index = gradtion.findIndex(d=>{
+                let gradtion = ["year", "month", "day"];
+                let index = gradtion.findIndex(d=> {
                     return d == this.state.currentPanel;
                 });
                 let changePanel = gradtion[index - 1];
@@ -534,6 +572,34 @@ class datepicker extends React.Component {
                     })
                 });
                 break;
+        }
+    }
+
+    /**
+     * 时分秒的鼠标滚动处理
+     * @param e
+     * @param type
+     */
+    doWheel(e, type) {
+        e.preventDefault();
+        let json = {};
+        let max = type == "hour" ? 23 : 59;
+        if (e.deltaY > 0) {
+            //向下
+            let value = this.state[type];
+            if (value > 0) {
+                value--;
+                json[type] = value;
+                this.setValue(type, json)
+            }
+        } else {
+            //向上
+            let value = this.state[type];
+            if (value < max) {
+                value++;
+                json[type] = value;
+                this.setValue(type, json)
+            }
         }
     }
 

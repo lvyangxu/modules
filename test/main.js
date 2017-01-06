@@ -23,7 +23,7 @@ var Xx = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (Xx.__proto__ || Object.getPrototypeOf(Xx)).call(this, props));
 
         _this.state = {
-            data: [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 3, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 47 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 4 }, { date: "2016-9-15", apple: 0.08, banana: 6 }]
+            data: [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 3, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 47 }, { date: "2016-10-14", apple: 0.05, banana: 7, pear: 4 }, { date: "2017-1-15", apple: 0.08, banana: 6 }]
         };
         return _this;
     }
@@ -55,5 +55,6 @@ var Xx = function (_React$Component) {
 ReactDom.render(React.createElement(
     "div",
     null,
+    React.createElement(Com, null),
     React.createElement(Com, { type: "second" })
 ), document.getElementById("test"));

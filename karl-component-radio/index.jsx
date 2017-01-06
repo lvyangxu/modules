@@ -7,8 +7,8 @@ import http from "karl-http";
  * react单选组件
  * data:单选值数组，元素可为数字或字符串
  * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
- * callback：值改变时执行的回调
- *
+ * callback：值改变时执行的回调，参数为当前的值
+ * initCallback：初始化后执行的回调，参数为当前的值
  * 示例：
  * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
@@ -52,8 +52,13 @@ class radio extends React.Component {
                 sourceData: data,
                 filterData: data,
                 pageData: pageData
+            }, ()=> {
+                if (this.props.initCallback) {
+                    this.props.initCallback(this.state.value);
+                }
             });
         }
+
 
         window.addEventListener("click", () => {
             if (this.state.panelShow) {

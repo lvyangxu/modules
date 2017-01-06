@@ -46,7 +46,9 @@ class chart extends React.Component {
             tipsPaddingTop: 1,
             tipsPaddingBottom: 1,
             tipsPaddingLeft: 1,
-            tipsPaddingRight: 1
+            tipsPaddingRight: 1,
+            viewBoxWidth: 115,
+            viewBoxHeight: 65
         };
         let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
             "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
@@ -97,7 +99,7 @@ class chart extends React.Component {
             this.setState({
                 isIE: true,
                 svgWidth: $(this.svg).width(),
-                svgHeight: $(this.svg).width() * 60 / 110
+                svgHeight: $(this.svg).width() * this.state.viewBoxHeight / this.state.viewBoxWidth
             });
         } else {
             switch (this.state.type) {
@@ -134,10 +136,10 @@ class chart extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         //设置tips的宽度和高度
         if (!((prevState.tipsX == this.state.tipsX) && (prevState.tipsY == this.state.tipsY)) && this.state.tipsX && this.state.tipsY) {
-            let w = $(this.tipsText).width() / $(this.svg).width() * 110;
+            let w = $(this.tipsText).width() / $(this.svg).width() * this.state.viewBoxWidth;
             w = w.toFixed(2);
             w = Number.parseFloat(w);
-            let h = $(this.tipsText).height() / $(this.svg).height() * 60;
+            let h = $(this.tipsText).height() / $(this.svg).height() * this.state.viewBoxHeight;
             h = h.toFixed(2);
             h = Number.parseFloat(h);
             this.setState({
@@ -148,6 +150,49 @@ class chart extends React.Component {
     }
 
     render() {
+        //判断是否需要细分x轴文字
+        let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+        let isDate = this.state.data.every(d => {
+            return regex.test(d[this.props.x]);
+        });
+        let textPaddingBottom = 2;
+        let textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
+        let textY2 = (this.state.viewBoxHeight - textPaddingBottom - 55) * 2 / 3 + 55;
+        let textY3 = this.state.viewBoxHeight - textPaddingBottom;
+        let monthXAxisArr = [];
+        let yearXAxisArr = [];
+        let data = this.state.data.map(d=> {
+            let str = d[this.state.x];
+            let arr = str.split("-");
+            let year = arr[0];
+            let month = arr[1];
+            return {year: year, month: month};
+        });
+        data.forEach((d, i)=> {
+            let monthJson = {year: d.year, month: d.month, index: i};
+            let yearJson = {year: d.year, index: i};
+            let hasMonth = monthXAxisArr.some(d1=> {
+                return d1.year == d.year && d1.month == d.month;
+            });
+            if (!hasMonth) {
+                let monthLength = data.filter(d1=> {
+                    return d1.year == d.year && d1.month == d.month;
+                }).length;
+                monthJson.length = monthLength;
+                monthXAxisArr.push(monthJson);
+            }
+            let hasYear = yearXAxisArr.some(d1=> {
+                return d1.year == d.year;
+            });
+            if (!hasYear) {
+                let yearLength = data.filter(d1=> {
+                    return d1.year == d.year;
+                }).length;
+                yearJson.length = yearLength;
+                yearXAxisArr.push(yearJson);
+            }
+        });
+
         let svgChild =
             <g>
                 {
@@ -161,9 +206,47 @@ class chart extends React.Component {
                         this.state.xUnitLength == Infinity ? "" : this.state.data.map((d, i) => {
                             let w = this.state.xUnitLength;
                             let x = i * w + 10;
+                            let textDom;
+                            //判断是否要对x坐标文字进行分组
+                            if (isDate && this.state.data.length > 1) {
+                                let arr = d[this.state.x].split("-");
+                                textDom = <g>
+                                    <text x="94.5" y={textY3}>年</text>
+                                    <text x="94.5" y={textY2}>月</text>
+                                    <text x="94.5" y={textY1}>日</text>
+                                    <text x={x + w / 2} y={textY1}>{arr[2]}</text>
+                                    {
+                                        monthXAxisArr.map((d1, j)=> {
+                                            let startX = d1.index * w + 10;
+                                            let endX = startX + d1.length * w;
+                                            return <g key={j}>
+                                                <path d={`M${startX} ${textY2 - 2} h${d1.length * w}`}/>
+                                                <path d={`M${startX} ${textY2 - 2} v1`}/>
+                                                <path d={`M${endX} ${textY2 - 2} v1`}/>
+                                                <text x={startX + d1.length * w / 2} y={textY2}>{d1.month}</text>
+                                            </g>;
+                                        })
+                                    }
+                                    {
+                                        yearXAxisArr.map((d1, j)=> {
+                                            let startX = d1.index * w + 10;
+                                            let endX = startX + d1.length * w;
+                                            return <g key={j}>
+                                                <path d={`M${startX} ${textY3 - 2} h${d1.length * w}`}/>
+                                                <path d={`M${startX} ${textY3 - 2} v1`}/>
+                                                <path d={`M${endX} ${textY3 - 2} v1`}/>
+                                                <text x={startX + d1.length * w / 2} y={textY3}>{d1.year}</text>
+                                            </g>;
+                                        })
+                                    }
+                                </g>;
+                            } else {
+                                textDom = <text x={x + w / 2} y={textY1}>{d[this.state.x]}</text>;
+                            }
+
                             return <g key={i}>
                                 <path d={`M${x} 55 v1`}/>
-                                <text x={x + w / 2} y={60}>{d[this.state.x]}</text>
+                                {textDom}
                             </g>
                         })
                     }
@@ -217,8 +300,9 @@ class chart extends React.Component {
                             switch (this.state.type) {
                                 case "curve":
                                     symbol = <g key={i}>
-                                        <path style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
-                                              stroke={color} d={`M${x} ${y} h3`}/>
+                                        <path
+                                            style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
+                                            stroke={color} d={`M${x} ${y} h3`}/>
                                         {
                                             this.getDotsSymbol(i, 92.5, y, d.id)
                                         }
@@ -270,30 +354,36 @@ class chart extends React.Component {
                         : ""
                 }</g>;
 
-        let svgTag = this.state.svgWidth ?
-            <svg viewBox="0 0 110 60" width={this.state.svgWidth} height={this.state.svgHeight}
-                 onMouseMove={this.setActive}
-                 ref={(svg) => {
-                     this.svg = svg;
-                 }}>
-                {
-                    svgChild
-                }
-            </svg> :
-            <svg viewBox="0 0 110 60" onMouseMove={this.setActive} ref={(svg) => {
-                this.svg = svg;
-            }}>
-                {
-                    svgChild
-                }
-            </svg>;
+        let
+            svgTag = this.state.svgWidth ?
+                <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} width={this.state.svgWidth}
+                     height={this.state.svgHeight}
+                     onMouseMove={this.setActive}
+                     ref={(svg) => {
+                         this.svg = svg;
+                     }}>
+                    {
+                        svgChild
+                    }
+                </svg> :
+                <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} onMouseMove={this.setActive}
+                     ref={(svg) => {
+                         this.svg = svg;
+                     }}>
+                    {
+                        svgChild
+                    }
+                </svg>;
+
         return (
+
             <div className={css.base + " react-chart"}>
                 {
                     svgTag
                 }
             </div>
-        );
+        )
+            ;
     }
 
     /**
@@ -568,6 +658,7 @@ class chart extends React.Component {
             }
         });
         let yPercent = (y - min) / (max - min);
+        yPercent = Math.max(0, yPercent);
         yPercent = 1 - yPercent;
         y = 15 + yPercent * 40;
         return y;
@@ -702,8 +793,8 @@ class chart extends React.Component {
         let offset = $(this.svg).offset();
         let x = e.pageX - offset.left;
         let y = e.pageY - offset.top;
-        x = x / $(this.svg).width() * 110;
-        y = y / $(this.svg).height() * 60;
+        x = x / $(this.svg).width() * this.state.viewBoxWidth;
+        y = y / $(this.svg).height() * this.state.viewBoxHeight;
         let {series, tipsX, tipsY, activeX} = this.getNearestSeries(x, y);
         if (series) {
             let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};

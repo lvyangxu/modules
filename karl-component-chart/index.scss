@@ -20,18 +20,18 @@
         .xAxis {
             stroke-width: 0.2;
             path {
-                stroke: rgba(204, 214, 235, 1);
+                stroke: rgba(230, 230, 230, 1);
             }
             text {
                 text-anchor: middle;
-                font-size: 1.5px;
+                font-size: 1px;
             }
         }
 
         .yAxis {
             stroke-width: 0.2;
             text {
-                font-size: 1.5px;
+                font-size: 1px;
                 text-anchor: end;
             }
         }
@@ -80,7 +80,7 @@
             stroke-width: 0.3;
             text-anchor: start;
             text {
-                font-size: 1.5px;
+                font-size: 1px;
             }
         }
 
@@ -121,7 +121,7 @@
                 fill: rgba(255, 255, 255, 0.8);
             }
             text {
-                font-size: 1.5px;
+                font-size: 1px;
                 text-anchor: middle;
             }
         }

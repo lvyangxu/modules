@@ -15,8 +15,8 @@ class Xx extends React.Component {
                 {date: "2016-9-11", apple: 1, banana: 2, pear: 3},
                 {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2},
                 {date: "2016-9-12", apple: 5, banana: 47},
-                {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4},
-                {date: "2016-9-15", apple: 0.08, banana: 6}
+                {date: "2016-10-14", apple: 0.05, banana: 7, pear: 4},
+                {date: "2017-1-15", apple: 0.08, banana: 6}
             ]
         };
     }
@@ -45,8 +45,10 @@ class Xx extends React.Component {
 
 }
 
+
 ReactDom.render(
     <div>
+        <Com/>
         <Com type="second"/>
     </div>
     , document.getElementById("test"));

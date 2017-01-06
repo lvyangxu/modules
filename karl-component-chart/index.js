@@ -72,7 +72,9 @@ var chart = function (_React$Component) {
             tipsPaddingTop: 1,
             tipsPaddingBottom: 1,
             tipsPaddingLeft: 1,
-            tipsPaddingRight: 1
+            tipsPaddingRight: 1,
+            viewBoxWidth: 115,
+            viewBoxHeight: 65
         };
         var bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
         bindArr.forEach(function (d) {
@@ -132,7 +134,7 @@ var chart = function (_React$Component) {
                 this.setState({
                     isIE: true,
                     svgWidth: (0, _jquery2.default)(this.svg).width(),
-                    svgHeight: (0, _jquery2.default)(this.svg).width() * 60 / 110
+                    svgHeight: (0, _jquery2.default)(this.svg).width() * this.state.viewBoxHeight / this.state.viewBoxWidth
                 });
             } else {
                 switch (this.state.type) {
@@ -171,10 +173,10 @@ var chart = function (_React$Component) {
         value: function componentDidUpdate(prevProps, prevState) {
             //设置tips的宽度和高度
             if (!(prevState.tipsX == this.state.tipsX && prevState.tipsY == this.state.tipsY) && this.state.tipsX && this.state.tipsY) {
-                var w = (0, _jquery2.default)(this.tipsText).width() / (0, _jquery2.default)(this.svg).width() * 110;
+                var w = (0, _jquery2.default)(this.tipsText).width() / (0, _jquery2.default)(this.svg).width() * this.state.viewBoxWidth;
                 w = w.toFixed(2);
                 w = Number.parseFloat(w);
-                var h = (0, _jquery2.default)(this.tipsText).height() / (0, _jquery2.default)(this.svg).height() * 60;
+                var h = (0, _jquery2.default)(this.tipsText).height() / (0, _jquery2.default)(this.svg).height() * this.state.viewBoxHeight;
                 h = h.toFixed(2);
                 h = Number.parseFloat(h);
                 this.setState({
@@ -187,6 +189,49 @@ var chart = function (_React$Component) {
         key: "render",
         value: function render() {
             var _this4 = this;
+
+            //判断是否需要细分x轴文字
+            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+            var isDate = this.state.data.every(function (d) {
+                return regex.test(d[_this4.props.x]);
+            });
+            var textPaddingBottom = 2;
+            var textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
+            var textY2 = (this.state.viewBoxHeight - textPaddingBottom - 55) * 2 / 3 + 55;
+            var textY3 = this.state.viewBoxHeight - textPaddingBottom;
+            var monthXAxisArr = [];
+            var yearXAxisArr = [];
+            var data = this.state.data.map(function (d) {
+                var str = d[_this4.state.x];
+                var arr = str.split("-");
+                var year = arr[0];
+                var month = arr[1];
+                return { year: year, month: month };
+            });
+            data.forEach(function (d, i) {
+                var monthJson = { year: d.year, month: d.month, index: i };
+                var yearJson = { year: d.year, index: i };
+                var hasMonth = monthXAxisArr.some(function (d1) {
+                    return d1.year == d.year && d1.month == d.month;
+                });
+                if (!hasMonth) {
+                    var monthLength = data.filter(function (d1) {
+                        return d1.year == d.year && d1.month == d.month;
+                    }).length;
+                    monthJson.length = monthLength;
+                    monthXAxisArr.push(monthJson);
+                }
+                var hasYear = yearXAxisArr.some(function (d1) {
+                    return d1.year == d.year;
+                });
+                if (!hasYear) {
+                    var yearLength = data.filter(function (d1) {
+                        return d1.year == d.year;
+                    }).length;
+                    yearJson.length = yearLength;
+                    yearXAxisArr.push(yearJson);
+                }
+            });
 
             var svgChild = _react2.default.createElement(
                 "g",
@@ -207,15 +252,79 @@ var chart = function (_React$Component) {
                     this.state.xUnitLength == Infinity ? "" : this.state.data.map(function (d, i) {
                         var w = _this4.state.xUnitLength;
                         var x = i * w + 10;
+                        var textDom = void 0;
+                        //判断是否要对x坐标文字进行分组
+                        if (isDate && _this4.state.data.length > 1) {
+                            var arr = d[_this4.state.x].split("-");
+                            textDom = _react2.default.createElement(
+                                "g",
+                                null,
+                                _react2.default.createElement(
+                                    "text",
+                                    { x: "94.5", y: textY3 },
+                                    "\u5E74"
+                                ),
+                                _react2.default.createElement(
+                                    "text",
+                                    { x: "94.5", y: textY2 },
+                                    "\u6708"
+                                ),
+                                _react2.default.createElement(
+                                    "text",
+                                    { x: "94.5", y: textY1 },
+                                    "\u65E5"
+                                ),
+                                _react2.default.createElement(
+                                    "text",
+                                    { x: x + w / 2, y: textY1 },
+                                    arr[2]
+                                ),
+                                monthXAxisArr.map(function (d1, j) {
+                                    var startX = d1.index * w + 10;
+                                    var endX = startX + d1.length * w;
+                                    return _react2.default.createElement(
+                                        "g",
+                                        { key: j },
+                                        _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " h" + d1.length * w }),
+                                        _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " v1" }),
+                                        _react2.default.createElement("path", { d: "M" + endX + " " + (textY2 - 2) + " v1" }),
+                                        _react2.default.createElement(
+                                            "text",
+                                            { x: startX + d1.length * w / 2, y: textY2 },
+                                            d1.month
+                                        )
+                                    );
+                                }),
+                                yearXAxisArr.map(function (d1, j) {
+                                    var startX = d1.index * w + 10;
+                                    var endX = startX + d1.length * w;
+                                    return _react2.default.createElement(
+                                        "g",
+                                        { key: j },
+                                        _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " h" + d1.length * w }),
+                                        _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " v1" }),
+                                        _react2.default.createElement("path", { d: "M" + endX + " " + (textY3 - 2) + " v1" }),
+                                        _react2.default.createElement(
+                                            "text",
+                                            { x: startX + d1.length * w / 2, y: textY3 },
+                                            d1.year
+                                        )
+                                    );
+                                })
+                            );
+                        } else {
+                            textDom = _react2.default.createElement(
+                                "text",
+                                { x: x + w / 2, y: textY1 },
+                                d[_this4.state.x]
+                            );
+                        }
+
                         return _react2.default.createElement(
                             "g",
                             { key: i },
                             _react2.default.createElement("path", { d: "M" + x + " 55 v1" }),
-                            _react2.default.createElement(
-                                "text",
-                                { x: x + w / 2, y: 60 },
-                                d[_this4.state.x]
-                            )
+                            textDom
                         );
                     })
                 ),
@@ -274,7 +383,8 @@ var chart = function (_React$Component) {
                                 symbol = _react2.default.createElement(
                                     "g",
                                     { key: i },
-                                    _react2.default.createElement("path", { style: _this4.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+                                    _react2.default.createElement("path", {
+                                        style: _this4.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
                                         stroke: color, d: "M" + x + " " + y + " h3" }),
                                     _this4.getDotsSymbol(i, 92.5, y, d.id),
                                     _react2.default.createElement(
@@ -333,7 +443,8 @@ var chart = function (_React$Component) {
 
             var svgTag = this.state.svgWidth ? _react2.default.createElement(
                 "svg",
-                { viewBox: "0 0 110 60", width: this.state.svgWidth, height: this.state.svgHeight,
+                { viewBox: "0 0 " + this.state.viewBoxWidth + " " + this.state.viewBoxHeight, width: this.state.svgWidth,
+                    height: this.state.svgHeight,
                     onMouseMove: this.setActive,
                     ref: function ref(svg) {
                         _this4.svg = svg;
@@ -341,11 +452,13 @@ var chart = function (_React$Component) {
                 svgChild
             ) : _react2.default.createElement(
                 "svg",
-                { viewBox: "0 0 110 60", onMouseMove: this.setActive, ref: function ref(svg) {
+                { viewBox: "0 0 " + this.state.viewBoxWidth + " " + this.state.viewBoxHeight, onMouseMove: this.setActive,
+                    ref: function ref(svg) {
                         _this4.svg = svg;
                     } },
                 svgChild
             );
+
             return _react2.default.createElement(
                 "div",
                 { className: _index2.default.base + " react-chart" },
@@ -661,6 +774,7 @@ var chart = function (_React$Component) {
                 }
             });
             var yPercent = (y - min) / (max - min);
+            yPercent = Math.max(0, yPercent);
             yPercent = 1 - yPercent;
             y = 15 + yPercent * 40;
             return y;
@@ -813,8 +927,8 @@ var chart = function (_React$Component) {
             var offset = (0, _jquery2.default)(this.svg).offset();
             var x = e.pageX - offset.left;
             var y = e.pageY - offset.top;
-            x = x / (0, _jquery2.default)(this.svg).width() * 110;
-            y = y / (0, _jquery2.default)(this.svg).height() * 60;
+            x = x / (0, _jquery2.default)(this.svg).width() * this.state.viewBoxWidth;
+            y = y / (0, _jquery2.default)(this.svg).height() * this.state.viewBoxHeight;
 
             var _getNearestSeries = this.getNearestSeries(x, y),
                 series = _getNearestSeries.series,
