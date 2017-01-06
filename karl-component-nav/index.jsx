@@ -39,7 +39,10 @@ class nav extends React.Component {
 
     componentDidMount() {
         //设置菜单和内容的宽度和高度自适应
-        this.setSize();
+        $(document).ready(()=>{
+            this.setSize();
+        });
+
         window.addEventListener("resize", e => {
             this.setSize();
         });
@@ -101,7 +104,7 @@ class nav extends React.Component {
     setSize() {
         let marginTop = $(this.base).offset().top;
         let height = $(window).height() - marginTop;
-        let width = $(window).width() - 200;
+        let width = $(window).outerWidth(true) - 200;
         $(this.menu).css({height: height});
         $(this.content).css({
             height: height,

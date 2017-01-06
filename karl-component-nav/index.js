@@ -69,7 +69,10 @@ var nav = function (_React$Component) {
             var _this2 = this;
 
             //设置菜单和内容的宽度和高度自适应
-            this.setSize();
+            (0, _jquery2.default)(document).ready(function () {
+                _this2.setSize();
+            });
+
             window.addEventListener("resize", function (e) {
                 _this2.setSize();
             });
@@ -133,7 +136,7 @@ var nav = function (_React$Component) {
         value: function setSize() {
             var marginTop = (0, _jquery2.default)(this.base).offset().top;
             var height = (0, _jquery2.default)(window).height() - marginTop;
-            var width = (0, _jquery2.default)(window).width() - 200;
+            var width = (0, _jquery2.default)(window).outerWidth(true) - 200;
             (0, _jquery2.default)(this.menu).css({ height: height });
             (0, _jquery2.default)(this.content).css({
                 height: height,
