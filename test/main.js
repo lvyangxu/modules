@@ -12,7 +12,7 @@ require("babel-polyfill");
 var React = require("react");
 var ReactDom = require("react-dom");
 
-var Com = require("../karl-component-datepicker/index");
+var Com = require("../karl-component-chart/index");
 
 var Xx = function (_React$Component) {
     _inherits(Xx, _React$Component);
@@ -40,7 +40,7 @@ var Xx = function (_React$Component) {
                 React.createElement(
                     "button",
                     { onClick: function onClick() {
-                            var data = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 3, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 47 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 4 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
+                            var data = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
                             _this2.setState({ data: data });
                         } },
                     "1"
@@ -55,6 +55,5 @@ var Xx = function (_React$Component) {
 ReactDom.render(React.createElement(
     "div",
     null,
-    React.createElement(Com, null),
-    React.createElement(Com, { type: "second" })
+    React.createElement(Xx, null)
 ), document.getElementById("test"));

@@ -30,6 +30,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
  * callback：值改变时执行的回调，参数为当前的值
  * initCallback：初始化后执行的回调，参数为当前的值
+ * prefix：控件显示文字的前缀
  * 示例：
  * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
@@ -115,7 +116,7 @@ var radio = function (_React$Component) {
                 _react2.default.createElement(
                     "div",
                     { className: _index2.default.display, onClick: this.panelToggle },
-                    this.state.value,
+                    (this.props.hasOwnProperty("prefix") ? this.props.prefix : "") + " " + this.state.value,
                     _react2.default.createElement("i", { className: "fa fa-caret-down" })
                 ),
                 _react2.default.createElement(

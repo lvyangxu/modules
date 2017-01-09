@@ -34,16 +34,10 @@
       stroke-width: 0.2; }
       .base svg .xGrid path {
         stroke: #e6e6e6; }
-@keyframes dash {
-  100% {
-    stroke-dashoffset: 0px; } }
     .base svg .curve path {
       stroke-linejoin: round;
       stroke-width: 0.2;
-      fill: transparent;
-      animation: dash 1s linear forwards; }
-    .base svg .bar path {
-      animation: dash 1s linear forwards; }
+      fill: transparent; }
     .base svg .dots {
       stroke-width: 0.3; }
     .base svg .declare {

@@ -7,6 +7,7 @@ import $ from "jquery";
  * react图表组件
  * title：顶部的文字
  * yAxisText: Y轴左边的文字，如果为undefined则显示为""
+ * tipsSuffix：tips的后缀文字
  * type: 图表类型curve或bar，默认为curve
  * x: 代表x轴的id
  * y: 代表y轴的json，例如{id:id,name:name}
@@ -61,10 +62,6 @@ class chart extends React.Component {
         this.doUpdate(this.props.data);
     }
 
-    componentDidMount() {
-        this.setSvgAnimate();
-    }
-
     doUpdate(data) {
         data = this.sortData(data);
         data = this.fillData(data, this.props.y);
@@ -89,7 +86,9 @@ class chart extends React.Component {
                 y: y,
                 data: data,
                 lineDots: lineDots
-            })
+            }, ()=> {
+                this.setSvgAnimate();
+            });
         });
     }
 
@@ -110,6 +109,7 @@ class chart extends React.Component {
                             "stroke-dasharray": length,
                             "stroke-dashoffset": length
                         });
+                        $(this["curve" + d.id]).animate({"stroke-dashoffset": "0px"}, 1000, "linear");
                     });
                     break;
                 case "bar":
@@ -120,6 +120,7 @@ class chart extends React.Component {
                                 "stroke-dasharray": length,
                                 "stroke-dashoffset": length
                             });
+                            $(this["bar" + d.id + i]).animate({"stroke-dashoffset": "0px"}, 1000, "linear");
                         });
                     });
                     break;
@@ -161,37 +162,39 @@ class chart extends React.Component {
         let textY3 = this.state.viewBoxHeight - textPaddingBottom;
         let monthXAxisArr = [];
         let yearXAxisArr = [];
-        let data = this.state.data.map(d=> {
-            let str = d[this.state.x];
-            let arr = str.split("-");
-            let year = arr[0];
-            let month = arr[1];
-            return {year: year, month: month};
-        });
-        data.forEach((d, i)=> {
-            let monthJson = {year: d.year, month: d.month, index: i};
-            let yearJson = {year: d.year, index: i};
-            let hasMonth = monthXAxisArr.some(d1=> {
-                return d1.year == d.year && d1.month == d.month;
+        if (isDate) {
+            let data = this.state.data.map(d=> {
+                let str = d[this.state.x];
+                let arr = str.split("-");
+                let year = arr[0];
+                let month = arr[1];
+                return {year: year, month: month};
             });
-            if (!hasMonth) {
-                let monthLength = data.filter(d1=> {
+            data.forEach((d, i)=> {
+                let monthJson = {year: d.year, month: d.month, index: i};
+                let yearJson = {year: d.year, index: i};
+                let hasMonth = monthXAxisArr.some(d1=> {
                     return d1.year == d.year && d1.month == d.month;
-                }).length;
-                monthJson.length = monthLength;
-                monthXAxisArr.push(monthJson);
-            }
-            let hasYear = yearXAxisArr.some(d1=> {
-                return d1.year == d.year;
-            });
-            if (!hasYear) {
-                let yearLength = data.filter(d1=> {
+                });
+                if (!hasMonth) {
+                    let monthLength = data.filter(d1=> {
+                        return d1.year == d.year && d1.month == d.month;
+                    }).length;
+                    monthJson.length = monthLength;
+                    monthXAxisArr.push(monthJson);
+                }
+                let hasYear = yearXAxisArr.some(d1=> {
                     return d1.year == d.year;
-                }).length;
-                yearJson.length = yearLength;
-                yearXAxisArr.push(yearJson);
-            }
-        });
+                });
+                if (!hasYear) {
+                    let yearLength = data.filter(d1=> {
+                        return d1.year == d.year;
+                    }).length;
+                    yearJson.length = yearLength;
+                    yearXAxisArr.push(yearJson);
+                }
+            });
+        }
 
         let svgChild =
             <g>
@@ -1044,7 +1047,7 @@ class chart extends React.Component {
         let text = <text color={color} x={startX} y={startY} ref={d => {
             this.tipsText = d;
         }}>
-            {activeText} : {yText}
+            {activeText} : {yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : "")}
         </text>;
         return text;
     }

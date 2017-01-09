@@ -51,26 +51,14 @@
             }
         }
 
-        @keyframes dash {
-            100% {
-                stroke-dashoffset: 0px;
-            }
-        }
-
         .curve {
             path {
                 stroke-linejoin: round;
                 stroke-width: 0.2;
                 fill: transparent;
-                animation: dash 1s linear forwards;
             }
         }
 
-        .bar {
-            path {
-                animation: dash 1s linear forwards;
-            }
-        }
 
         .dots {
             stroke-width: 0.3;

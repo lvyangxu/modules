@@ -9,6 +9,7 @@ import http from "karl-http";
  * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
  * callback：值改变时执行的回调，参数为当前的值
  * initCallback：初始化后执行的回调，参数为当前的值
+ * prefix：控件显示文字的前缀
  * 示例：
  * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
@@ -79,7 +80,8 @@ class radio extends React.Component {
         return (
             <div className={css.base + " react-radio"}>
                 <div className={css.display} onClick={this.panelToggle}>
-                    {this.state.value}<i className="fa fa-caret-down"></i>
+                    {(this.props.hasOwnProperty("prefix") ? this.props.prefix : "") + " " + this.state.value}
+                    <i className="fa fa-caret-down"></i>
                 </div>
                 <div className={css.panel}
                      onClick={(e) => {

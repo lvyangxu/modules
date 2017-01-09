@@ -28,6 +28,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * react图表组件
  * title：顶部的文字
  * yAxisText: Y轴左边的文字，如果为undefined则显示为""
+ * tipsSuffix：tips的后缀文字
  * type: 图表类型curve或bar，默认为curve
  * x: 代表x轴的id
  * y: 代表y轴的json，例如{id:id,name:name}
@@ -89,11 +90,6 @@ var chart = function (_React$Component) {
             this.doUpdate(this.props.data);
         }
     }, {
-        key: "componentDidMount",
-        value: function componentDidMount() {
-            this.setSvgAnimate();
-        }
-    }, {
         key: "doUpdate",
         value: function doUpdate(data) {
             var _this2 = this;
@@ -121,6 +117,8 @@ var chart = function (_React$Component) {
                     y: y,
                     data: data,
                     lineDots: lineDots
+                }, function () {
+                    _this2.setSvgAnimate();
                 });
             });
         }
@@ -145,6 +143,7 @@ var chart = function (_React$Component) {
                                 "stroke-dasharray": length,
                                 "stroke-dashoffset": length
                             });
+                            (0, _jquery2.default)(_this3["curve" + d.id]).animate({ "stroke-dashoffset": "0px" }, 1000, "linear");
                         });
                         break;
                     case "bar":
@@ -155,6 +154,7 @@ var chart = function (_React$Component) {
                                     "stroke-dasharray": length,
                                     "stroke-dashoffset": length
                                 });
+                                (0, _jquery2.default)(_this3["bar" + d.id + i]).animate({ "stroke-dashoffset": "0px" }, 1000, "linear");
                             });
                         });
                         break;
@@ -201,37 +201,41 @@ var chart = function (_React$Component) {
             var textY3 = this.state.viewBoxHeight - textPaddingBottom;
             var monthXAxisArr = [];
             var yearXAxisArr = [];
-            var data = this.state.data.map(function (d) {
-                var str = d[_this4.state.x];
-                var arr = str.split("-");
-                var year = arr[0];
-                var month = arr[1];
-                return { year: year, month: month };
-            });
-            data.forEach(function (d, i) {
-                var monthJson = { year: d.year, month: d.month, index: i };
-                var yearJson = { year: d.year, index: i };
-                var hasMonth = monthXAxisArr.some(function (d1) {
-                    return d1.year == d.year && d1.month == d.month;
-                });
-                if (!hasMonth) {
-                    var monthLength = data.filter(function (d1) {
-                        return d1.year == d.year && d1.month == d.month;
-                    }).length;
-                    monthJson.length = monthLength;
-                    monthXAxisArr.push(monthJson);
-                }
-                var hasYear = yearXAxisArr.some(function (d1) {
-                    return d1.year == d.year;
-                });
-                if (!hasYear) {
-                    var yearLength = data.filter(function (d1) {
-                        return d1.year == d.year;
-                    }).length;
-                    yearJson.length = yearLength;
-                    yearXAxisArr.push(yearJson);
-                }
-            });
+            if (isDate) {
+                (function () {
+                    var data = _this4.state.data.map(function (d) {
+                        var str = d[_this4.state.x];
+                        var arr = str.split("-");
+                        var year = arr[0];
+                        var month = arr[1];
+                        return { year: year, month: month };
+                    });
+                    data.forEach(function (d, i) {
+                        var monthJson = { year: d.year, month: d.month, index: i };
+                        var yearJson = { year: d.year, index: i };
+                        var hasMonth = monthXAxisArr.some(function (d1) {
+                            return d1.year == d.year && d1.month == d.month;
+                        });
+                        if (!hasMonth) {
+                            var monthLength = data.filter(function (d1) {
+                                return d1.year == d.year && d1.month == d.month;
+                            }).length;
+                            monthJson.length = monthLength;
+                            monthXAxisArr.push(monthJson);
+                        }
+                        var hasYear = yearXAxisArr.some(function (d1) {
+                            return d1.year == d.year;
+                        });
+                        if (!hasYear) {
+                            var yearLength = data.filter(function (d1) {
+                                return d1.year == d.year;
+                            }).length;
+                            yearJson.length = yearLength;
+                            yearXAxisArr.push(yearJson);
+                        }
+                    });
+                })();
+            }
 
             var svgChild = _react2.default.createElement(
                 "g",
@@ -1220,7 +1224,7 @@ var chart = function (_React$Component) {
                     } },
                 activeText,
                 " : ",
-                yText
+                yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : "")
             );
             return text;
         }
