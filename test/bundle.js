@@ -59,6 +59,8 @@
 	var ReactDom = __webpack_require__(328);
 
 	var Com = __webpack_require__(475);
+	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 1, banana: 0, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 0.03, banana: 0, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 0, server: 1, region: "中国" }, { date: "2016-10-14", apple: 0.05, banana: 0, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 0.08, banana: 0, server: 1, region: "美国" }];
+	var data2 = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
 
 	var Xx = function (_React$Component) {
 	    _inherits(Xx, _React$Component);
@@ -69,7 +71,7 @@
 	        var _this = _possibleConstructorReturn(this, (Xx.__proto__ || Object.getPrototypeOf(Xx)).call(this, props));
 
 	        _this.state = {
-	            data: [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 3, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 47 }, { date: "2016-10-14", apple: 0.05, banana: 7, pear: 4 }, { date: "2017-1-15", apple: 0.08, banana: 6 }]
+	            data: data1
 	        };
 	        return _this;
 	    }
@@ -82,11 +84,11 @@
 	            return React.createElement(
 	                "div",
 	                null,
-	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data }),
+	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"] }),
 	                React.createElement(
 	                    "button",
 	                    { onClick: function onClick() {
-	                            var data = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
+	                            var data = data2;
 	                            _this2.setState({ data: data });
 	                        } },
 	                    "1"
@@ -29648,6 +29650,7 @@
 
 	        _this.state = {
 	            x: _this.props.x,
+	            xAxisArr: [],
 	            y: [],
 	            data: [],
 	            yAxisNumArr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -29685,12 +29688,26 @@
 	            var _this2 = this;
 
 	            data = this.sortData(data);
-	            data = this.fillData(data, this.props.y);
+	            // data = this.fillData(data, this.props.y);
+	            var groupData = this.groupData(data, this.props.y);
 	            var yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
 	            var y = this.setColor(this.props.y);
+	            var xValueArr = [];
+	            var xAxisArr = data.filter(function (d) {
+	                if (xValueArr.includes(d[_this2.state.x])) {
+	                    return false;
+	                } else {
+	                    xValueArr.push(d[_this2.state.x]);
+	                    return true;
+	                }
+	            }).map(function (d) {
+	                return d[_this2.state.x];
+	            });
+
 	            this.setState({
+	                xAxisArr: xAxisArr,
 	                yAxisNumArr: yAxisNumArr,
-	                xUnitLength: 100 * 0.8 / data.length,
+	                xUnitLength: 100 * 0.8 / xAxisArr.length,
 	                yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1)
 	            }, function () {
 	                var lineDots = y.map(function (d) {
@@ -29712,6 +29729,11 @@
 	                });
 	            });
 	        }
+
+	        /**
+	         * 设置svg绘制的动画
+	         */
+
 	    }, {
 	        key: "setSvgAnimate",
 	        value: function setSvgAnimate() {
@@ -29782,8 +29804,8 @@
 
 	            //判断是否需要细分x轴文字
 	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
-	            var isDate = this.state.data.every(function (d) {
-	                return regex.test(d[_this4.props.x]);
+	            var isDate = this.state.xAxisArr.every(function (d) {
+	                return regex.test(d);
 	            });
 	            var textPaddingBottom = 2;
 	            var textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
@@ -29793,9 +29815,8 @@
 	            var yearXAxisArr = [];
 	            if (isDate) {
 	                (function () {
-	                    var data = _this4.state.data.map(function (d) {
-	                        var str = d[_this4.state.x];
-	                        var arr = str.split("-");
+	                    var data = _this4.state.xAxisArr.map(function (d) {
+	                        var arr = d.split("-");
 	                        var year = arr[0];
 	                        var month = arr[1];
 	                        return { year: year, month: month };
@@ -29826,14 +29847,13 @@
 	                    });
 	                })();
 	            }
-
-	            var svgChild = _react2.default.createElement("g", null, this.state.title ? _react2.default.createElement("g", { className: _index2.default.title }, _react2.default.createElement("text", { x: "50", y: "3" }, this.state.title)) : "", _react2.default.createElement("g", { className: _index2.default.xAxis }, _react2.default.createElement("path", { d: "M10 55 h 80" }), this.state.xUnitLength == Infinity ? "" : this.state.data.map(function (d, i) {
+	            var svgChild = _react2.default.createElement("g", null, this.state.title ? _react2.default.createElement("g", { className: _index2.default.title }, _react2.default.createElement("text", { x: "50", y: "3" }, this.state.title)) : "", _react2.default.createElement("g", { className: _index2.default.xAxis }, _react2.default.createElement("path", { d: "M10 55 h 80" }), this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map(function (d, i) {
 	                var w = _this4.state.xUnitLength;
 	                var x = i * w + 10;
 	                var textDom = void 0;
 	                //判断是否要对x坐标文字进行分组
-	                if (isDate && _this4.state.data.length > 1) {
-	                    var arr = d[_this4.state.x].split("-");
+	                if (isDate && _this4.state.xAxisArr.length > 1) {
+	                    var arr = d.split("-");
 	                    textDom = _react2.default.createElement("g", null, _react2.default.createElement("text", { x: "94.5", y: textY3 }, "\u5E74"), _react2.default.createElement("text", { x: "94.5", y: textY2 }, "\u6708"), _react2.default.createElement("text", { x: "94.5", y: textY1 }, "\u65E5"), _react2.default.createElement("text", { x: x + w / 2, y: textY1 }, arr[2]), monthXAxisArr.map(function (d1, j) {
 	                        var startX = d1.index * w + 10;
 	                        var endX = startX + d1.length * w;
@@ -29844,7 +29864,7 @@
 	                        return _react2.default.createElement("g", { key: j }, _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " h" + d1.length * w }), _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " v1" }), _react2.default.createElement("path", { d: "M" + endX + " " + (textY3 - 2) + " v1" }), _react2.default.createElement("text", { x: startX + d1.length * w / 2, y: textY3 }, d1.year));
 	                    }));
 	                } else {
-	                    textDom = _react2.default.createElement("text", { x: x + w / 2, y: textY1 }, d[_this4.state.x]);
+	                    textDom = _react2.default.createElement("text", { x: x + w / 2, y: textY1 }, d);
 	                }
 
 	                return _react2.default.createElement("g", { key: i }, _react2.default.createElement("path", { d: "M" + x + " 55 v1" }), textDom);
@@ -29985,6 +30005,98 @@
 	                return d;
 	            });
 	            return data;
+	        }
+
+	        /**
+	         * 对data进行分组
+	         * @param data
+	         */
+
+	    }, {
+	        key: "groupData",
+	        value: function groupData(data, y) {
+	            var _this7 = this;
+
+	            var xValueArr = [];
+	            var xAxisArr = data.filter(function (d) {
+	                if (xValueArr.includes(d[_this7.state.x])) {
+	                    return false;
+	                } else {
+	                    xValueArr.push(d[_this7.state.x]);
+	                    return true;
+	                }
+	            }).map(function (d) {
+	                return d[_this7.state.x];
+	            });
+	            var group = this.props.group ? this.props.group : [];
+
+	            //找出data中存在的所有分组
+	            var groupIdArr = [];
+	            data.forEach(function (d) {
+	                var groupId = group.map(function (d1) {
+	                    return d[d1];
+	                }).join("-");
+	                if (!groupIdArr.includes(groupId)) {
+	                    groupIdArr.push(groupId);
+	                }
+	            });
+
+	            var groupData = groupIdArr.map(function (d) {
+	                //遍历data，找到该分组的所有数据
+	                var thisGroupData = data.filter(function (d1) {
+	                    var groupId = group.map(function (d2) {
+	                        return d1[d2];
+	                    }).join("-");
+	                    return groupId == d;
+	                });
+	                //按0补全分组数据
+	                xAxisArr.forEach(function (d2) {
+	                    var findData = thisGroupData.find(function (d3) {
+	                        return d3[_this7.state.x] == d2;
+	                    });
+	                    if (findData == undefined) {
+	                        (function () {
+	                            var json = {};
+	                            json[_this7.state.x] = d2;
+	                            y.forEach(function (d3) {
+	                                json[d3.id] = 0;
+	                            });
+	                            thisGroupData.push(json);
+	                        })();
+	                    } else {
+	                        //补全未包含的y.id属性
+	                        y.forEach(function (d3) {
+	                            if (!findData.hasOwnProperty(d3.id)) {
+	                                findData[d3.id] = 0;
+	                            }
+	                        });
+	                    }
+	                });
+	                thisGroupData = _this7.sortData(thisGroupData);
+	                return { id: d, data: thisGroupData };
+	            });
+
+	            //根据分组data得出每个系列的data
+	            var seriesData = [];
+	            groupData.forEach(function (d) {
+	                y.forEach(function (d1) {
+	                    var id = d1.id + d.id;
+	                    var yData = d.data.map(function (d2) {
+	                        return d2[d1.id];
+	                    });
+	                    console.log(yData);
+	                    //如果所有的y值均为0,则忽略该系列
+	                    var isAll0 = yData.every(function (d2) {
+	                        return d2 === 0;
+	                    });
+	                    if (!isAll0) {
+	                        var json = { id: id, y: yData, groupId: d.id };
+	                        seriesData.push(json);
+	                    }
+	                });
+	            });
+	            console.log(seriesData);
+	            return seriesData;
 	        }
 
 	        /**
@@ -30336,7 +30448,7 @@
 	    }, {
 	        key: "setActive",
 	        value: function setActive(e) {
-	            var _this7 = this;
+	            var _this8 = this;
 
 	            //如果没有数据，则不执行操作
 	            if (this.state.data.length == 0) {
@@ -30360,22 +30472,22 @@
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
 	                    json["dot-" + series + "-active"] = true;
 	                    json["curve-" + series + "-active"] = true;
-	                    _this7.state.y.filter(function (d) {
+	                    _this8.state.y.filter(function (d) {
 	                        return d.id != series;
 	                    }).forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this7.setState(json);
+	                    _this8.setState(json);
 	                })();
 	            } else {
 	                (function () {
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-	                    _this7.state.y.forEach(function (d) {
+	                    _this8.state.y.forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this7.setState(json);
+	                    _this8.setState(json);
 	                })();
 	            }
 	        }
@@ -30390,7 +30502,7 @@
 	    }, {
 	        key: "getNearestSeries",
 	        value: function getNearestSeries(x, y) {
-	            var _this8 = this;
+	            var _this9 = this;
 
 	            var series = void 0;
 	            var tipsX = void 0,
@@ -30422,7 +30534,7 @@
 	                            (function () {
 	                                var startIndex = void 0,
 	                                    endIndex = void 0;
-	                                for (var i = 0; i < _this8.state.data.length - 1; i++) {
+	                                for (var i = 0; i < _this9.state.data.length - 1; i++) {
 	                                    var startX = 10 + i * w + w / 2;
 	                                    var endX = 10 + (i + 1) * w + w / 2;
 	                                    if (x >= startX && x <= endX) {
@@ -30441,7 +30553,7 @@
 	                                    index = endIndex;
 	                                }
 
-	                                yMap = _this8.state.lineDots.map(function (d) {
+	                                yMap = _this9.state.lineDots.map(function (d) {
 	                                    var y1 = d.vectors[startIndex].y;
 	                                    var y2 = d.vectors[endIndex].y;
 	                                    var slope = (y2 - y1) / (x2 - x1);
@@ -30509,7 +30621,7 @@
 	    }, {
 	        key: "renderData",
 	        value: function renderData() {
-	            var _this9 = this;
+	            var _this10 = this;
 
 	            var g = void 0;
 	            switch (this.state.type) {
@@ -30517,15 +30629,15 @@
 	                    g = _react2.default.createElement("g", { className: _index2.default.curve }, this.state.y.map(function (d, i) {
 	                        var lastX = void 0,
 	                            lastY = void 0;
-	                        var path = _this9.state.data.map(function (d1, j) {
+	                        var path = _this10.state.data.map(function (d1, j) {
 	                            var id = d.id;
-	                            var x = _this9.xTransformToSvg(j);
-	                            var y = _this9.yTransformToSvg(d1[id]);
+	                            var x = _this10.xTransformToSvg(j);
+	                            var y = _this10.yTransformToSvg(d1[id]);
 	                            var p = "";
 	                            if (j == 0) {
 	                                p = "M " + x + " " + y;
 	                            } else {
-	                                var _getBezierCurvesVecto = _this9.getBezierCurvesVector(lastX, lastY, x, y),
+	                                var _getBezierCurvesVecto = _this10.getBezierCurvesVector(lastX, lastY, x, y),
 	                                    x1 = _getBezierCurvesVecto.x1,
 	                                    y1 = _getBezierCurvesVecto.y1,
 	                                    x2 = _getBezierCurvesVecto.x2,
@@ -30538,24 +30650,24 @@
 	                            return p;
 	                        }).join(" ");
 	                        var color = d.color;
-	                        var style = _this9.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+	                        var style = _this10.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
 	                        return _react2.default.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-	                                _this9["curve" + d.id] = curve;
+	                                _this10["curve" + d.id] = curve;
 	                            }, style: style });
 	                    }));
 	                    break;
 	                case "bar":
 	                    g = _react2.default.createElement("g", { className: _index2.default.bar }, this.state.y.map(function (d, i) {
-	                        return _this9.state.xUnitLength == Infinity ? "" : _this9.state.data.map(function (d1, j) {
+	                        return _this10.state.xUnitLength == Infinity ? "" : _this10.state.data.map(function (d1, j) {
 	                            var id = d.id;
-	                            var barWidth = _this9.state.xUnitLength / ((_this9.state.y.length + 2) * 1.5);
-	                            var offsetX = (i - _this9.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
-	                            var x = _this9.xTransformToSvg(j) + offsetX + barWidth / 2;
-	                            var y = _this9.yTransformToSvg(d1[id]);
+	                            var barWidth = _this10.state.xUnitLength / ((_this10.state.y.length + 2) * 1.5);
+	                            var offsetX = (i - _this10.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
+	                            var x = _this10.xTransformToSvg(j) + offsetX + barWidth / 2;
+	                            var y = _this10.yTransformToSvg(d1[id]);
 	                            return _react2.default.createElement("path", { stroke: d.color, strokeWidth: barWidth,
-	                                d: "M" + x + " " + _this9.yTransformToSvg(0) + " L" + x + " " + y,
+	                                d: "M" + x + " " + _this10.yTransformToSvg(0) + " L" + x + " " + y,
 	                                ref: function ref(bar) {
-	                                    _this9["bar" + id + j] = bar;
+	                                    _this10["bar" + id + j] = bar;
 	                                } });
 	                        });
 	                    }));
@@ -30606,26 +30718,26 @@
 	    }, {
 	        key: "setTipsText",
 	        value: function setTipsText() {
-	            var _this10 = this;
+	            var _this11 = this;
 
 	            var startX = this.state.tipsX;
 	            var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this10.state.activeSeries;
+	                return d.id == _this11.state.activeSeries;
 	            }).color;
 	            var xText = this.state.activeX;
 	            var findData = this.state.data.find(function (d) {
-	                return d[_this10.state.x] == xText;
+	                return d[_this11.state.x] == xText;
 	            });
 	            if (findData == undefined) {
 	                return "";
 	            }
 	            var yText = findData[this.state.activeSeries];
 	            var activeText = this.state.y.find(function (d) {
-	                return d.id == _this10.state.activeSeries;
+	                return d.id == _this11.state.activeSeries;
 	            }).name;
 	            var text = _react2.default.createElement("text", { color: color, x: startX, y: startY, ref: function ref(d) {
-	                    _this10.tipsText = d;
+	                    _this11.tipsText = d;
 	                } }, activeText, " : ", yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : ""));
 	            return text;
 	        }
@@ -30638,14 +30750,14 @@
 	    }, {
 	        key: "setTips",
 	        value: function setTips() {
-	            var _this11 = this;
+	            var _this12 = this;
 
 	            var arcRx = 0.5,
 	                arcRy = 0.5;
 	            var startX = this.state.tipsX;
 	            var startY = this.state.tipsY - this.state.tipsMarginBottom;
 	            var color = this.state.y.find(function (d) {
-	                return d.id == _this11.state.activeSeries;
+	                return d.id == _this12.state.activeSeries;
 	            }).color;
 	            var path = this.state.tipsWidth ? _react2.default.createElement("path", { stroke: color,
 	                d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";

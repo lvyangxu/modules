@@ -32,6 +32,7 @@ class chart extends React.Component {
         super(props);
         this.state = {
             x: this.props.x,
+            xAxisArr: [],
             y: [],
             data: [],
             yAxisNumArr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -51,7 +52,7 @@ class chart extends React.Component {
             viewBoxWidth: 115,
             viewBoxHeight: 65
         };
-        let bindArr = ["sortData", "fillData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
+        let bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
             "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
@@ -64,34 +65,42 @@ class chart extends React.Component {
 
     doUpdate(data) {
         data = this.sortData(data);
-        data = this.fillData(data, this.props.y);
+        let seriesData = this.buildSeries(data, this.props.y);
         let yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
-        let y = this.setColor(this.props.y);
-        this.setState({
-            yAxisNumArr: yAxisNumArr,
-            xUnitLength: 100 * 0.8 / data.length,
-            yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
-        }, ()=> {
-            let lineDots = y.map(d => {
-                let vectors = data.map((d1, j) => {
-                    let id = d.id;
-                    let x = this.xTransformToSvg(j);
-                    let y = this.yTransformToSvg(d1[id]);
-                    let vector = {x: x, y: y};
-                    return vector;
-                });
-                return {id: d.id, vectors: vectors};
-            });
-            this.setState({
-                y: y,
-                data: data,
-                lineDots: lineDots
-            }, ()=> {
-                this.setSvgAnimate();
-            });
+        let xValueArr = [];
+        let xAxisArr = data.filter(d=> {
+            if (xValueArr.includes(d[this.state.x])) {
+                return false;
+            } else {
+                xValueArr.push(d[this.state.x]);
+                return true;
+            }
+        }).map(d=> {
+            return d[this.state.x];
         });
+
+        this.setState({
+                xAxisArr: xAxisArr,
+                yAxisNumArr: yAxisNumArr,
+                xUnitLength: 100 * 0.8 / xAxisArr.length,
+                yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+                seriesData: seriesData
+            }, ()=> {
+                this.setState({
+                    y: y,
+                    data: data,
+                    lineDots: lineDots
+                }, ()=> {
+                    this.setSvgAnimate();
+                });
+            }
+        )
+        ;
     }
 
+    /**
+     * 设置svg绘制的动画
+     */
     setSvgAnimate() {
         let ua = window.navigator.userAgent;
         if (ua.includes("Trident/7.0") || ua.includes("MSIE ")) {
@@ -153,8 +162,8 @@ class chart extends React.Component {
     render() {
         //判断是否需要细分x轴文字
         let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
-        let isDate = this.state.data.every(d => {
-            return regex.test(d[this.props.x]);
+        let isDate = this.state.xAxisArr.every(d => {
+            return regex.test(d);
         });
         let textPaddingBottom = 2;
         let textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
@@ -163,9 +172,8 @@ class chart extends React.Component {
         let monthXAxisArr = [];
         let yearXAxisArr = [];
         if (isDate) {
-            let data = this.state.data.map(d=> {
-                let str = d[this.state.x];
-                let arr = str.split("-");
+            let data = this.state.xAxisArr.map(d=> {
+                let arr = d.split("-");
                 let year = arr[0];
                 let month = arr[1];
                 return {year: year, month: month};
@@ -195,7 +203,6 @@ class chart extends React.Component {
                 }
             });
         }
-
         let svgChild =
             <g>
                 {
@@ -206,13 +213,13 @@ class chart extends React.Component {
                 <g className={css.xAxis}>
                     <path d="M10 55 h 80"/>
                     {
-                        this.state.xUnitLength == Infinity ? "" : this.state.data.map((d, i) => {
+                        this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map((d, i) => {
                             let w = this.state.xUnitLength;
                             let x = i * w + 10;
                             let textDom;
                             //判断是否要对x坐标文字进行分组
-                            if (isDate && this.state.data.length > 1) {
-                                let arr = d[this.state.x].split("-");
+                            if (isDate && this.state.xAxisArr.length > 1) {
+                                let arr = d.split("-");
                                 textDom = <g>
                                     <text x="94.5" y={textY3}>年</text>
                                     <text x="94.5" y={textY2}>月</text>
@@ -244,7 +251,7 @@ class chart extends React.Component {
                                     }
                                 </g>;
                             } else {
-                                textDom = <text x={x + w / 2} y={textY1}>{d[this.state.x]}</text>;
+                                textDom = <text x={x + w / 2} y={textY1}>{d}</text>;
                             }
 
                             return <g key={i}>
@@ -455,21 +462,91 @@ class chart extends React.Component {
     }
 
     /**
-     * 如果data中未指定该y的值，则默认设置为0
+     * 获取每个系列
      * @param data
-     * @param y
-     * @returns {*}
      */
-    fillData(data, y) {
-        data = data.map(d => {
-            y.forEach(d1 => {
-                if (!d.hasOwnProperty(d1.id)) {
-                    d[d1.id] = 0;
+    buildSeries(data, y) {
+        let xValueArr = [];
+        let xAxisArr = data.filter(d=> {
+            if (xValueArr.includes(d[this.state.x])) {
+                return false;
+            } else {
+                xValueArr.push(d[this.state.x]);
+                return true;
+            }
+        }).map(d=> {
+            return d[this.state.x];
+        });
+        let group = this.props.group ? this.props.group : [];
+
+        //找出data中存在的所有分组
+        let groupIdArr = [];
+        data.forEach(d=> {
+            let groupId = group.map(d1=> {
+                return d[d1];
+            }).join("-");
+            if (!groupIdArr.includes(groupId)) {
+                groupIdArr.push(groupId);
+            }
+        });
+
+        let groupData = groupIdArr.map(d=> {
+            //遍历data，找到该分组的所有数据
+            let thisGroupData = data.filter(d1=> {
+                let groupId = group.map(d2=> {
+                    return d1[d2];
+                }).join("-");
+                return groupId == d;
+            });
+            //按0补全分组数据
+            xAxisArr.forEach(d2=> {
+                let findData = thisGroupData.find(d3=> {
+                    return d3[this.state.x] == d2;
+                });
+                if (findData == undefined) {
+                    let json = {};
+                    json[this.state.x] = d2;
+                    y.forEach(d3=> {
+                        json[d3.id] = 0;
+                    });
+                    thisGroupData.push(json);
+                } else {
+                    //补全未包含的y.id属性
+                    y.forEach(d3=> {
+                        if (!findData.hasOwnProperty(d3.id)) {
+                            findData[d3.id] = 0;
+                        }
+                    });
                 }
             });
-            return d;
+            thisGroupData = this.sortData(thisGroupData);
+            return {id: d, data: thisGroupData};
         });
-        return data;
+
+        //根据分组data得出每个系列的data
+        let seriesData = [];
+        groupData.forEach(d=> {
+            y.forEach(d1=> {
+                let id = d1.id + d.id;
+                let vectors = d.data.map((d2, i)=> {
+                    let x = this.xTransformToSvg(i);
+                    let y = this.yTransformToSvg(d2[d1.id]);
+                    return {x: x, y: y, sourceY: d2[d1.id]};
+                });
+                console.log(yData);
+                //如果所有的y值均为0,则忽略该系列
+                let isAll0 = vectors.every(d2=> {
+                    return d2.sourceY === 0;
+                });
+                if (!isAll0) {
+                    let json = {id: id, vectors: vectors, groupId: d.id};
+                    seriesData.push(json);
+                }
+            })
+        });
+        //为每个系列附加颜色属性
+        seriesData = this.setColor(seriesData);
+        return seriesData;
     }
 
     /**
@@ -997,14 +1074,14 @@ class chart extends React.Component {
 
     /**
      * 设置随机颜色
-     * @param propsY
+     * @param seriesData
      * @returns {*}
      */
-    setColor(propsY) {
-        let y = (propsY == undefined) ? this.state.y : propsY;
+    setColor(seriesData) {
+        let data = (seriesData == undefined) ? this.state.seriesData : seriesData;
         let max = 360;
-        let step = Math.floor(max / y.length);
-        y = y.map((d, i) => {
+        let step = Math.floor(max / data.length);
+        data = data.map((d, i) => {
             //设定颜色的波动范围为25%-75%个step之间
             let h = step * i + step / 4;
             let r = Math.floor(Math.random() * step / 2);
@@ -1014,13 +1091,7 @@ class chart extends React.Component {
             d.color = `hsla(${h},${s},${l},1)`;
             return d;
         });
-        if (propsY != undefined) {
-            return y;
-        } else {
-            this.setState({
-                y: y
-            })
-        }
+        return data;
     }
 
     /**
