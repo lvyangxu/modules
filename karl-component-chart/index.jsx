@@ -34,9 +34,9 @@ class chart extends React.Component {
             x: this.props.x,
             xAxisArr: [],
             y: [],
-            data: [],
-            yAxisNumArr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-            lineDots: [],
+            xUnitLength: 0,
+            seriesData: [],
+            yAxisNumArr: [],
             title: this.props.title,
             yAxisText: this.props.yAxisText == undefined ? "" : this.props.yAxisText,
             type: this.props.type ? this.props.type : "curve",
@@ -53,7 +53,7 @@ class chart extends React.Component {
             viewBoxHeight: 65
         };
         let bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
-            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTips", "doUpdate", "setSvgAnimate"];
+            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTipsBorder", "doUpdate", "setSvgAnimate"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
@@ -65,8 +65,6 @@ class chart extends React.Component {
 
     doUpdate(data) {
         data = this.sortData(data);
-        let seriesData = this.buildSeries(data, this.props.y);
-        let yAxisNumArr = this.getYAxisNumArr(this.props.y, data);
         let xValueArr = [];
         let xAxisArr = data.filter(d=> {
             if (xValueArr.includes(d[this.state.x])) {
@@ -78,24 +76,21 @@ class chart extends React.Component {
         }).map(d=> {
             return d[this.state.x];
         });
-
+        let yAxisNumArr = this.getYAxisNumArr(data, this.state.type);
         this.setState({
                 xAxisArr: xAxisArr,
-                yAxisNumArr: yAxisNumArr,
                 xUnitLength: 100 * 0.8 / xAxisArr.length,
+                yAxisNumArr: yAxisNumArr,
                 yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
-                seriesData: seriesData
             }, ()=> {
+                let seriesData = this.buildSeries(data, this.props.y);
                 this.setState({
-                    y: y,
-                    data: data,
-                    lineDots: lineDots
+                    seriesData: seriesData,
                 }, ()=> {
                     this.setSvgAnimate();
                 });
             }
         )
-        ;
     }
 
     /**
@@ -112,7 +107,7 @@ class chart extends React.Component {
         } else {
             switch (this.state.type) {
                 case "curve":
-                    this.state.y.forEach(d => {
+                    this.state.seriesData.forEach(d => {
                         let length = this["curve" + d.id].getTotalLength();
                         $(this["curve" + d.id]).css({
                             "stroke-dasharray": length,
@@ -122,8 +117,8 @@ class chart extends React.Component {
                     });
                     break;
                 case "bar":
-                    this.state.y.forEach(d => {
-                        this.state.data.forEach((d1, i) => {
+                    this.state.seriesData.forEach(d => {
+                        this.state.xAxisArr.forEach((d1, i)=> {
                             let length = this["bar" + d.id + i].getTotalLength();
                             $(this["bar" + d.id + i]).css({
                                 "stroke-dasharray": length,
@@ -160,6 +155,78 @@ class chart extends React.Component {
     }
 
     render() {
+        let svgChild =
+            <g>
+                {
+                    this.setTitle()
+                }
+                {
+                    this.setXAxis()
+                }
+                {
+                    this.setYAxis()
+                }
+                {
+                    this.setXGrid()
+                }
+                {
+                    this.setData()
+                }
+                {
+                    this.setDots()
+                }
+                {
+                    this.setDeclare()
+                }
+                {
+                    this.setTips()
+                }
+            </g>;
+
+
+        let svgTag = this.state.svgWidth ?
+            <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} width={this.state.svgWidth}
+                 height={this.state.svgHeight}
+                 onMouseMove={this.setActive}
+                 ref={(svg) => {
+                     this.svg = svg;
+                 }}>
+                {
+                    svgChild
+                }
+            </svg> :
+            <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} onMouseMove={this.setActive}
+                 ref={(svg) => {
+                     this.svg = svg;
+                 }}>
+                {
+                    svgChild
+                }
+            </svg>;
+        return (
+            <div className={css.base + " react-chart"}>
+                {
+                    svgTag
+                }
+            </div>
+        );
+    }
+
+    /**
+     * 绘制标题
+     * @returns {*}
+     */
+    setTitle() {
+        let dom = this.state.title ? <g className={css.title}>
+            <text x="50" y="3">{this.state.title}</text>
+        </g> : "";
+        return dom;
+    }
+
+    /**
+     * 绘制x轴
+     */
+    setXAxis() {
         //判断是否需要细分x轴文字
         let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
         let isDate = this.state.xAxisArr.every(d => {
@@ -203,197 +270,116 @@ class chart extends React.Component {
                 }
             });
         }
-        let svgChild =
-            <g>
-                {
-                    this.state.title ? <g className={css.title}>
-                        <text x="50" y="3">{this.state.title}</text>
-                    </g> : ""
-                }
-                <g className={css.xAxis}>
-                    <path d="M10 55 h 80"/>
-                    {
-                        this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map((d, i) => {
-                            let w = this.state.xUnitLength;
-                            let x = i * w + 10;
-                            let textDom;
-                            //判断是否要对x坐标文字进行分组
-                            if (isDate && this.state.xAxisArr.length > 1) {
-                                let arr = d.split("-");
-                                textDom = <g>
-                                    <text x="94.5" y={textY3}>年</text>
-                                    <text x="94.5" y={textY2}>月</text>
-                                    <text x="94.5" y={textY1}>日</text>
-                                    <text x={x + w / 2} y={textY1}>{arr[2]}</text>
-                                    {
-                                        monthXAxisArr.map((d1, j)=> {
-                                            let startX = d1.index * w + 10;
-                                            let endX = startX + d1.length * w;
-                                            return <g key={j}>
-                                                <path d={`M${startX} ${textY2 - 2} h${d1.length * w}`}/>
-                                                <path d={`M${startX} ${textY2 - 2} v1`}/>
-                                                <path d={`M${endX} ${textY2 - 2} v1`}/>
-                                                <text x={startX + d1.length * w / 2} y={textY2}>{d1.month}</text>
-                                            </g>;
-                                        })
-                                    }
-                                    {
-                                        yearXAxisArr.map((d1, j)=> {
-                                            let startX = d1.index * w + 10;
-                                            let endX = startX + d1.length * w;
-                                            return <g key={j}>
-                                                <path d={`M${startX} ${textY3 - 2} h${d1.length * w}`}/>
-                                                <path d={`M${startX} ${textY3 - 2} v1`}/>
-                                                <path d={`M${endX} ${textY3 - 2} v1`}/>
-                                                <text x={startX + d1.length * w / 2} y={textY3}>{d1.year}</text>
-                                            </g>;
-                                        })
-                                    }
-                                </g>;
-                            } else {
-                                textDom = <text x={x + w / 2} y={textY1}>{d}</text>;
-                            }
-
-                            return <g key={i}>
-                                <path d={`M${x} 55 v1`}/>
-                                {textDom}
-                            </g>
-                        })
-                    }
-                </g>
-                <g className={css.yAxis}>
-                    {
-                        this.state.yAxisNumArr.map((d, i) => {
-                            let y = 55 - i * this.state.yUnitLength;
-                            let yTextDelta = 0;
-                            return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
-                        })
-                    }
-                </g>
-                {
-                    this.state.yAxisText ? <g className={css.yAxisText}>
-                        <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
-                    </g> : ""
-                }
-
-                <g className={css.xGrid}>
-                    {
-                        this.state.yAxisNumArr.map((d, i) => {
-                            let y = 55 - i * this.state.yUnitLength;
-                            return <path key={i} d={`M10 ${y} h 80`}/>
-                        })
-                    }
-                    <path d={`M90 55 v1`}/>
-                </g>
-                {
-                    this.renderData()
-                }
-
-                <g className={css.dots}>
-                    {
-                        this.state.type == "curve" ?
-                            this.state.lineDots.map((d, i) => {
-                                return d.vectors.map(d1 => {
-                                    let dots = this.getDotsSymbol(i, d1.x, d1.y, d.id);
-                                    return dots;
+        let dom = <g className={css.xAxis}>
+            <path d="M10 55 h 80"/>
+            {
+                this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map((d, i) => {
+                    let w = this.state.xUnitLength;
+                    let x = i * w + 10;
+                    let textDom;
+                    //判断是否要对x坐标文字进行分组
+                    if (isDate && this.state.xAxisArr.length > 1) {
+                        let arr = d.split("-");
+                        textDom = <g>
+                            <text x="94.5" y={textY3}>年</text>
+                            <text x="94.5" y={textY2}>月</text>
+                            <text x="94.5" y={textY1}>日</text>
+                            <text x={x + w / 2} y={textY1}>{arr[2]}</text>
+                            {
+                                monthXAxisArr.map((d1, j)=> {
+                                    let startX = d1.index * w + 10;
+                                    let endX = startX + d1.length * w;
+                                    return <g key={j}>
+                                        <path d={`M${startX} ${textY2 - 2} h${d1.length * w}`}/>
+                                        <path d={`M${startX} ${textY2 - 2} v1`}/>
+                                        <path d={`M${endX} ${textY2 - 2} v1`}/>
+                                        <text x={startX + d1.length * w / 2} y={textY2}>{d1.month}</text>
+                                    </g>;
                                 })
-                            }) : ""
-                    }
-                </g>
-                <g className={css.declare}>
-                    {
-                        this.state.data.length == 0 ? "" : this.state.y.map((d, i) => {
-                            let x = 91;
-                            let y = 15 + i * 2;
-                            let color = d.color;
-                            let symbol;
-                            switch (this.state.type) {
-                                case "curve":
-                                    symbol = <g key={i}>
-                                        <path
-                                            style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
-                                            stroke={color} d={`M${x} ${y} h3`}/>
-                                        {
-                                            this.getDotsSymbol(i, 92.5, y, d.id)
-                                        }
-                                        <text x="94.5" y={y + 1}>{d.name}</text>
-                                    </g>;
-                                    break;
-                                case "bar":
-                                    let offsetX = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-                                    let offsetY = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-                                    symbol = <g key={i}>
-                                        <rect fill={color} x={x - offsetX} y={y - offsetY} width={3 + offsetX * 2}
-                                              height={1 + offsetY * 2}/>
-                                        <text x="94.5" y={y + 1}>{d.name}</text>
-                                    </g>;
-                                    break;
                             }
-                            return symbol;
-                        })
+                            {
+                                yearXAxisArr.map((d1, j)=> {
+                                    let startX = d1.index * w + 10;
+                                    let endX = startX + d1.length * w;
+                                    return <g key={j}>
+                                        <path d={`M${startX} ${textY3 - 2} h${d1.length * w}`}/>
+                                        <path d={`M${startX} ${textY3 - 2} v1`}/>
+                                        <path d={`M${endX} ${textY3 - 2} v1`}/>
+                                        <text x={startX + d1.length * w / 2} y={textY3}>{d1.year}</text>
+                                    </g>;
+                                })
+                            }
+                        </g>;
+                    } else {
+                        textDom = <text x={x + w / 2} y={textY1}>{d}</text>;
                     }
-                    <g className={css.setColor} onClick={() => {
-                        this.setColor();
-                    }}>
-                        {
-                            this.state.y.map((d, i) => {
-                                let color = d.color;
-                                let x = 80 + i * 1;
-                                let y1 = 5;
-                                let y2 = 7;
-                                return <path key={i} strokeWidth={1} stroke={color}
-                                             d={`M${x} ${y1} L${x} ${y2}`}/>
-                            })
-                        }
-                        <text x={79.5 + this.state.y.length / 2} y="4" textAnchor="middle">reset color</text>
+
+                    return <g key={i}>
+                        <path d={`M${x} 55 v1`}/>
+                        {textDom}
                     </g>
-                    {
-                        this.setTypeList()
-                    }
-                </g>
+                })
+            }
+        </g>;
+        return dom;
+    }
+
+    /**
+     * 绘制y轴
+     */
+    setYAxis() {
+        let dom = <g className={css.yAxis}>
+            {
+                this.state.yAxisNumArr.map((d, i) => {
+                    let y = 55 - i * this.state.yUnitLength;
+                    let yTextDelta = 0;
+                    return <text key={i} x={9} y={y + yTextDelta}>{d}</text>
+                })
+            }
+            {
+                this.state.yAxisText ? <g className={css.yAxisText}>
+                    <text x="3" y="35" transform="rotate(-90,3,35)">{this.state.yAxisText}</text>
+                </g> : ""
+            }
+        </g>;
+        return dom;
+    }
+
+    /**
+     * 绘制x轴网格线
+     */
+    setXGrid() {
+        let dom = <g className={css.xGrid}>
+            {
+                this.state.yAxisNumArr.map((d, i) => {
+                    let y = 55 - i * this.state.yUnitLength;
+                    return <path key={i} d={`M10 ${y} h 80`}/>
+                })
+            }
+            <path d={`M90 55 v1`}/>
+        </g>;
+        return dom;
+    }
+
+    /**
+     * 绘制曲线上的点
+     * @returns {XML}
+     */
+    setDots() {
+        let dom = "";
+        if (this.state.xUnitLength != 0 && this.state.type == "curve") {
+            dom = <g className={css.dots}>
                 {
-                    (this.state.tipsX && this.state.tipsY) ?
-                        <g className={css.tips}>
-                            {
-                                this.setTips()
-                            }
-                            {
-                                this.setTipsText()
-                            }
-                        </g>
-                        : ""
-                }</g>;
-
-        let
-            svgTag = this.state.svgWidth ?
-                <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} width={this.state.svgWidth}
-                     height={this.state.svgHeight}
-                     onMouseMove={this.setActive}
-                     ref={(svg) => {
-                         this.svg = svg;
-                     }}>
-                    {
-                        svgChild
-                    }
-                </svg> :
-                <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} onMouseMove={this.setActive}
-                     ref={(svg) => {
-                         this.svg = svg;
-                     }}>
-                    {
-                        svgChild
-                    }
-                </svg>;
-
-        return (
-
-            <div className={css.base + " react-chart"}>
-                {
-                    svgTag
+                    this.state.seriesData.map((d, i) => {
+                        return d.vectors.map(d1 => {
+                            let dots = this.getDotsSymbol(i, d.id, d1.x, d1.y, d.color);
+                            return dots;
+                        });
+                    })
                 }
-            </div>
-        )
-            ;
+            </g>;
+        }
+        return dom;
     }
 
     /**
@@ -407,7 +393,10 @@ class chart extends React.Component {
         let list = <g className={css.typeList}>
             <path d={`M${iconUnderlineStartX} 3.5 l3 0`} stroke="black" strokeWidth={0.2}/>
             <g className={css.typeIcon} onClick={() => {
+                let yAxisNumArr = this.getYAxisNumArr(this.props.data, "curve");
                 this.setState({
+                    yAxisNumArr: yAxisNumArr,
+                    yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
                     type: "curve"
                 });
             }}>
@@ -416,7 +405,10 @@ class chart extends React.Component {
                       style={(this.state.type == "curve") ? activeStyle : inactiveStyle}/>
             </g>
             <g className={css.typeIcon} onClick={() => {
+                let yAxisNumArr = this.getYAxisNumArr(this.props.data, "bar");
                 this.setState({
+                    yAxisNumArr: yAxisNumArr,
+                    yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
                     type: "bar"
                 });
             }}>
@@ -430,6 +422,160 @@ class chart extends React.Component {
             </g>
         </g>;
         return list;
+    }
+
+    /**
+     * 绘制表示数据的图
+     * @returns {*}
+     */
+    setData() {
+        let g = "";
+        switch (this.state.type) {
+            case "curve":
+                g = <g className={css.curve}>
+                    {
+                        this.state.seriesData.map((d, i) => {
+                            let lastX, lastY;
+                            let path = d.vectors.map((d1, j) => {
+                                let [x,y] = [d1.x, d1.y];
+                                let p = "";
+                                if (j == 0) {
+                                    p = `M ${x} ${y}`;
+                                } else {
+                                    let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
+                                    p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
+                                }
+                                lastX = x;
+                                lastY = y;
+                                return p;
+                            }).join(" ");
+                            let color = d.color;
+                            let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
+                            return <path stroke={color} key={i} d={path} ref={curve => {
+                                this["curve" + d.id] = curve;
+                            }} style={style}/>
+                        })
+                    }
+                </g>;
+                break;
+            case "bar":
+                let bars = [];
+                let w = this.state.xUnitLength;
+                //根据y中的id对分组的数据进行bar的堆叠
+                let baseIdArr = [];
+                this.state.seriesData.forEach(d=> {
+                    if (!baseIdArr.includes(d.baseId)) {
+                        baseIdArr.push(d.baseId);
+                    }
+                });
+                let barWidth = w / ((baseIdArr.length + 2) * 1.5);
+                this.state.xAxisArr.map((d, i)=> {
+                    //找出当前x区间内的数据
+                    baseIdArr.map((d1, j)=> {
+                        let startX = i * w + w / (baseIdArr.length + 2) + 10;
+                        let barX = startX + (j + 0.5) * w / (baseIdArr.length + 2);
+                        let seriesArr = this.state.seriesData.filter(d2=> {
+                            return d2.baseId == d1;
+                        });
+                        let stackY = 0;
+                        seriesArr.forEach((d2, k)=> {
+                            let barHeight = d2.vectors[i].sourceY;
+                            let bar = <path key={i + "-" + j + "-" + k} stroke={d2.color} strokeWidth={barWidth}
+                                            d={`M${barX} ${this.yTransformToSvg(stackY)} L${barX} ${this.yTransformToSvg(stackY + barHeight)}`}
+                                            ref={bar => {
+                                                this["bar" + d2.id + i] = bar;
+                                            }}/>;
+                            stackY += barHeight;
+                            bars.push(bar);
+                        });
+                    })
+                });
+
+                g = <g className={css.bar}>
+                    {
+                        bars
+                    }
+                </g>;
+                break;
+        }
+        return g;
+    }
+
+    /**
+     * 绘制右上角的说明
+     */
+    setDeclare() {
+        let dom = <g className={css.declare}>
+            {
+                this.state.seriesData.map((d, i) => {
+                    let x = 91;
+                    let y = 15 + i * 2;
+                    let color = d.color;
+                    let symbol;
+                    switch (this.state.type) {
+                        case "curve":
+                            symbol = <g key={i}>
+                                <path
+                                    style={this.state["dot-" + d.id + "-active"] ? {strokeWidth: 0.6} : {}}
+                                    stroke={color} d={`M${x} ${y} h3`}/>
+                                {
+                                    this.getDotsSymbol(i, d.id, 92.5, y, color)
+                                }
+                                <text x="94.5" y={y + 0.5}>{d.name}</text>
+                            </g>;
+                            break;
+                        case "bar":
+                            let offsetX = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                            let offsetY = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+                            symbol = <g key={i}>
+                                <rect fill={color} x={x - offsetX} y={y - offsetY} width={3 + offsetX * 2}
+                                      height={1 + offsetY * 2}/>
+                                <text x="94.5" y={y + 1}>{d.name}</text>
+                            </g>;
+                            break;
+                    }
+                    return symbol;
+                })
+            }
+            <g className={css.setColor} onClick={() => {
+                let seriesData = this.setColor();
+                this.setState({seriesData: seriesData});
+            }}>
+                {
+                    this.state.seriesData.map((d, i) => {
+                        let color = d.color;
+                        let x = 80 + i * 1;
+                        let y1 = 5;
+                        let y2 = 7;
+                        return <path key={i} strokeWidth={1} stroke={color}
+                                     d={`M${x} ${y1} L${x} ${y2}`}/>
+                    })
+                }
+                <text x={79.5 + this.state.seriesData.length / 2} y="4" textAnchor="middle">reset color</text>
+            </g>
+            {
+                this.setTypeList()
+            }
+        </g>;
+        return dom;
+    }
+
+    /**
+     * 绘制鼠标悬浮时的提示框
+     * @returns {*}
+     */
+    setTips() {
+        let dom = (this.state.tipsX && this.state.tipsY) ?
+            <g className={css.tips}>
+                {
+                    this.setTipsBorder()
+                }
+                {
+                    this.setTipsText()
+                }
+            </g>
+            : "";
+        return dom;
     }
 
     /**
@@ -527,19 +673,22 @@ class chart extends React.Component {
         let seriesData = [];
         groupData.forEach(d=> {
             y.forEach(d1=> {
-                let id = d1.id + d.id;
+                let id = d1.id + "-" + d.id;
                 let vectors = d.data.map((d2, i)=> {
                     let x = this.xTransformToSvg(i);
                     let y = this.yTransformToSvg(d2[d1.id]);
                     return {x: x, y: y, sourceY: d2[d1.id]};
                 });
-                console.log(yData);
+
                 //如果所有的y值均为0,则忽略该系列
                 let isAll0 = vectors.every(d2=> {
                     return d2.sourceY === 0;
                 });
                 if (!isAll0) {
-                    let json = {id: id, vectors: vectors, groupId: d.id};
+                    let groupId = d.id;
+                    groupId = (groupId == "-") ? "" : ("-" + groupId);
+                    let name = d1.name + groupId;
+                    let json = {id: id, name: name, vectors: vectors, groupId: d.id, baseId: d1.id};
                     seriesData.push(json);
                 }
             })
@@ -551,28 +700,65 @@ class chart extends React.Component {
 
     /**
      * 获取y轴的值数组
-     * @param yData this.props.y
-     * @param data this.props.data
+     * @param data
      * @returns {Array}
      */
-    getYAxisNumArr(yData, data) {
-        //get max y num and min y num
+    getYAxisNumArr(data, type) {
+        //获取data中最大和最小的值
         let max, min;
-        yData.forEach(d => {
-            data.forEach(d1 => {
-                let d2 = d1[d.id];
-                if (max == undefined) {
-                    max = d2;
+        if (type == "bar") {
+            let xValueArr = [];
+            let xAxisArr = data.filter(d=> {
+                if (xValueArr.includes(d[this.state.x])) {
+                    return false;
                 } else {
-                    max = Math.max(d2, max);
+                    xValueArr.push(d[this.state.x]);
+                    return true;
                 }
-                if (min == undefined) {
-                    min = d2;
-                } else {
-                    min = Math.min(d2, min);
-                }
-            })
-        });
+            }).map(d=> {
+                return d[this.state.x];
+            });
+            //bar需要按分组先堆叠，再进行计算
+            this.props.y.forEach(d=> {
+                xAxisArr.forEach(d1=> {
+                    let value = 0;
+                    data.filter(d2=> {
+                        return d2.hasOwnProperty(d.id) && d2[this.state.x] == d1;
+                    }).forEach(d2=> {
+                        value += d2[d.id];
+                    });
+                    if (max == undefined) {
+                        max = value;
+                    } else {
+                        max = Math.max(value, max);
+                    }
+                    if (min == undefined) {
+                        min = value;
+                    } else {
+                        min = Math.min(value, min);
+                    }
+                })
+            });
+        } else {
+            data.forEach(d => {
+                this.props.y.forEach(d1=> {
+                    let id = d1.id;
+                    let value = d[id];
+                    if (d.hasOwnProperty(id)) {
+                        if (max == undefined) {
+                            max = value;
+                        } else {
+                            max = Math.max(value, max);
+                        }
+                        if (min == undefined) {
+                            min = value;
+                        } else {
+                            min = Math.min(value, min);
+                        }
+                    }
+                });
+            });
+        }
 
         let yStart = Math.abs(min);
         let yEnd = Math.abs(max);
@@ -745,6 +931,29 @@ class chart extends React.Component {
     }
 
     /**
+     * 将自然坐标的高度转化为 svg 坐标系的高度
+     * @param h
+     */
+    heightTransformToSvg(h) {
+        let min, max;
+        this.state.yAxisNumArr.forEach(d => {
+            if (min == undefined) {
+                min = d;
+            } else {
+                min = Math.min(min, d);
+            }
+            if (max == undefined) {
+                max = d;
+            } else {
+                max = Math.max(max, d);
+            }
+        });
+        let yPercent = h / (max - min);
+        let height = yPercent * 40;
+        return height;
+    }
+
+    /**
      * 将svg坐标 y 转化为自然坐标系的值
      * @param y
      * @returns {number|*}
@@ -815,14 +1024,14 @@ class chart extends React.Component {
     /**
      * 获取符号的svg路径dom
      * @param index
+     * @param id
      * @param x
      * @param y
-     * @param id
+     * @param color
      * @returns {*}
      */
-    getDotsSymbol(index, x, y, id) {
+    getDotsSymbol(index, id, x, y, color) {
         let dots, r;
-        let color = this.state.y[index].color;
         switch (index % 5) {
             //圆
             case 0:
@@ -866,7 +1075,7 @@ class chart extends React.Component {
      */
     setActive(e) {
         //如果没有数据，则不执行操作
-        if (this.state.data.length == 0) {
+        if (this.state.seriesData.length == 0) {
             return;
         }
 
@@ -880,7 +1089,7 @@ class chart extends React.Component {
             let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             json["dot-" + series + "-active"] = true;
             json["curve-" + series + "-active"] = true;
-            this.state.y.filter(d => {
+            this.state.seriesData.filter(d => {
                 return d.id != series;
             }).forEach(d => {
                 json["dot-" + d.id + "-active"] = false;
@@ -889,7 +1098,7 @@ class chart extends React.Component {
             this.setState(json);
         } else {
             let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
-            this.state.y.forEach(d => {
+            this.state.seriesData.forEach(d => {
                 json["dot-" + d.id + "-active"] = false;
                 json["curve-" + d.id + "-active"] = false;
             });
@@ -906,30 +1115,32 @@ class chart extends React.Component {
     getNearestSeries(x, y) {
         let series;
         let tipsX, tipsY, index, activeX;
+        let w = this.state.xUnitLength;
         if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
-            let w = this.state.xUnitLength;
-
             switch (this.state.type) {
                 case "curve":
                     //根据x和斜率寻找最近的y
                     let yMap = [];
                     if (x <= 10 + w / 2) {
+                        //线条左边空白区域取第一个元素的值
                         tipsX = 10 + w / 2;
                         index = 0;
-                        yMap = this.state.lineDots.map(d => {
+                        yMap = this.state.seriesData.map(d => {
                             let lineY = d.vectors[0].y;
                             return {id: d.id, y: lineY};
                         });
                     } else if (x >= 90 - w / 2) {
-                        tipsX = 10 + w / 2 + (this.state.data.length - 1) * w;
-                        index = this.state.data.length - 1;
-                        yMap = this.state.lineDots.map(d => {
+                        //线条右边空白区域取最后一个元素的值
+                        tipsX = 10 + w / 2 + (this.state.xAxisArr.length - 1) * w;
+                        index = this.state.xAxisArr.length - 1;
+                        yMap = this.state.seriesData.map(d => {
                             let lineY = d.vectors[d.vectors.length - 1].y;
                             return {id: d.id, y: lineY};
                         });
                     } else {
+                        //线条中间部分根据斜率进行计算
                         let startIndex, endIndex;
-                        for (let i = 0; i < this.state.data.length - 1; i++) {
+                        for (let i = 0; i < this.state.xAxisArr.length - 1; i++) {
                             let startX = 10 + i * w + w / 2;
                             let endX = 10 + (i + 1) * w + w / 2;
                             if (x >= startX && x <= endX) {
@@ -947,8 +1158,8 @@ class chart extends React.Component {
                             tipsX = 10 + w / 2 + endIndex * w;
                             index = endIndex;
                         }
-
-                        yMap = this.state.lineDots.map(d => {
+                        //根据斜率算出鼠标x点的各系列y数组
+                        yMap = this.state.seriesData.map(d => {
                             let y1 = d.vectors[startIndex].y;
                             let y2 = d.vectors[endIndex].y;
                             let slope = (y2 - y1) / (x2 - x1);
@@ -956,6 +1167,7 @@ class chart extends React.Component {
                             return {id: d.id, y: lineY};
                         });
                     }
+                    //对获取到的所有y进行从小到大排序
                     yMap.sort((a, b) => {
                         return a.y - b.y;
                     });
@@ -977,30 +1189,61 @@ class chart extends React.Component {
                             }
                         }
                     }
-                    let findDots = this.state.lineDots.find(d => {
+                    let findSeries = this.state.seriesData.find(d => {
                         return d.id == series;
                     });
-                    let vectors = findDots.vectors;
+                    let vectors = findSeries.vectors;
                     let vector = vectors[index];
                     tipsY = vector.y;
-                    activeX = this.state.data[index][this.state.x];
+                    activeX = this.state.xAxisArr[index];
                     break;
                 case "bar":
-                    let barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
-                    for (let i = 0; i < this.state.y.length; i++) {
-                        for (let j = 0; j < this.state.data.length; j++) {
-                            let offsetX = (i - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
-                            let barStartX = this.xTransformToSvg(j) + offsetX;
-                            let barEndX = barStartX + barWidth;
-                            if (x >= barStartX && x <= barEndX) {
-                                series = this.state.y[i].id;
-                                tipsX = barStartX + barWidth / 2;
-                                tipsY = this.yTransformToSvg(this.state.data[j][series]);
-                                activeX = this.state.data[j][this.state.x];
-                                break;
-                            }
+                    let barArea = [];
+                    //根据y中的id对分组的数据进行bar的堆叠
+                    let baseIdArr = [];
+                    this.state.seriesData.forEach(d=> {
+                        if (!baseIdArr.includes(d.baseId)) {
+                            baseIdArr.push(d.baseId);
                         }
-                    }
+                    });
+                    let barWidth = w / ((baseIdArr.length + 2) * 1.5);
+                    this.state.xAxisArr.map((d, i)=> {
+                        //找出当前x区间内的数据
+                        baseIdArr.map((d1, j)=> {
+                            let startX = i * w + w / (baseIdArr.length + 2) + 10;
+                            let barX = startX + (j + 0.5) * w / (baseIdArr.length + 2);
+                            let seriesArr = this.state.seriesData.filter(d2=> {
+                                return d2.baseId == d1;
+                            });
+                            let stackY = 0;
+                            seriesArr.forEach((d2, k)=> {
+                                let barHeight = d2.vectors[i].y;
+                                barArea.push({
+                                    id: d2.id,
+                                    startX: barX - barWidth / 2,
+                                    endX: barX + barWidth / 2,
+                                    startY: stackY,
+                                    endY: stackY + barHeight,
+                                    activeX: this.state.xAxisArr[i]
+                                });
+                                stackY += barHeight;
+                            });
+                        })
+                    });
+                    //调试中
+                    barArea.some(d=> {
+                        //svg坐标系原点为左上角
+                        if (x > d.startX && x < d.endX && this.yTransformToNatural(y) > d.startY && this.yTransformToNatural(y) < d.endY) {
+                            series = d.id;
+                            tipsX = d.startX + barWidth / 2;
+                            tipsY = this.yTransformToSvg(d.endY);
+                            activeX = d.activeX;
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                    console.log(series);
                     break;
             }
 
@@ -1008,69 +1251,6 @@ class chart extends React.Component {
         return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX};
     }
 
-    /**
-     * 根据图表类型渲染dom
-     * @returns {*}
-     */
-    renderData() {
-        let g;
-        switch (this.state.type) {
-            case "curve":
-                g = <g className={css.curve}>
-                    {
-                        this.state.y.map((d, i) => {
-                            let lastX, lastY;
-                            let path = this.state.data.map((d1, j) => {
-                                let id = d.id;
-                                let x = this.xTransformToSvg(j);
-                                let y = this.yTransformToSvg(d1[id]);
-                                let p = "";
-                                if (j == 0) {
-                                    p = `M ${x} ${y}`;
-                                } else {
-                                    let {x1, y1, x2, y2} = this.getBezierCurvesVector(lastX, lastY, x, y);
-                                    p = `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
-                                }
-                                lastX = x;
-                                lastY = y;
-                                return p;
-                            }).join(" ");
-                            let color = d.color;
-                            let style = this.state["curve-" + d.id + "-active"] ? {strokeWidth: 0.4} : {};
-                            return <path stroke={color} key={i} d={path} ref={curve => {
-                                this["curve" + d.id] = curve;
-                            }} style={style}/>
-                        })
-                    }
-                </g>;
-                break;
-            case "bar":
-                g = <g className={css.bar}>
-                    {
-                        this.state.y.map((d, i) => {
-                            return this.state.xUnitLength == Infinity ? "" : this.state.data.map((d1, j) => {
-                                let id = d.id;
-                                let barWidth = this.state.xUnitLength / ((this.state.y.length + 2) * 1.5);
-                                let offsetX = (i - this.state.y.length / 2) * barWidth * 1.5 + 0.25 * barWidth;
-                                let x = this.xTransformToSvg(j) + offsetX + barWidth / 2;
-                                let y = this.yTransformToSvg(d1[id]);
-                                return <path stroke={d.color} strokeWidth={barWidth}
-                                             d={`M${x} ${this.yTransformToSvg(0)} L${x} ${y}`}
-                                             ref={bar => {
-                                                 this["bar" + id + j] = bar;
-                                             }}/>;
-                            })
-
-                        })
-                    }
-                </g>;
-                break;
-            default:
-                g = "";
-                break;
-        }
-        return g;
-    }
 
     /**
      * 设置随机颜色
@@ -1101,18 +1281,16 @@ class chart extends React.Component {
     setTipsText() {
         let startX = this.state.tipsX;
         let startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
-        let color = this.state.y.find(d => {
+        let findSeries = this.state.seriesData.find(d => {
             return d.id == this.state.activeSeries;
-        }).color;
-        let xText = this.state.activeX;
-        let findData = this.state.data.find(d => {
-            return d[this.state.x] == xText;
         });
-        if (findData == undefined) {
-            return "";
-        }
-        let yText = findData[this.state.activeSeries];
-        let activeText = this.state.y.find(d => {
+        let color = findSeries.color;
+        let xText = this.state.activeX;
+        let xIndex = this.state.xAxisArr.findIndex(d=> {
+            return d == xText;
+        });
+        let yText = findSeries.vectors[xIndex].sourceY;
+        let activeText = this.state.seriesData.find(d => {
             return d.id == this.state.activeSeries;
         }).name;
         let text = <text color={color} x={startX} y={startY} ref={d => {
@@ -1127,11 +1305,11 @@ class chart extends React.Component {
      * 设置鼠标悬浮时提示的边框
      * @returns {*}
      */
-    setTips() {
+    setTipsBorder() {
         let arcRx = 0.5, arcRy = 0.5;
         let startX = this.state.tipsX;
         let startY = this.state.tipsY - this.state.tipsMarginBottom;
-        let color = this.state.y.find(d => {
+        let color = this.state.seriesData.find(d => {
             return d.id == this.state.activeSeries;
         }).color;
         let path = this.state.tipsWidth ?

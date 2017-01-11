@@ -5,7 +5,7 @@ let ReactDom = require("react-dom");
 let Com = require("../karl-component-chart/index");
 let data1 = [
     {date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国"},
-    {date: "2016-9-11", apple: 1, banana: 2, pear: 3, server: 2, region: "美国"},
+    {date: "2016-9-11", apple: 21, banana: 2, pear: 3, server: 2, region: "美国"},
     {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2, server: 1, region: "阿拉伯"},
     {date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国"},
     {date: "2016-10-14", apple: 0.05, banana: 7, pear: 4, server: 1, region: "美国"},
