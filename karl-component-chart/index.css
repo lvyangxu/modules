@@ -2,7 +2,8 @@
   box-shadow: 2px 2px 4px #ddd;
   border: 1px solid #ddd;
   padding-top: 5px;
-  padding-bottom: 5px; }
+  padding-bottom: 5px;
+  position: relative; }
   .base svg {
     width: 100%;
     overflow-x: hidden; }
@@ -69,3 +70,21 @@
     .base svg .tips text {
       font-size: 1.5px;
       text-anchor: middle; }
+  .base .barTips {
+    position: absolute;
+    opacity: 0.8;
+    font-size: 4px; }
+    .base .barTips table {
+      width: 100%;
+      border-collapse: collapse; }
+      .base .barTips table thead {
+        background-color: #e9e9e9;
+        color: #252525; }
+        .base .barTips table thead tr th {
+          padding: 5px; }
+      .base .barTips table tbody {
+        background-color: white;
+        color: #272727; }
+        .base .barTips table tbody tr td {
+          text-align: center;
+          padding: 5px; }

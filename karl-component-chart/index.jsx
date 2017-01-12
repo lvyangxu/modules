@@ -12,18 +12,19 @@ import $ from "jquery";
  * x: 代表x轴的id
  * y: 代表y轴的json，例如{id:id,name:name}
  * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
+ * group：柱状图的分组id数组,例如["a","b"]
  *
  * 示例：
- * <Chart title="chart" yAxisText="kg" x="date" y={[
+ * <Chart title="chart" yAxisText="kg" x="date" group={["region","server"]} y={[
  *               {id: "apple", name: "apple"},
  *               {id: "banana", name: "banana"},
  *               {id: "pear", name: "pear"}
  *           ]} data={[
- *               {date: "2016-9-11", apple: 1, banana: 2, pear: 3},
- *               {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2},
- *               {date: "2016-9-12", apple: 5, banana: 47},
- *               {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4},
- *               {date: "2016-9-15", apple: 0.08, banana: 6}
+ *               {date: "2016-9-11", apple: 1, banana: 2, pear: 3,region:"china",server:2},
+ *               {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2,region:"china",server:3},
+ *               {date: "2016-9-12", apple: 5, banana: 47,region:"japan",server:2},
+ *               {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4,region:"japan",server:2},
+ *               {date: "2016-9-15", apple: 0.08, banana: 6,region:"china",server:2}
  *           ]}/>
  *
  */
@@ -119,12 +120,15 @@ class chart extends React.Component {
                 case "bar":
                     this.state.seriesData.forEach(d => {
                         this.state.xAxisArr.forEach((d1, i)=> {
-                            let length = this["bar" + d.id + i].getTotalLength();
-                            $(this["bar" + d.id + i]).css({
-                                "stroke-dasharray": length,
-                                "stroke-dashoffset": length
-                            });
-                            $(this["bar" + d.id + i]).animate({"stroke-dashoffset": "0px"}, 1000, "linear");
+                            let barRef = this["bar" + d.id + i];
+                            if (barRef) {
+                                let length = barRef.getTotalLength();
+                                $(barRef).css({
+                                    "stroke-dasharray": length,
+                                    "stroke-dashoffset": length
+                                });
+                                $(barRef).animate({"stroke-dashoffset": "0px"}, 1000, "linear");
+                            }
                         });
                     });
                     break;
@@ -206,10 +210,55 @@ class chart extends React.Component {
         return (
             <div className={css.base + " react-chart"}>
                 {
+                    this.setBarTips()
+                }
+                {
                     svgTag
                 }
             </div>
         );
+    }
+
+    /**
+     * 绘制柱状图的table说明
+     */
+    setBarTips() {
+        let dom = "";
+        if (this.state.type == "bar" && this.state.activeSeries != undefined) {
+            //柱状图
+            let index = this.state.xAxisArr.findIndex(d=> {
+                return d == this.state.activeX;
+            });
+            if (index >= 0) {
+                let marginTop = 9 / this.state.viewBoxHeight * $(this.svg).height();
+                let width = this.state.xUnitLength / this.state.viewBoxWidth * $(this.svg).width();
+                let marginLeft = 10 / this.state.viewBoxWidth * $(this.svg).width() + index * width;
+                dom = <div className={css.barTips}
+                           style={{top: marginTop, left: marginLeft, width: width}}>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>系列</th>
+                            <th>值</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            this.state.seriesData.filter(d=> {
+                                return d.vectors[index].sourceY != 0;
+                            }).map((d, i)=> {
+                                return <tr style={{backgroundColor: d.color}} key={i}>
+                                    <td>{d.name}</td>
+                                    <td>{d.vectors[index].sourceY}</td>
+                                </tr>;
+                            })
+                        }
+                        </tbody>
+                    </table>
+                </div>;
+            }
+        }
+        return dom;
     }
 
     /**
@@ -393,11 +442,10 @@ class chart extends React.Component {
         let list = <g className={css.typeList}>
             <path d={`M${iconUnderlineStartX} 3.5 l3 0`} stroke="black" strokeWidth={0.2}/>
             <g className={css.typeIcon} onClick={() => {
-                let yAxisNumArr = this.getYAxisNumArr(this.props.data, "curve");
                 this.setState({
-                    yAxisNumArr: yAxisNumArr,
-                    yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
                     type: "curve"
+                }, ()=> {
+                    this.doUpdate(this.props.data);
                 });
             }}>
                 <path className={css.iconBackground} d={`M91 1 h3 v3 h-3 z`}></path>
@@ -405,11 +453,10 @@ class chart extends React.Component {
                       style={(this.state.type == "curve") ? activeStyle : inactiveStyle}/>
             </g>
             <g className={css.typeIcon} onClick={() => {
-                let yAxisNumArr = this.getYAxisNumArr(this.props.data, "bar");
                 this.setState({
-                    yAxisNumArr: yAxisNumArr,
-                    yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
                     type: "bar"
+                }, ()=> {
+                    this.doUpdate(this.props.data);
                 });
             }}>
                 <path className={css.iconBackground} d={`M95 1 h3 v3 h-3 z`}></path>
@@ -480,13 +527,15 @@ class chart extends React.Component {
                         let stackY = 0;
                         seriesArr.forEach((d2, k)=> {
                             let barHeight = d2.vectors[i].sourceY;
-                            let bar = <path key={i + "-" + j + "-" + k} stroke={d2.color} strokeWidth={barWidth}
-                                            d={`M${barX} ${this.yTransformToSvg(stackY)} L${barX} ${this.yTransformToSvg(stackY + barHeight)}`}
-                                            ref={bar => {
-                                                this["bar" + d2.id + i] = bar;
-                                            }}/>;
-                            stackY += barHeight;
-                            bars.push(bar);
+                            if (barHeight != 0) {
+                                let bar = <path key={i + "-" + j + "-" + k} stroke={d2.color} strokeWidth={barWidth}
+                                                d={`M${barX} ${this.yTransformToSvg(stackY)} L${barX} ${this.yTransformToSvg(stackY + barHeight)}`}
+                                                ref={bar => {
+                                                    this["bar" + d2.id + i] = bar;
+                                                }}/>;
+                                stackY += barHeight;
+                                bars.push(bar);
+                            }
                         });
                     })
                 });
@@ -926,8 +975,8 @@ class chart extends React.Component {
         let yPercent = (y - min) / (max - min);
         yPercent = Math.max(0, yPercent);
         yPercent = 1 - yPercent;
-        y = 15 + yPercent * 40;
-        return y;
+        let svgY = 15 + yPercent * 40;
+        return svgY;
     }
 
     /**
@@ -1198,52 +1247,16 @@ class chart extends React.Component {
                     activeX = this.state.xAxisArr[index];
                     break;
                 case "bar":
-                    let barArea = [];
-                    //根据y中的id对分组的数据进行bar的堆叠
-                    let baseIdArr = [];
-                    this.state.seriesData.forEach(d=> {
-                        if (!baseIdArr.includes(d.baseId)) {
-                            baseIdArr.push(d.baseId);
+                    if (x > 10 && x < 90 && y > 15 && y < 55) {
+                        for (let i = 0; i < this.state.xAxisArr.length; i++) {
+                            let startX = i * w + 10;
+                            let endX = (i + 1) * w + 10;
+                            if (x > startX && x < endX) {
+                                series = "";
+                                activeX = this.state.xAxisArr[i];
+                            }
                         }
-                    });
-                    let barWidth = w / ((baseIdArr.length + 2) * 1.5);
-                    this.state.xAxisArr.map((d, i)=> {
-                        //找出当前x区间内的数据
-                        baseIdArr.map((d1, j)=> {
-                            let startX = i * w + w / (baseIdArr.length + 2) + 10;
-                            let barX = startX + (j + 0.5) * w / (baseIdArr.length + 2);
-                            let seriesArr = this.state.seriesData.filter(d2=> {
-                                return d2.baseId == d1;
-                            });
-                            let stackY = 0;
-                            seriesArr.forEach((d2, k)=> {
-                                let barHeight = d2.vectors[i].y;
-                                barArea.push({
-                                    id: d2.id,
-                                    startX: barX - barWidth / 2,
-                                    endX: barX + barWidth / 2,
-                                    startY: stackY,
-                                    endY: stackY + barHeight,
-                                    activeX: this.state.xAxisArr[i]
-                                });
-                                stackY += barHeight;
-                            });
-                        })
-                    });
-                    //调试中
-                    barArea.some(d=> {
-                        //svg坐标系原点为左上角
-                        if (x > d.startX && x < d.endX && this.yTransformToNatural(y) > d.startY && this.yTransformToNatural(y) < d.endY) {
-                            series = d.id;
-                            tipsX = d.startX + barWidth / 2;
-                            tipsY = this.yTransformToSvg(d.endY);
-                            activeX = d.activeX;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    });
-                    console.log(series);
+                    }
                     break;
             }
 
@@ -1281,23 +1294,26 @@ class chart extends React.Component {
     setTipsText() {
         let startX = this.state.tipsX;
         let startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
-        let findSeries = this.state.seriesData.find(d => {
-            return d.id == this.state.activeSeries;
-        });
-        let color = findSeries.color;
-        let xText = this.state.activeX;
-        let xIndex = this.state.xAxisArr.findIndex(d=> {
-            return d == xText;
-        });
-        let yText = findSeries.vectors[xIndex].sourceY;
-        let activeText = this.state.seriesData.find(d => {
-            return d.id == this.state.activeSeries;
-        }).name;
-        let text = <text color={color} x={startX} y={startY} ref={d => {
-            this.tipsText = d;
-        }}>
-            {activeText} : {yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : "")}
-        </text>;
+        let text = "", color;
+        if (this.state.type != "bar") {
+            let findSeries = this.state.seriesData.find(d => {
+                return d.id == this.state.activeSeries;
+            });
+            color = findSeries.color;
+            let xText = this.state.activeX;
+            let xIndex = this.state.xAxisArr.findIndex(d=> {
+                return d == xText;
+            });
+            let yText = findSeries.vectors[xIndex].sourceY;
+            let activeText = this.state.seriesData.find(d => {
+                return d.id == this.state.activeSeries;
+            }).name;
+            text = <text color={color} x={startX} y={startY} ref={d => {
+                this.tipsText = d;
+            }}>
+                {activeText} : {yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : "")}
+            </text>;
+        }
         return text;
     }
 
@@ -1306,15 +1322,17 @@ class chart extends React.Component {
      * @returns {*}
      */
     setTipsBorder() {
-        let arcRx = 0.5, arcRy = 0.5;
-        let startX = this.state.tipsX;
-        let startY = this.state.tipsY - this.state.tipsMarginBottom;
-        let color = this.state.seriesData.find(d => {
-            return d.id == this.state.activeSeries;
-        }).color;
-        let path = this.state.tipsWidth ?
-            <path stroke={color}
-                  d={`M${startX} ${startY} l${-this.state.tipsRaisedX} ${-this.state.tipsRaisedY}
+        let path = "";
+        if (this.state.type != "bar") {
+            let arcRx = 0.5, arcRy = 0.5;
+            let startX = this.state.tipsX;
+            let startY = this.state.tipsY - this.state.tipsMarginBottom;
+            let color = this.state.seriesData.find(d => {
+                return d.id == this.state.activeSeries;
+            }).color;
+            path = this.state.tipsWidth ?
+                <path stroke={color}
+                      d={`M${startX} ${startY} l${-this.state.tipsRaisedX} ${-this.state.tipsRaisedY}
                   l${-(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft)} 0
                   a${arcRx} ${arcRy} 0 0 1 ${-arcRx} ${-arcRy}
                   l0 ${-(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy)}
@@ -1322,7 +1340,8 @@ class chart extends React.Component {
                   l0 ${(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy)}
                   a${arcRx} ${arcRy} 0 0 1 ${-arcRx} ${arcRy}
                   l${-(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight)} 0 z`}/>
-            : "";
+                : "";
+        }
         return path;
     }
 

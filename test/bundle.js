@@ -59,7 +59,7 @@
 	var ReactDom = __webpack_require__(328);
 
 	var Com = __webpack_require__(475);
-	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 21, banana: 2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 0.03, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 0.05, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 0.08, banana: 6, server: 1, region: "美国" }];
+	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 21, banana: 2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 8, banana: 6, server: 1, region: "美国" }];
 	var data2 = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
 
 	var Xx = function (_React$Component) {
@@ -84,7 +84,7 @@
 	            return React.createElement(
 	                "div",
 	                null,
-	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"] }),
+	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"], type: "curve" }),
 	                React.createElement(
 	                    "button",
 	                    { onClick: function onClick() {
@@ -29746,12 +29746,15 @@
 	                    case "bar":
 	                        this.state.seriesData.forEach(function (d) {
 	                            _this3.state.xAxisArr.forEach(function (d1, i) {
-	                                var length = _this3["bar" + d.id + i].getTotalLength();
-	                                (0, _jquery2.default)(_this3["bar" + d.id + i]).css({
-	                                    "stroke-dasharray": length,
-	                                    "stroke-dashoffset": length
-	                                });
-	                                (0, _jquery2.default)(_this3["bar" + d.id + i]).animate({ "stroke-dashoffset": "0px" }, 1000, "linear");
+	                                var barRef = _this3["bar" + d.id + i];
+	                                if (barRef) {
+	                                    var length = barRef.getTotalLength();
+	                                    (0, _jquery2.default)(barRef).css({
+	                                        "stroke-dasharray": length,
+	                                        "stroke-dashoffset": length
+	                                    });
+	                                    (0, _jquery2.default)(barRef).animate({ "stroke-dashoffset": "0px" }, 1000, "linear");
+	                                }
 	                            });
 	                        });
 	                        break;
@@ -29798,7 +29801,39 @@
 	                ref: function ref(svg) {
 	                    _this4.svg = svg;
 	                } }, svgChild);
-	            return _react2.default.createElement("div", { className: _index2.default.base + " react-chart" }, svgTag);
+	            return _react2.default.createElement("div", { className: _index2.default.base + " react-chart" }, this.setBarTips(), svgTag);
+	        }
+
+	        /**
+	         * 绘制柱状图的table说明
+	         */
+
+	    }, {
+	        key: "setBarTips",
+	        value: function setBarTips() {
+	            var _this5 = this;
+
+	            var dom = "";
+	            if (this.state.type == "bar" && this.state.activeSeries != undefined) {
+	                (function () {
+	                    //柱状图
+	                    var index = _this5.state.xAxisArr.findIndex(function (d) {
+	                        return d == _this5.state.activeX;
+	                    });
+	                    if (index >= 0) {
+	                        var marginTop = 9 / _this5.state.viewBoxHeight * (0, _jquery2.default)(_this5.svg).height();
+	                        var width = _this5.state.xUnitLength / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width();
+	                        var marginLeft = 10 / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width() + index * width;
+	                        dom = _react2.default.createElement("div", { className: _index2.default.barTips,
+	                            style: { top: marginTop, left: marginLeft, width: width } }, _react2.default.createElement("table", null, _react2.default.createElement("thead", null, _react2.default.createElement("tr", null, _react2.default.createElement("th", null, "\u7CFB\u5217"), _react2.default.createElement("th", null, "\u503C"))), _react2.default.createElement("tbody", null, _this5.state.seriesData.filter(function (d) {
+	                            return d.vectors[index].sourceY != 0;
+	                        }).map(function (d, i) {
+	                            return _react2.default.createElement("tr", { style: { backgroundColor: d.color }, key: i }, _react2.default.createElement("td", null, d.name), _react2.default.createElement("td", null, d.vectors[index].sourceY));
+	                        }))));
+	                    }
+	                })();
+	            }
+	            return dom;
 	        }
 
 	        /**
@@ -29820,7 +29855,7 @@
 	    }, {
 	        key: "setXAxis",
 	        value: function setXAxis() {
-	            var _this5 = this;
+	            var _this6 = this;
 
 	            //判断是否需要细分x轴文字
 	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
@@ -29835,7 +29870,7 @@
 	            var yearXAxisArr = [];
 	            if (isDate) {
 	                (function () {
-	                    var data = _this5.state.xAxisArr.map(function (d) {
+	                    var data = _this6.state.xAxisArr.map(function (d) {
 	                        var arr = d.split("-");
 	                        var year = arr[0];
 	                        var month = arr[1];
@@ -29868,11 +29903,11 @@
 	                })();
 	            }
 	            var dom = _react2.default.createElement("g", { className: _index2.default.xAxis }, _react2.default.createElement("path", { d: "M10 55 h 80" }), this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map(function (d, i) {
-	                var w = _this5.state.xUnitLength;
+	                var w = _this6.state.xUnitLength;
 	                var x = i * w + 10;
 	                var textDom = void 0;
 	                //判断是否要对x坐标文字进行分组
-	                if (isDate && _this5.state.xAxisArr.length > 1) {
+	                if (isDate && _this6.state.xAxisArr.length > 1) {
 	                    var arr = d.split("-");
 	                    textDom = _react2.default.createElement("g", null, _react2.default.createElement("text", { x: "94.5", y: textY3 }, "\u5E74"), _react2.default.createElement("text", { x: "94.5", y: textY2 }, "\u6708"), _react2.default.createElement("text", { x: "94.5", y: textY1 }, "\u65E5"), _react2.default.createElement("text", { x: x + w / 2, y: textY1 }, arr[2]), monthXAxisArr.map(function (d1, j) {
 	                        var startX = d1.index * w + 10;
@@ -29899,10 +29934,10 @@
 	    }, {
 	        key: "setYAxis",
 	        value: function setYAxis() {
-	            var _this6 = this;
+	            var _this7 = this;
 
 	            var dom = _react2.default.createElement("g", { className: _index2.default.yAxis }, this.state.yAxisNumArr.map(function (d, i) {
-	                var y = 55 - i * _this6.state.yUnitLength;
+	                var y = 55 - i * _this7.state.yUnitLength;
 	                var yTextDelta = 0;
 	                return _react2.default.createElement("text", { key: i, x: 9, y: y + yTextDelta }, d);
 	            }), this.state.yAxisText ? _react2.default.createElement("g", { className: _index2.default.yAxisText }, _react2.default.createElement("text", { x: "3", y: "35", transform: "rotate(-90,3,35)" }, this.state.yAxisText)) : "");
@@ -29916,10 +29951,10 @@
 	    }, {
 	        key: "setXGrid",
 	        value: function setXGrid() {
-	            var _this7 = this;
+	            var _this8 = this;
 
 	            var dom = _react2.default.createElement("g", { className: _index2.default.xGrid }, this.state.yAxisNumArr.map(function (d, i) {
-	                var y = 55 - i * _this7.state.yUnitLength;
+	                var y = 55 - i * _this8.state.yUnitLength;
 	                return _react2.default.createElement("path", { key: i, d: "M10 " + y + " h 80" });
 	            }), _react2.default.createElement("path", { d: "M90 55 v1" }));
 	            return dom;
@@ -29933,13 +29968,13 @@
 	    }, {
 	        key: "setDots",
 	        value: function setDots() {
-	            var _this8 = this;
+	            var _this9 = this;
 
 	            var dom = "";
 	            if (this.state.xUnitLength != 0 && this.state.type == "curve") {
 	                dom = _react2.default.createElement("g", { className: _index2.default.dots }, this.state.seriesData.map(function (d, i) {
 	                    return d.vectors.map(function (d1) {
-	                        var dots = _this8.getDotsSymbol(i, d.id, d1.x, d1.y, d.color);
+	                        var dots = _this9.getDotsSymbol(i, d.id, d1.x, d1.y, d.color);
 	                        return dots;
 	                    });
 	                }));
@@ -29955,25 +29990,23 @@
 	    }, {
 	        key: "setTypeList",
 	        value: function setTypeList() {
-	            var _this9 = this;
+	            var _this10 = this;
 
 	            var activeStyle = {};
 	            var inactiveStyle = { opacity: 0.3 };
 	            var iconUnderlineStartX = this.state.type == "curve" ? 91 : 95;
 	            var list = _react2.default.createElement("g", { className: _index2.default.typeList }, _react2.default.createElement("path", { d: "M" + iconUnderlineStartX + " 3.5 l3 0", stroke: "black", strokeWidth: 0.2 }), _react2.default.createElement("g", { className: _index2.default.typeIcon, onClick: function onClick() {
-	                    var yAxisNumArr = _this9.getYAxisNumArr(_this9.props.data, "curve");
-	                    _this9.setState({
-	                        yAxisNumArr: yAxisNumArr,
-	                        yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+	                    _this10.setState({
 	                        type: "curve"
+	                    }, function () {
+	                        _this10.doUpdate(_this10.props.data);
 	                    });
 	                } }, _react2.default.createElement("path", { className: _index2.default.iconBackground, d: "M91 1 h3 v3 h-3 z" }), _react2.default.createElement("path", { fill: "none", d: "M91 2 l0.5 0 l0.5 -1 l0.5 2 l0.5 -1 l1 0",
 	                style: this.state.type == "curve" ? activeStyle : inactiveStyle })), _react2.default.createElement("g", { className: _index2.default.typeIcon, onClick: function onClick() {
-	                    var yAxisNumArr = _this9.getYAxisNumArr(_this9.props.data, "bar");
-	                    _this9.setState({
-	                        yAxisNumArr: yAxisNumArr,
-	                        yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
+	                    _this10.setState({
 	                        type: "bar"
+	                    }, function () {
+	                        _this10.doUpdate(_this10.props.data);
 	                    });
 	                } }, _react2.default.createElement("path", { className: _index2.default.iconBackground, d: "M95 1 h3 v3 h-3 z" }), _react2.default.createElement("path", { fill: "none", d: "M95.1 2 h0.8 v1 h-0.8 z",
 	                style: this.state.type == "bar" ? activeStyle : inactiveStyle }), _react2.default.createElement("path", { fill: "none", d: "M96.1 1.5 h0.8 v1.5 h-0.8 z",
@@ -29990,14 +30023,14 @@
 	    }, {
 	        key: "setData",
 	        value: function setData() {
-	            var _this10 = this;
+	            var _this11 = this;
 
 	            var g = "";
 
 	            (function () {
-	                switch (_this10.state.type) {
+	                switch (_this11.state.type) {
 	                    case "curve":
-	                        g = _react2.default.createElement("g", { className: _index2.default.curve }, _this10.state.seriesData.map(function (d, i) {
+	                        g = _react2.default.createElement("g", { className: _index2.default.curve }, _this11.state.seriesData.map(function (d, i) {
 	                            var lastX = void 0,
 	                                lastY = void 0;
 	                            var path = d.vectors.map(function (d1, j) {
@@ -30009,7 +30042,7 @@
 	                                if (j == 0) {
 	                                    p = "M " + x + " " + y;
 	                                } else {
-	                                    var _getBezierCurvesVecto = _this10.getBezierCurvesVector(lastX, lastY, x, y),
+	                                    var _getBezierCurvesVecto = _this11.getBezierCurvesVector(lastX, lastY, x, y),
 	                                        x1 = _getBezierCurvesVecto.x1,
 	                                        y1 = _getBezierCurvesVecto.y1,
 	                                        x2 = _getBezierCurvesVecto.x2,
@@ -30022,41 +30055,43 @@
 	                                return p;
 	                            }).join(" ");
 	                            var color = d.color;
-	                            var style = _this10.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
+	                            var style = _this11.state["curve-" + d.id + "-active"] ? { strokeWidth: 0.4 } : {};
 	                            return _react2.default.createElement("path", { stroke: color, key: i, d: path, ref: function ref(curve) {
-	                                    _this10["curve" + d.id] = curve;
+	                                    _this11["curve" + d.id] = curve;
 	                                }, style: style });
 	                        }));
 	                        break;
 	                    case "bar":
 	                        var bars = [];
-	                        var w = _this10.state.xUnitLength;
+	                        var w = _this11.state.xUnitLength;
 	                        //根据y中的id对分组的数据进行bar的堆叠
 	                        var baseIdArr = [];
-	                        _this10.state.seriesData.forEach(function (d) {
+	                        _this11.state.seriesData.forEach(function (d) {
 	                            if (!baseIdArr.includes(d.baseId)) {
 	                                baseIdArr.push(d.baseId);
 	                            }
 	                        });
 	                        var barWidth = w / ((baseIdArr.length + 2) * 1.5);
-	                        _this10.state.xAxisArr.map(function (d, i) {
+	                        _this11.state.xAxisArr.map(function (d, i) {
 	                            //找出当前x区间内的数据
 	                            baseIdArr.map(function (d1, j) {
 	                                var startX = i * w + w / (baseIdArr.length + 2) + 10;
 	                                var barX = startX + (j + 0.5) * w / (baseIdArr.length + 2);
-	                                var seriesArr = _this10.state.seriesData.filter(function (d2) {
+	                                var seriesArr = _this11.state.seriesData.filter(function (d2) {
 	                                    return d2.baseId == d1;
 	                                });
 	                                var stackY = 0;
 	                                seriesArr.forEach(function (d2, k) {
 	                                    var barHeight = d2.vectors[i].sourceY;
-	                                    var bar = _react2.default.createElement("path", { key: i + "-" + j + "-" + k, stroke: d2.color, strokeWidth: barWidth,
-	                                        d: "M" + barX + " " + _this10.yTransformToSvg(stackY) + " L" + barX + " " + _this10.yTransformToSvg(stackY + barHeight),
-	                                        ref: function ref(bar) {
-	                                            _this10["bar" + d2.id + i] = bar;
-	                                        } });
-	                                    stackY += barHeight;
-	                                    bars.push(bar);
+	                                    if (barHeight != 0) {
+	                                        var bar = _react2.default.createElement("path", { key: i + "-" + j + "-" + k, stroke: d2.color, strokeWidth: barWidth,
+	                                            d: "M" + barX + " " + _this11.yTransformToSvg(stackY) + " L" + barX + " " + _this11.yTransformToSvg(stackY + barHeight),
+	                                            ref: function ref(bar) {
+	                                                _this11["bar" + d2.id + i] = bar;
+	                                            } });
+	                                        stackY += barHeight;
+	                                        bars.push(bar);
+	                                    }
 	                                });
 	                            });
 	                        });
@@ -30076,30 +30111,30 @@
 	    }, {
 	        key: "setDeclare",
 	        value: function setDeclare() {
-	            var _this11 = this;
+	            var _this12 = this;
 
 	            var dom = _react2.default.createElement("g", { className: _index2.default.declare }, this.state.seriesData.map(function (d, i) {
 	                var x = 91;
 	                var y = 15 + i * 2;
 	                var color = d.color;
 	                var symbol = void 0;
-	                switch (_this11.state.type) {
+	                switch (_this12.state.type) {
 	                    case "curve":
 	                        symbol = _react2.default.createElement("g", { key: i }, _react2.default.createElement("path", {
-	                            style: _this11.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
-	                            stroke: color, d: "M" + x + " " + y + " h3" }), _this11.getDotsSymbol(i, d.id, 92.5, y, color), _react2.default.createElement("text", { x: "94.5", y: y + 0.5 }, d.name));
+	                            style: _this12.state["dot-" + d.id + "-active"] ? { strokeWidth: 0.6 } : {},
+	                            stroke: color, d: "M" + x + " " + y + " h3" }), _this12.getDotsSymbol(i, d.id, 92.5, y, color), _react2.default.createElement("text", { x: "94.5", y: y + 0.5 }, d.name));
 	                        break;
 	                    case "bar":
-	                        var offsetX = _this11.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-	                        var offsetY = _this11.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+	                        var offsetX = _this12.state["dot-" + d.id + "-active"] ? 0.2 : 0;
+	                        var offsetY = _this12.state["dot-" + d.id + "-active"] ? 0.2 : 0;
 	                        symbol = _react2.default.createElement("g", { key: i }, _react2.default.createElement("rect", { fill: color, x: x - offsetX, y: y - offsetY, width: 3 + offsetX * 2,
 	                            height: 1 + offsetY * 2 }), _react2.default.createElement("text", { x: "94.5", y: y + 1 }, d.name));
 	                        break;
 	                }
 	                return symbol;
 	            }), _react2.default.createElement("g", { className: _index2.default.setColor, onClick: function onClick() {
-	                    var seriesData = _this11.setColor();
-	                    _this11.setState({ seriesData: seriesData });
+	                    var seriesData = _this12.setColor();
+	                    _this12.setState({ seriesData: seriesData });
 	                } }, this.state.seriesData.map(function (d, i) {
 	                var color = d.color;
 	                var x = 80 + i * 1;
@@ -30132,17 +30167,17 @@
 	    }, {
 	        key: "sortData",
 	        value: function sortData(d) {
-	            var _this12 = this;
+	            var _this13 = this;
 
 	            var data = d.concat();
 	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
 	            var isDate = data.every(function (d1) {
-	                return regex.test(d1[_this12.props.x]);
+	                return regex.test(d1[_this13.props.x]);
 	            });
 	            if (isDate) {
 	                data.sort(function (a, b) {
-	                    var arr1 = a[_this12.props.x].split("-");
-	                    var arr2 = b[_this12.props.x].split("-");
+	                    var arr1 = a[_this13.props.x].split("-");
+	                    var arr2 = b[_this13.props.x].split("-");
 	                    if (arr1[0] != arr2[0]) {
 	                        return arr1[0] - arr2[0];
 	                    } else if (arr1[1] != arr2[1]) {
@@ -30165,18 +30200,18 @@
 	    }, {
 	        key: "buildSeries",
 	        value: function buildSeries(data, y) {
-	            var _this13 = this;
+	            var _this14 = this;
 
 	            var xValueArr = [];
 	            var xAxisArr = data.filter(function (d) {
-	                if (xValueArr.includes(d[_this13.state.x])) {
+	                if (xValueArr.includes(d[_this14.state.x])) {
 	                    return false;
 	                } else {
-	                    xValueArr.push(d[_this13.state.x]);
+	                    xValueArr.push(d[_this14.state.x]);
 	                    return true;
 	                }
 	            }).map(function (d) {
-	                return d[_this13.state.x];
+	                return d[_this14.state.x];
 	            });
 	            var group = this.props.group ? this.props.group : [];
 
@@ -30202,12 +30237,12 @@
 	                //按0补全分组数据
 	                xAxisArr.forEach(function (d2) {
 	                    var findData = thisGroupData.find(function (d3) {
-	                        return d3[_this13.state.x] == d2;
+	                        return d3[_this14.state.x] == d2;
 	                    });
 	                    if (findData == undefined) {
 	                        (function () {
 	                            var json = {};
-	                            json[_this13.state.x] = d2;
+	                            json[_this14.state.x] = d2;
 	                            y.forEach(function (d3) {
 	                                json[d3.id] = 0;
 	                            });
@@ -30222,7 +30257,7 @@
 	                        });
 	                    }
 	                });
-	                thisGroupData = _this13.sortData(thisGroupData);
+	                thisGroupData = _this14.sortData(thisGroupData);
 	                return { id: d, data: thisGroupData };
 	            });
 
@@ -30232,8 +30267,8 @@
 	                y.forEach(function (d1) {
 	                    var id = d1.id + "-" + d.id;
 	                    var vectors = d.data.map(function (d2, i) {
-	                        var x = _this13.xTransformToSvg(i);
-	                        var y = _this13.yTransformToSvg(d2[d1.id]);
+	                        var x = _this14.xTransformToSvg(i);
+	                        var y = _this14.yTransformToSvg(d2[d1.id]);
 	                        return { x: x, y: y, sourceY: d2[d1.id] };
 	                    });
 
@@ -30264,7 +30299,7 @@
 	    }, {
 	        key: "getYAxisNumArr",
 	        value: function getYAxisNumArr(data, type) {
-	            var _this14 = this;
+	            var _this15 = this;
 
 	            //获取data中最大和最小的值
 	            var max = void 0,
@@ -30273,21 +30308,21 @@
 	                (function () {
 	                    var xValueArr = [];
 	                    var xAxisArr = data.filter(function (d) {
-	                        if (xValueArr.includes(d[_this14.state.x])) {
+	                        if (xValueArr.includes(d[_this15.state.x])) {
 	                            return false;
 	                        } else {
-	                            xValueArr.push(d[_this14.state.x]);
+	                            xValueArr.push(d[_this15.state.x]);
 	                            return true;
 	                        }
 	                    }).map(function (d) {
-	                        return d[_this14.state.x];
+	                        return d[_this15.state.x];
 	                    });
 	                    //bar需要按分组先堆叠，再进行计算
-	                    _this14.props.y.forEach(function (d) {
+	                    _this15.props.y.forEach(function (d) {
 	                        xAxisArr.forEach(function (d1) {
 	                            var value = 0;
 	                            data.filter(function (d2) {
-	                                return d2.hasOwnProperty(d.id) && d2[_this14.state.x] == d1;
+	                                return d2.hasOwnProperty(d.id) && d2[_this15.state.x] == d1;
 	                            }).forEach(function (d2) {
 	                                value += d2[d.id];
 	                            });
@@ -30306,7 +30341,7 @@
 	                })();
 	            } else {
 	                data.forEach(function (d) {
-	                    _this14.props.y.forEach(function (d1) {
+	                    _this15.props.y.forEach(function (d1) {
 	                        var id = d1.id;
 	                        var value = d[id];
 	                        if (d.hasOwnProperty(id)) {
@@ -30504,8 +30539,8 @@
 	            var yPercent = (y - min) / (max - min);
 	            yPercent = Math.max(0, yPercent);
 	            yPercent = 1 - yPercent;
-	            y = 15 + yPercent * 40;
-	            return y;
+	            var svgY = 15 + yPercent * 40;
+	            return svgY;
 	        }
 
 	        /**
@@ -30672,7 +30707,7 @@
 	    }, {
 	        key: "setActive",
 	        value: function setActive(e) {
-	            var _this15 = this;
+	            var _this16 = this;
 
 	            //如果没有数据，则不执行操作
 	            if (this.state.seriesData.length == 0) {
@@ -30696,22 +30731,22 @@
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
 	                    json["dot-" + series + "-active"] = true;
 	                    json["curve-" + series + "-active"] = true;
-	                    _this15.state.seriesData.filter(function (d) {
+	                    _this16.state.seriesData.filter(function (d) {
 	                        return d.id != series;
 	                    }).forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this15.setState(json);
+	                    _this16.setState(json);
 	                })();
 	            } else {
 	                (function () {
 	                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-	                    _this15.state.seriesData.forEach(function (d) {
+	                    _this16.state.seriesData.forEach(function (d) {
 	                        json["dot-" + d.id + "-active"] = false;
 	                        json["curve-" + d.id + "-active"] = false;
 	                    });
-	                    _this15.setState(json);
+	                    _this16.setState(json);
 	                })();
 	            }
 	        }
@@ -30726,7 +30761,7 @@
 	    }, {
 	        key: "getNearestSeries",
 	        value: function getNearestSeries(x, y) {
-	            var _this16 = this;
+	            var _this17 = this;
 
 	            var series = void 0;
 	            var tipsX = void 0,
@@ -30735,139 +30770,102 @@
 	                activeX = void 0;
 	            var w = this.state.xUnitLength;
 	            if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
-	                (function () {
-	                    switch (_this16.state.type) {
-	                        case "curve":
-	                            //根据x和斜率寻找最近的y
-	                            var yMap = [];
-	                            if (x <= 10 + w / 2) {
-	                                //线条左边空白区域取第一个元素的值
-	                                tipsX = 10 + w / 2;
-	                                index = 0;
-	                                yMap = _this16.state.seriesData.map(function (d) {
-	                                    var lineY = d.vectors[0].y;
-	                                    return { id: d.id, y: lineY };
-	                                });
-	                            } else if (x >= 90 - w / 2) {
-	                                //线条右边空白区域取最后一个元素的值
-	                                tipsX = 10 + w / 2 + (_this16.state.xAxisArr.length - 1) * w;
-	                                index = _this16.state.xAxisArr.length - 1;
-	                                yMap = _this16.state.seriesData.map(function (d) {
-	                                    var lineY = d.vectors[d.vectors.length - 1].y;
-	                                    return { id: d.id, y: lineY };
-	                                });
-	                            } else {
-	                                (function () {
-	                                    //线条中间部分根据斜率进行计算
-	                                    var startIndex = void 0,
-	                                        endIndex = void 0;
-	                                    for (var i = 0; i < _this16.state.xAxisArr.length - 1; i++) {
-	                                        var startX = 10 + i * w + w / 2;
-	                                        var endX = 10 + (i + 1) * w + w / 2;
-	                                        if (x >= startX && x <= endX) {
-	                                            startIndex = i;
-	                                            endIndex = i + 1;
-	                                            break;
-	                                        }
-	                                    }
-	                                    var x1 = 10 + startIndex * w + w / 2;
-	                                    var x2 = 10 + endIndex * w + w / 2;
-	                                    if (x <= (x1 + x2) / 2) {
-	                                        tipsX = 10 + w / 2 + startIndex * w;
-	                                        index = startIndex;
-	                                    } else {
-	                                        tipsX = 10 + w / 2 + endIndex * w;
-	                                        index = endIndex;
-	                                    }
-	                                    //根据斜率算出鼠标x点的各系列y数组
-	                                    yMap = _this16.state.seriesData.map(function (d) {
-	                                        var y1 = d.vectors[startIndex].y;
-	                                        var y2 = d.vectors[endIndex].y;
-	                                        var slope = (y2 - y1) / (x2 - x1);
-	                                        var lineY = (x - x1) * slope + y1;
-	                                        return { id: d.id, y: lineY };
-	                                    });
-	                                })();
-	                            }
-	                            //对获取到的所有y进行从小到大排序
-	                            yMap.sort(function (a, b) {
-	                                return a.y - b.y;
+	                switch (this.state.type) {
+	                    case "curve":
+	                        //根据x和斜率寻找最近的y
+	                        var yMap = [];
+	                        if (x <= 10 + w / 2) {
+	                            //线条左边空白区域取第一个元素的值
+	                            tipsX = 10 + w / 2;
+	                            index = 0;
+	                            yMap = this.state.seriesData.map(function (d) {
+	                                var lineY = d.vectors[0].y;
+	                                return { id: d.id, y: lineY };
 	                            });
-	                            if (y < yMap[0].y) {
-	                                series = yMap[0].id;
-	                            } else if (y > yMap[yMap.length - 1].y) {
-	                                series = yMap[yMap.length - 1].id;
-	                            } else {
-	                                for (var i = 0; i < yMap.length - 1; i++) {
-	                                    var startY = yMap[i].y;
-	                                    var endY = yMap[i + 1].y;
-	                                    if (y >= startY && y <= endY) {
-	                                        if (y < (startY + endY) / 2) {
-	                                            series = yMap[i].id;
-	                                        } else {
-	                                            series = yMap[i + 1].id;
-	                                        }
+	                        } else if (x >= 90 - w / 2) {
+	                            //线条右边空白区域取最后一个元素的值
+	                            tipsX = 10 + w / 2 + (this.state.xAxisArr.length - 1) * w;
+	                            index = this.state.xAxisArr.length - 1;
+	                            yMap = this.state.seriesData.map(function (d) {
+	                                var lineY = d.vectors[d.vectors.length - 1].y;
+	                                return { id: d.id, y: lineY };
+	                            });
+	                        } else {
+	                            (function () {
+	                                //线条中间部分根据斜率进行计算
+	                                var startIndex = void 0,
+	                                    endIndex = void 0;
+	                                for (var i = 0; i < _this17.state.xAxisArr.length - 1; i++) {
+	                                    var startX = 10 + i * w + w / 2;
+	                                    var endX = 10 + (i + 1) * w + w / 2;
+	                                    if (x >= startX && x <= endX) {
+	                                        startIndex = i;
+	                                        endIndex = i + 1;
 	                                        break;
 	                                    }
 	                                }
-	                            }
-	                            var findSeries = _this16.state.seriesData.find(function (d) {
-	                                return d.id == series;
-	                            });
-	                            var vectors = findSeries.vectors;
-	                            var vector = vectors[index];
-	                            tipsY = vector.y;
-	                            activeX = _this16.state.xAxisArr[index];
-	                            break;
-	                        case "bar":
-	                            var barArea = [];
-	                            //根据y中的id对分组的数据进行bar的堆叠
-	                            var baseIdArr = [];
-	                            _this16.state.seriesData.forEach(function (d) {
-	                                if (!baseIdArr.includes(d.baseId)) {
-	                                    baseIdArr.push(d.baseId);
-	                                }
-	                            });
-	                            var barWidth = w / ((baseIdArr.length + 2) * 1.5);
-	                            _this16.state.xAxisArr.map(function (d, i) {
-	                                //找出当前x区间内的数据
-	                                baseIdArr.map(function (d1, j) {
-	                                    var startX = i * w + w / (baseIdArr.length + 2) + 10;
-	                                    var barX = startX + (j + 0.5) * w / (baseIdArr.length + 2);
-	                                    var seriesArr = _this16.state.seriesData.filter(function (d2) {
-	                                        return d2.baseId == d1;
-	                                    });
-	                                    var stackY = 0;
-	                                    seriesArr.forEach(function (d2, k) {
-	                                        var barHeight = d2.vectors[i].y;
-	                                        barArea.push({
-	                                            id: d2.id,
-	                                            startX: barX - barWidth / 2,
-	                                            endX: barX + barWidth / 2,
-	                                            startY: stackY,
-	                                            endY: stackY + barHeight,
-	                                            activeX: _this16.state.xAxisArr[i]
-	                                        });
-	                                        stackY += barHeight;
-	                                    });
-	                                });
-	                            });
-	                            barArea.some(function (d) {
-	                                //svg坐标系原点为左上角
-	                                if (x > d.startX && x < d.endX && _this16.yTransformToNatural(y) > d.startY && _this16.yTransformToNatural(y) < d.endY) {
-	                                    series = d.id;
-	                                    tipsX = d.startX + barWidth / 2;
-	                                    tipsY = _this16.yTransformToSvg(d.endY);
-	                                    activeX = d.activeX;
-	                                    return true;
+	                                var x1 = 10 + startIndex * w + w / 2;
+	                                var x2 = 10 + endIndex * w + w / 2;
+	                                if (x <= (x1 + x2) / 2) {
+	                                    tipsX = 10 + w / 2 + startIndex * w;
+	                                    index = startIndex;
 	                                } else {
-	                                    return false;
+	                                    tipsX = 10 + w / 2 + endIndex * w;
+	                                    index = endIndex;
 	                                }
-	                            });
-	                            console.log(series);
-	                            break;
-	                    }
-	                })();
+	                                //根据斜率算出鼠标x点的各系列y数组
+	                                yMap = _this17.state.seriesData.map(function (d) {
+	                                    var y1 = d.vectors[startIndex].y;
+	                                    var y2 = d.vectors[endIndex].y;
+	                                    var slope = (y2 - y1) / (x2 - x1);
+	                                    var lineY = (x - x1) * slope + y1;
+	                                    return { id: d.id, y: lineY };
+	                                });
+	                            })();
+	                        }
+	                        //对获取到的所有y进行从小到大排序
+	                        yMap.sort(function (a, b) {
+	                            return a.y - b.y;
+	                        });
+	                        if (y < yMap[0].y) {
+	                            series = yMap[0].id;
+	                        } else if (y > yMap[yMap.length - 1].y) {
+	                            series = yMap[yMap.length - 1].id;
+	                        } else {
+	                            for (var i = 0; i < yMap.length - 1; i++) {
+	                                var startY = yMap[i].y;
+	                                var endY = yMap[i + 1].y;
+	                                if (y >= startY && y <= endY) {
+	                                    if (y < (startY + endY) / 2) {
+	                                        series = yMap[i].id;
+	                                    } else {
+	                                        series = yMap[i + 1].id;
+	                                    }
+	                                    break;
+	                                }
+	                            }
+	                        }
+	                        var findSeries = this.state.seriesData.find(function (d) {
+	                            return d.id == series;
+	                        });
+	                        var vectors = findSeries.vectors;
+	                        var vector = vectors[index];
+	                        tipsY = vector.y;
+	                        activeX = this.state.xAxisArr[index];
+	                        break;
+	                    case "bar":
+	                        if (x > 10 && x < 90 && y > 15 && y < 55) {
+	                            for (var _i3 = 0; _i3 < this.state.xAxisArr.length; _i3++) {
+	                                var startX = _i3 * w + 10;
+	                                var endX = (_i3 + 1) * w + 10;
+	                                if (x > startX && x < endX) {
+	                                    series = "";
+	                                    activeX = this.state.xAxisArr[_i3];
+	                                }
+	                            }
+	                        }
+	                        break;
+	                }
 	            }
 	            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX };
 	        }
@@ -30905,25 +30903,31 @@
 	    }, {
 	        key: "setTipsText",
 	        value: function setTipsText() {
-	            var _this17 = this;
+	            var _this18 = this;
 
 	            var startX = this.state.tipsX;
 	            var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
-	            var findSeries = this.state.seriesData.find(function (d) {
-	                return d.id == _this17.state.activeSeries;
-	            });
-	            var color = findSeries.color;
-	            var xText = this.state.activeX;
-	            var xIndex = this.state.xAxisArr.findIndex(function (d) {
-	                return d == xText;
-	            });
-	            var yText = findSeries.vectors[xIndex].sourceY;
-	            var activeText = this.state.seriesData.find(function (d) {
-	                return d.id == _this17.state.activeSeries;
-	            }).name;
-	            var text = _react2.default.createElement("text", { color: color, x: startX, y: startY, ref: function ref(d) {
-	                    _this17.tipsText = d;
-	                } }, activeText, " : ", yText + "" + (this.props.tipsSuffix ? this.props.tipsSuffix : ""));
+	            var text = "",
+	                color = void 0;
+	            if (this.state.type != "bar") {
+	                (function () {
+	                    var findSeries = _this18.state.seriesData.find(function (d) {
+	                        return d.id == _this18.state.activeSeries;
+	                    });
+	                    color = findSeries.color;
+	                    var xText = _this18.state.activeX;
+	                    var xIndex = _this18.state.xAxisArr.findIndex(function (d) {
+	                        return d == xText;
+	                    });
+	                    var yText = findSeries.vectors[xIndex].sourceY;
+	                    var activeText = _this18.state.seriesData.find(function (d) {
+	                        return d.id == _this18.state.activeSeries;
+	                    }).name;
+	                    text = _react2.default.createElement("text", { color: color, x: startX, y: startY, ref: function ref(d) {
+	                            _this18.tipsText = d;
+	                        } }, activeText, " : ", yText + "" + (_this18.props.tipsSuffix ? _this18.props.tipsSuffix : ""));
+	                })();
+	            }
 	            return text;
 	        }
 
@@ -30935,17 +30939,20 @@
 	    }, {
 	        key: "setTipsBorder",
 	        value: function setTipsBorder() {
-	            var _this18 = this;
+	            var _this19 = this;
 
-	            var arcRx = 0.5,
-	                arcRy = 0.5;
-	            var startX = this.state.tipsX;
-	            var startY = this.state.tipsY - this.state.tipsMarginBottom;
-	            var color = this.state.seriesData.find(function (d) {
-	                return d.id == _this18.state.activeSeries;
-	            }).color;
-	            var path = this.state.tipsWidth ? _react2.default.createElement("path", { stroke: color,
-	                d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";
+	            var path = "";
+	            if (this.state.type != "bar") {
+	                var arcRx = 0.5,
+	                    arcRy = 0.5;
+	                var startX = this.state.tipsX;
+	                var startY = this.state.tipsY - this.state.tipsMarginBottom;
+	                var color = this.state.seriesData.find(function (d) {
+	                    return d.id == _this19.state.activeSeries;
+	                }).color;
+	                path = this.state.tipsWidth ? _react2.default.createElement("path", { stroke: color,
+	                    d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";
+	            }
 	            return path;
 	        }
 	    }]);
@@ -30990,7 +30997,7 @@
 
 
 	// module
-	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #e6e6e6; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd {\r\n      cursor: pointer; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 path {\r\n        stroke-width: 0.1;\r\n        stroke: black; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 ._2ggYv0LtOTOBpWzRSumyba {\r\n        fill: transparent;\r\n        stroke: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n", ""]);
+	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px;\r\n  position: relative; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #e6e6e6; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd {\r\n      cursor: pointer; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 path {\r\n        stroke-width: 0.1;\r\n        stroke: black; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 ._2ggYv0LtOTOBpWzRSumyba {\r\n        fill: transparent;\r\n        stroke: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z {\r\n    position: absolute;\r\n    opacity: 0.8;\r\n    font-size: 4px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table {\r\n      width: 100%;\r\n      border-collapse: collapse; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead {\r\n        background-color: #e9e9e9;\r\n        color: #252525; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead tr th {\r\n          padding: 5px; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody {\r\n        background-color: white;\r\n        color: #272727; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody tr td {\r\n          text-align: center;\r\n          padding: 5px; }\r\n", ""]);
 
 	// exports
 	exports.locals = {
@@ -31007,7 +31014,8 @@
 		"typeList": "_1hKIqMepEqWuOdKV6ohRYd",
 		"typeIcon": "jzFyK-NQWJT5MVg11-kf8",
 		"iconBackground": "_2ggYv0LtOTOBpWzRSumyba",
-		"tips": "_1zf5kT3OWWX_EQ3UiTqjLs"
+		"tips": "_1zf5kT3OWWX_EQ3UiTqjLs",
+		"barTips": "_1HELSy3Q7JUUeE22GfOi7z"
 	};
 
 /***/ },

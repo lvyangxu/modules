@@ -3,6 +3,7 @@
     border: 1px solid #ddd;
     padding-top: 5px;
     padding-bottom: 5px;
+    position: relative;
     svg {
         width: 100%;
         overflow-x: hidden;
@@ -59,7 +60,6 @@
             }
         }
 
-
         .dots {
             stroke-width: 0.3;
         }
@@ -115,5 +115,28 @@
         }
 
     }
-
+    .barTips {
+        position: absolute;
+        opacity: 0.8;
+        font-size: 4px;
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            thead{
+                background-color: rgba(233, 233, 233, 1);
+                color: rgba(37, 37, 37, 1);
+                tr th{
+                    padding: 5px;
+                }
+            }
+            tbody{
+                background-color: white;
+                color: rgba(39, 39, 39, 1);
+                tr td{
+                    text-align: center;
+                    padding: 5px;
+                }
+            }
+        }
+    }
 }
