@@ -38,7 +38,7 @@ var Xx = function (_React$Component) {
             return React.createElement(
                 "div",
                 null,
-                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"], type: "curve" }),
+                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"], type: "bar" }),
                 React.createElement(
                     "button",
                     { onClick: function onClick() {

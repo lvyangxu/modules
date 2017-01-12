@@ -254,57 +254,80 @@ var chart = function (_React$Component) {
                         return d == _this5.state.activeX;
                     });
                     if (index >= 0) {
-                        var marginTop = 9 / _this5.state.viewBoxHeight * (0, _jquery2.default)(_this5.svg).height();
-                        var width = _this5.state.xUnitLength / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width();
-                        var marginLeft = 10 / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width() + index * width;
+                        var activeSeries = _this5.state.seriesData.filter(function (d) {
+                            return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
+                        });
+                        var _ref = [(0, _jquery2.default)(_this5.svg).height(), (0, _jquery2.default)(_this5.svg).width()],
+                            h = _ref[0],
+                            w = _ref[1];
+
+                        var svgPaddingTop = 5;
+                        var tipsMarginTop = 9 / _this5.state.viewBoxHeight * h + svgPaddingTop;
+                        var tipsMarginLeft = 10 / _this5.state.viewBoxWidth * w;
+                        var unitWidth = _this5.state.xUnitLength / _this5.state.viewBoxWidth * w;
+                        var coverMarginLeft = tipsMarginLeft + index * unitWidth;
+                        var coverMarginTop = 15 / _this5.state.viewBoxHeight * h + svgPaddingTop;
+                        var coverHeight = 40 / _this5.state.viewBoxHeight * h;
+                        var tipsWidth = 80 / _this5.state.viewBoxWidth * w;
                         dom = _react2.default.createElement(
                             "div",
-                            { className: _index2.default.barTips,
-                                style: { top: marginTop, left: marginLeft, width: width } },
+                            null,
                             _react2.default.createElement(
-                                "table",
-                                null,
+                                "div",
+                                { className: _index2.default.barTips, style: { top: tipsMarginTop } },
                                 _react2.default.createElement(
-                                    "thead",
-                                    null,
+                                    "div",
+                                    { style: { width: tipsWidth, marginLeft: tipsMarginLeft } },
                                     _react2.default.createElement(
-                                        "tr",
+                                        "table",
                                         null,
                                         _react2.default.createElement(
-                                            "th",
+                                            "thead",
                                             null,
-                                            "\u7CFB\u5217"
+                                            _react2.default.createElement(
+                                                "tr",
+                                                null,
+                                                _react2.default.createElement(
+                                                    "th",
+                                                    null,
+                                                    "\u7CFB\u5217"
+                                                ),
+                                                _react2.default.createElement(
+                                                    "th",
+                                                    null,
+                                                    "\u503C"
+                                                )
+                                            )
                                         ),
                                         _react2.default.createElement(
-                                            "th",
+                                            "tbody",
                                             null,
-                                            "\u503C"
+                                            activeSeries.map(function (d, i) {
+                                                return _react2.default.createElement(
+                                                    "tr",
+                                                    { style: { backgroundColor: d.color }, key: i },
+                                                    _react2.default.createElement(
+                                                        "td",
+                                                        null,
+                                                        d.name
+                                                    ),
+                                                    _react2.default.createElement(
+                                                        "td",
+                                                        null,
+                                                        d.vectors[index].sourceY
+                                                    )
+                                                );
+                                            })
                                         )
                                     )
-                                ),
-                                _react2.default.createElement(
-                                    "tbody",
-                                    null,
-                                    _this5.state.seriesData.filter(function (d) {
-                                        return d.vectors[index].sourceY != 0;
-                                    }).map(function (d, i) {
-                                        return _react2.default.createElement(
-                                            "tr",
-                                            { style: { backgroundColor: d.color }, key: i },
-                                            _react2.default.createElement(
-                                                "td",
-                                                null,
-                                                d.name
-                                            ),
-                                            _react2.default.createElement(
-                                                "td",
-                                                null,
-                                                d.vectors[index].sourceY
-                                            )
-                                        );
-                                    })
                                 )
-                            )
+                            ),
+                            _react2.default.createElement("div", { className: _index2.default.barCover, style: {
+                                    left: coverMarginLeft,
+                                    top: coverMarginTop,
+                                    width: unitWidth,
+                                    height: coverHeight
+                                } })
                         );
                     }
                 })();
@@ -626,9 +649,9 @@ var chart = function (_React$Component) {
                                 var lastX = void 0,
                                     lastY = void 0;
                                 var path = d.vectors.map(function (d1, j) {
-                                    var _ref = [d1.x, d1.y],
-                                        x = _ref[0],
-                                        y = _ref[1];
+                                    var _ref2 = [d1.x, d1.y],
+                                        x = _ref2[0],
+                                        y = _ref2[1];
 
                                     var p = "";
                                     if (j == 0) {
@@ -914,7 +937,7 @@ var chart = function (_React$Component) {
                     });
                     if (!isAll0) {
                         var groupId = d.id;
-                        groupId = groupId == "-" ? "" : "-" + groupId;
+                        groupId = groupId == "-" || groupId == "" ? "" : "-" + groupId;
                         var name = d1.name + groupId;
                         var json = { id: id, name: name, vectors: vectors, groupId: d.id, baseId: d1.id };
                         seriesData.push(json);

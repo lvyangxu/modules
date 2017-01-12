@@ -116,11 +116,12 @@
 
     }
     .barTips {
+        z-index: 12;
         position: absolute;
         opacity: 0.8;
-        font-size: 4px;
+        font-size: 10px;
         table{
-            width: 100%;
+            margin: auto;
             border-collapse: collapse;
             thead{
                 background-color: rgba(233, 233, 233, 1);
@@ -138,5 +139,10 @@
                 }
             }
         }
+    }
+    .barCover{
+        z-index: 11;
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.2);
     }
 }

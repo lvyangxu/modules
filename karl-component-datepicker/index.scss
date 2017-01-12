@@ -89,7 +89,8 @@ $height: 32px;
             .contentHead {
                 margin-top: 10px;
                 margin-bottom: 10px;
-                width: $rowWidth;
+                /*add 1 px to fit firefox*/
+                width: $rowWidth+1;
                 font-size: 0;
                 .left, .middle, .right {
                     display: inline-block;
@@ -118,7 +119,8 @@ $height: 32px;
             .contentBody {
                 .page {
                     .row {
-                        width: $rowWidth;
+                        /*add 1 px to fit firefox*/
+                        width: $rowWidth+1;
                         .cell {
                             cursor: pointer;
                             user-select: none;

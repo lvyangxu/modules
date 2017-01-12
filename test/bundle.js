@@ -84,7 +84,7 @@
 	            return React.createElement(
 	                "div",
 	                null,
-	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"], type: "curve" }),
+	                React.createElement(Com, { title: "chart", yAxisText: "kg", x: "date", y: [{ id: "apple", name: "apple" }, { id: "banana", name: "banana" }, { id: "pear", name: "pear" }], data: this.state.data, group: ["server", "region"], type: "bar" }),
 	                React.createElement(
 	                    "button",
 	                    { onClick: function onClick() {
@@ -29625,18 +29625,19 @@
 	 * x: 代表x轴的id
 	 * y: 代表y轴的json，例如{id:id,name:name}
 	 * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
+	 * group：柱状图的分组id数组,例如["a","b"]
 	 *
 	 * 示例：
-	 * <Chart title="chart" yAxisText="kg" x="date" y={[
+	 * <Chart title="chart" yAxisText="kg" x="date" group={["region","server"]} y={[
 	 *               {id: "apple", name: "apple"},
 	 *               {id: "banana", name: "banana"},
 	 *               {id: "pear", name: "pear"}
 	 *           ]} data={[
-	 *               {date: "2016-9-11", apple: 1, banana: 2, pear: 3},
-	 *               {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2},
-	 *               {date: "2016-9-12", apple: 5, banana: 47},
-	 *               {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4},
-	 *               {date: "2016-9-15", apple: 0.08, banana: 6}
+	 *               {date: "2016-9-11", apple: 1, banana: 2, pear: 3,region:"china",server:2},
+	 *               {date: "2016-9-13", apple: 0.03, banana: 3, pear: 2,region:"china",server:3},
+	 *               {date: "2016-9-12", apple: 5, banana: 47,region:"japan",server:2},
+	 *               {date: "2016-9-14", apple: 0.05, banana: 7, pear: 4,region:"japan",server:2},
+	 *               {date: "2016-9-15", apple: 0.08, banana: 6,region:"china",server:2}
 	 *           ]}/>
 	 *
 	 */
@@ -29821,15 +29822,29 @@
 	                        return d == _this5.state.activeX;
 	                    });
 	                    if (index >= 0) {
-	                        var marginTop = 9 / _this5.state.viewBoxHeight * (0, _jquery2.default)(_this5.svg).height();
-	                        var width = _this5.state.xUnitLength / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width();
-	                        var marginLeft = 10 / _this5.state.viewBoxWidth * (0, _jquery2.default)(_this5.svg).width() + index * width;
-	                        dom = _react2.default.createElement("div", { className: _index2.default.barTips,
-	                            style: { top: marginTop, left: marginLeft, width: width } }, _react2.default.createElement("table", null, _react2.default.createElement("thead", null, _react2.default.createElement("tr", null, _react2.default.createElement("th", null, "\u7CFB\u5217"), _react2.default.createElement("th", null, "\u503C"))), _react2.default.createElement("tbody", null, _this5.state.seriesData.filter(function (d) {
-	                            return d.vectors[index].sourceY != 0;
-	                        }).map(function (d, i) {
+	                        var activeSeries = _this5.state.seriesData.filter(function (d) {
+	                            return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
+	                        });
+	                        var _ref = [(0, _jquery2.default)(_this5.svg).height(), (0, _jquery2.default)(_this5.svg).width()],
+	                            h = _ref[0],
+	                            w = _ref[1];
+
+	                        var svgPaddingTop = 5;
+	                        var tipsMarginTop = 9 / _this5.state.viewBoxHeight * h + svgPaddingTop;
+	                        var tipsMarginLeft = 10 / _this5.state.viewBoxWidth * w;
+	                        var unitWidth = _this5.state.xUnitLength / _this5.state.viewBoxWidth * w;
+	                        var coverMarginLeft = tipsMarginLeft + index * unitWidth;
+	                        var coverMarginTop = 15 / _this5.state.viewBoxHeight * h + svgPaddingTop;
+	                        var coverHeight = 40 / _this5.state.viewBoxHeight * h;
+	                        var tipsWidth = 80 / _this5.state.viewBoxWidth * w;
+	                        dom = _react2.default.createElement("div", null, _react2.default.createElement("div", { className: _index2.default.barTips, style: { top: tipsMarginTop } }, _react2.default.createElement("div", { style: { width: tipsWidth, marginLeft: tipsMarginLeft } }, _react2.default.createElement("table", null, _react2.default.createElement("thead", null, _react2.default.createElement("tr", null, _react2.default.createElement("th", null, "\u7CFB\u5217"), _react2.default.createElement("th", null, "\u503C"))), _react2.default.createElement("tbody", null, activeSeries.map(function (d, i) {
 	                            return _react2.default.createElement("tr", { style: { backgroundColor: d.color }, key: i }, _react2.default.createElement("td", null, d.name), _react2.default.createElement("td", null, d.vectors[index].sourceY));
-	                        }))));
+	                        }))))), _react2.default.createElement("div", { className: _index2.default.barCover, style: {
+	                                left: coverMarginLeft,
+	                                top: coverMarginTop,
+	                                width: unitWidth,
+	                                height: coverHeight
+	                            } }));
 	                    }
 	                })();
 	            }
@@ -30034,9 +30049,9 @@
 	                            var lastX = void 0,
 	                                lastY = void 0;
 	                            var path = d.vectors.map(function (d1, j) {
-	                                var _ref = [d1.x, d1.y],
-	                                    x = _ref[0],
-	                                    y = _ref[1];
+	                                var _ref2 = [d1.x, d1.y],
+	                                    x = _ref2[0],
+	                                    y = _ref2[1];
 
 	                                var p = "";
 	                                if (j == 0) {
@@ -30997,7 +31012,7 @@
 
 
 	// module
-	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px;\r\n  position: relative; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #e6e6e6; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd {\r\n      cursor: pointer; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 path {\r\n        stroke-width: 0.1;\r\n        stroke: black; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 ._2ggYv0LtOTOBpWzRSumyba {\r\n        fill: transparent;\r\n        stroke: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z {\r\n    position: absolute;\r\n    opacity: 0.8;\r\n    font-size: 4px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table {\r\n      width: 100%;\r\n      border-collapse: collapse; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead {\r\n        background-color: #e9e9e9;\r\n        color: #252525; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead tr th {\r\n          padding: 5px; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody {\r\n        background-color: white;\r\n        color: #272727; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody tr td {\r\n          text-align: center;\r\n          padding: 5px; }\r\n", ""]);
+	exports.push([module.id, ".iW0itXP6Kmf2ZxJU_Igpi {\r\n  box-shadow: 2px 2px 4px #ddd;\r\n  border: 1px solid #ddd;\r\n  padding-top: 5px;\r\n  padding-bottom: 5px;\r\n  position: relative; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi svg {\r\n    width: 100%;\r\n    overflow-x: hidden; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg text {\r\n      font-family: Arial; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .MsXyoVnPIbj4tbztJoUYh {\r\n      font-size: 3px;\r\n      stroke-width: 0.1;\r\n      stroke: #333333;\r\n      text-anchor: middle; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- path {\r\n        stroke: #e6e6e6; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._3Z8n41sFwC_9iaQOo-LgK- text {\r\n        text-anchor: middle;\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1PL_9bLo5oz8hCzc-KOlkN text {\r\n        font-size: 1.5px;\r\n        text-anchor: end; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .sOaTuR94vwWCm-bjLqTcJ text {\r\n        text-anchor: middle;\r\n        font-size: 2px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN {\r\n      stroke-width: 0.2; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._2gGFrRSg-yDPewQFmx6HcN path {\r\n        stroke: #e6e6e6; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._3TiNUc3e6pEx1kmQuBGply path {\r\n      stroke-linejoin: round;\r\n      stroke-width: 0.2;\r\n      fill: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._254QL6LmiMZ_2y06F3DS4M {\r\n      stroke-width: 0.3; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor {\r\n      stroke-width: 0.3;\r\n      text-anchor: start; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1nkriHhWZrTqLfNpmOhAor text {\r\n        font-size: 1.5px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 {\r\n      -webkit-user-select: none;\r\n         -moz-user-select: none;\r\n          -ms-user-select: none;\r\n              user-select: none;\r\n      cursor: pointer;\r\n      opacity: 0.8; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1 text {\r\n        display: none; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover text {\r\n      display: block; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg .O3lO0_hENTKhxevnxzfJ1:hover {\r\n      opacity: 1; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd {\r\n      cursor: pointer; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 path {\r\n        stroke-width: 0.1;\r\n        stroke: black; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi svg ._1hKIqMepEqWuOdKV6ohRYd .jzFyK-NQWJT5MVg11-kf8 ._2ggYv0LtOTOBpWzRSumyba {\r\n        fill: transparent;\r\n        stroke: transparent; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs path {\r\n      stroke-width: 0.1;\r\n      fill: rgba(255, 255, 255, 0.8); }\r\n    .iW0itXP6Kmf2ZxJU_Igpi svg ._1zf5kT3OWWX_EQ3UiTqjLs text {\r\n      font-size: 1.5px;\r\n      text-anchor: middle; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z {\r\n    z-index: 12;\r\n    position: absolute;\r\n    opacity: 0.8;\r\n    font-size: 10px; }\r\n    .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table {\r\n      margin: auto;\r\n      border-collapse: collapse; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead {\r\n        background-color: #e9e9e9;\r\n        color: #252525; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table thead tr th {\r\n          padding: 5px; }\r\n      .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody {\r\n        background-color: white;\r\n        color: #272727; }\r\n        .iW0itXP6Kmf2ZxJU_Igpi ._1HELSy3Q7JUUeE22GfOi7z table tbody tr td {\r\n          text-align: center;\r\n          padding: 5px; }\r\n  .iW0itXP6Kmf2ZxJU_Igpi ._1eJSX_i1LMM-N8CfUS-Bj8 {\r\n    z-index: 11;\r\n    position: absolute;\r\n    background-color: rgba(255, 255, 255, 0.2); }\r\n", ""]);
 
 	// exports
 	exports.locals = {
@@ -31015,7 +31030,8 @@
 		"typeIcon": "jzFyK-NQWJT5MVg11-kf8",
 		"iconBackground": "_2ggYv0LtOTOBpWzRSumyba",
 		"tips": "_1zf5kT3OWWX_EQ3UiTqjLs",
-		"barTips": "_1HELSy3Q7JUUeE22GfOi7z"
+		"barTips": "_1HELSy3Q7JUUeE22GfOi7z",
+		"barCover": "_1eJSX_i1LMM-N8CfUS-Bj8"
 	};
 
 /***/ },

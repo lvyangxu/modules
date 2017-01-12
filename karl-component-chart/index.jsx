@@ -230,31 +230,47 @@ class chart extends React.Component {
                 return d == this.state.activeX;
             });
             if (index >= 0) {
-                let marginTop = 9 / this.state.viewBoxHeight * $(this.svg).height();
-                let width = this.state.xUnitLength / this.state.viewBoxWidth * $(this.svg).width();
-                let marginLeft = 10 / this.state.viewBoxWidth * $(this.svg).width() + index * width;
-                dom = <div className={css.barTips}
-                           style={{top: marginTop, left: marginLeft, width: width}}>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>系列</th>
-                            <th>值</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {
-                            this.state.seriesData.filter(d=> {
-                                return d.vectors[index].sourceY != 0;
-                            }).map((d, i)=> {
-                                return <tr style={{backgroundColor: d.color}} key={i}>
-                                    <td>{d.name}</td>
-                                    <td>{d.vectors[index].sourceY}</td>
-                                </tr>;
-                            })
-                        }
-                        </tbody>
-                    </table>
+                let activeSeries = this.state.seriesData.filter(d=> {
+                    return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
+                });
+                let [h,w] = [$(this.svg).height(), $(this.svg).width()];
+                let svgPaddingTop = 5;
+                let tipsMarginTop = 9 / this.state.viewBoxHeight * h + svgPaddingTop;
+                let tipsMarginLeft = 10 / this.state.viewBoxWidth * w;
+                let unitWidth = this.state.xUnitLength / this.state.viewBoxWidth * w;
+                let coverMarginLeft = tipsMarginLeft + index * unitWidth;
+                let coverMarginTop = 15 / this.state.viewBoxHeight * h + svgPaddingTop;
+                let coverHeight = 40 / this.state.viewBoxHeight * h;
+                let tipsWidth = 80 / this.state.viewBoxWidth * w;
+                dom = <div>
+                    <div className={css.barTips} style={{top: tipsMarginTop}}>
+                        <div style={{width: tipsWidth, marginLeft: tipsMarginLeft}}>
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>系列</th>
+                                    <th>值</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {
+                                    activeSeries.map((d, i)=> {
+                                        return <tr style={{backgroundColor: d.color}} key={i}>
+                                            <td>{d.name}</td>
+                                            <td>{d.vectors[index].sourceY}</td>
+                                        </tr>;
+                                    })
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div className={css.barCover} style={{
+                        left: coverMarginLeft,
+                        top: coverMarginTop,
+                        width: unitWidth,
+                        height: coverHeight
+                    }}></div>
                 </div>;
             }
         }
@@ -735,7 +751,7 @@ class chart extends React.Component {
                 });
                 if (!isAll0) {
                     let groupId = d.id;
-                    groupId = (groupId == "-") ? "" : ("-" + groupId);
+                    groupId = (groupId == "-" || groupId == "") ? "" : ("-" + groupId);
                     let name = d1.name + groupId;
                     let json = {id: id, name: name, vectors: vectors, groupId: d.id, baseId: d1.id};
                     seriesData.push(json);

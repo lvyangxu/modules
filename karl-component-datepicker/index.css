@@ -70,7 +70,8 @@
     .base .panel .content .contentHead {
       margin-top: 10px;
       margin-bottom: 10px;
-      width: 176px;
+      /*add 1 px to fit firefox*/
+      width: 177px;
       font-size: 0; }
       .base .panel .content .contentHead .left, .base .panel .content .contentHead .middle, .base .panel .content .contentHead .right {
         display: inline-block;
@@ -88,7 +89,8 @@
         background: linear-gradient(to bottom, #ededed, #dbdbdb);
         box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
     .base .panel .content .contentBody .page .row {
-      width: 176px; }
+      /*add 1 px to fit firefox*/
+      width: 177px; }
       .base .panel .content .contentBody .page .row .cell {
         cursor: pointer;
         user-select: none;

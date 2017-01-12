@@ -35,7 +35,7 @@ class Xx extends React.Component {
                     {id: "apple", name: "apple"},
                     {id: "banana", name: "banana"},
                     {id: "pear", name: "pear"}
-                ]} data={this.state.data} group={["server", "region"]} type="curve"/>
+                ]} data={this.state.data} group={["server", "region"]} type="bar"/>
                 <button onClick={()=> {
                     let data = data2;
                     this.setState({data: data});
