@@ -1,5 +1,7 @@
 "use strict";
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require("react");
@@ -639,7 +641,7 @@ var chart = function (_React$Component) {
 
             var g = "";
 
-            (function () {
+            var _ret3 = function () {
                 switch (_this11.state.type) {
                     case "curve":
                         g = _react2.default.createElement(
@@ -688,6 +690,16 @@ var chart = function (_React$Component) {
                             }
                         });
                         var barWidth = w / ((baseIdArr.length + 2) * 1.5);
+                        //react重绘机制导致的问题，如果长度不相等则忽略
+                        var isErrorData = _this11.state.seriesData.some(function (d) {
+                            return d.vectors.length != _this11.state.xAxisArr.length;
+                        });
+                        if (isErrorData) {
+                            return {
+                                v: ""
+                            };
+                        }
+
                         _this11.state.xAxisArr.map(function (d, i) {
                             //找出当前x区间内的数据
                             baseIdArr.map(function (d1, j) {
@@ -719,8 +731,9 @@ var chart = function (_React$Component) {
                         );
                         break;
                 }
-            })();
+            }();
 
+            if ((typeof _ret3 === "undefined" ? "undefined" : _typeof(_ret3)) === "object") return _ret3.v;
             return g;
         }
 
@@ -900,6 +913,7 @@ var chart = function (_React$Component) {
                     });
                     if (findData == undefined) {
                         (function () {
+                            //如果该x坐标内没有对应的数据，全部补全为0
                             var json = {};
                             json[_this14.state.x] = d2;
                             y.forEach(function (d3) {
@@ -908,11 +922,16 @@ var chart = function (_React$Component) {
                             thisGroupData.push(json);
                         })();
                     } else {
-                        //补全未包含的y.id属性
-                        y.forEach(function (d3) {
-                            if (!findData.hasOwnProperty(d3.id)) {
-                                findData[d3.id] = 0;
+                        //如果该x坐标内的数据未包含的y[id]属性或y[id]为null的值，全部设置为0
+                        thisGroupData = thisGroupData.map(function (d3) {
+                            if (d3[_this14.state.x] == d2) {
+                                y.forEach(function (d4) {
+                                    if (!d3.hasOwnProperty(d4.id) || d3[d4.id] == null) {
+                                        d3[d4.id] = 0;
+                                    }
+                                });
                             }
+                            return d3;
                         });
                     }
                 });

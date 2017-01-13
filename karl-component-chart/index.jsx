@@ -532,6 +532,14 @@ class chart extends React.Component {
                     }
                 });
                 let barWidth = w / ((baseIdArr.length + 2) * 1.5);
+                //react重绘机制导致的问题，如果长度不相等则忽略
+                let isErrorData = this.state.seriesData.some(d=> {
+                    return d.vectors.length != this.state.xAxisArr.length;
+                });
+                if (isErrorData) {
+                    return "";
+                }
+
                 this.state.xAxisArr.map((d, i)=> {
                     //找出当前x区间内的数据
                     baseIdArr.map((d1, j)=> {
@@ -715,6 +723,7 @@ class chart extends React.Component {
                     return d3[this.state.x] == d2;
                 });
                 if (findData == undefined) {
+                    //如果该x坐标内没有对应的数据，全部补全为0
                     let json = {};
                     json[this.state.x] = d2;
                     y.forEach(d3=> {
@@ -722,12 +731,18 @@ class chart extends React.Component {
                     });
                     thisGroupData.push(json);
                 } else {
-                    //补全未包含的y.id属性
-                    y.forEach(d3=> {
-                        if (!findData.hasOwnProperty(d3.id)) {
-                            findData[d3.id] = 0;
+                    //如果该x坐标内的数据未包含的y[id]属性或y[id]为null的值，全部设置为0
+                    thisGroupData = thisGroupData.map(d3=> {
+                        if (d3[this.state.x] == d2) {
+                            y.forEach(d4=> {
+                                if (!d3.hasOwnProperty(d4.id) || d3[d4.id] == null) {
+                                    d3[d4.id] = 0;
+                                }
+                            });
                         }
+                        return d3;
                     });
+
                 }
             });
             thisGroupData = this.sortData(thisGroupData);
