@@ -16,7 +16,8 @@
     text-decoration: none;
     text-shadow: 0 1px 0 #f2f2f2;
     font-weight: bold;
-    text-align: center; }
+    text-align: center;
+    user-select: none; }
     .base .display i {
       float: right; }
   .base .display:hover {

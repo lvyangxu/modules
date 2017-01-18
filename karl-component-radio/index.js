@@ -30,7 +30,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
  * callback：值改变时执行的回调，参数为当前的值
  * initCallback：初始化后执行的回调，参数为当前的值
+ * value：初始值
  * prefix：控件显示文字的前缀
+ * suffix：控件显示文字的后缀
  * 示例：
  * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
@@ -66,8 +68,15 @@ var radio = function (_React$Component) {
             if (this.props.url != undefined) {
                 _karlHttp2.default.post(this.props.url).then(function (d) {
                     var pageData = _this2.slicePageData(d, 0);
+                    var value = "";
+                    if (_this2.props.value == undefined) {
+                        value = _this2.props.defaultBlank != undefined ? "" : d[0];
+                    } else {
+                        value = _this2.props.value;
+                    }
+
                     _this2.setState({
-                        value: _this2.props.defaultBlank != undefined ? "" : d[0],
+                        value: value,
                         sourceData: d,
                         filterData: d,
                         pageData: pageData
@@ -78,8 +87,14 @@ var radio = function (_React$Component) {
             } else {
                 var data = this.props.data;
                 var pageData = this.slicePageData(data, 0);
+                var value = "";
+                if (this.props.value == undefined) {
+                    value = this.props.defaultBlank != undefined ? "" : data[0];
+                } else {
+                    value = this.props.value;
+                }
                 this.setState({
-                    value: this.props.defaultBlank != undefined ? "" : data[0],
+                    value: value,
                     sourceData: data,
                     filterData: data,
                     pageData: pageData
@@ -110,13 +125,15 @@ var radio = function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
+            var prefix = this.props.hasOwnProperty("prefix") ? this.props.prefix : "";
+            var suffix = this.props.hasOwnProperty("suffix") ? this.props.suffix : "";
             return _react2.default.createElement(
                 "div",
                 { className: _index2.default.base + " react-radio" },
                 _react2.default.createElement(
                     "div",
                     { className: _index2.default.display, onClick: this.panelToggle },
-                    (this.props.hasOwnProperty("prefix") ? this.props.prefix : "") + " " + this.state.value,
+                    "" + prefix + this.state.value + suffix,
                     _react2.default.createElement("i", { className: "fa fa-caret-down" })
                 ),
                 _react2.default.createElement(

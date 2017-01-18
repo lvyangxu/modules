@@ -9,7 +9,9 @@ import http from "karl-http";
  * defaultBlank:如果该属性存在,组件input框显示的默认值为"",否则显示option的第一个元素的值
  * callback：值改变时执行的回调，参数为当前的值
  * initCallback：初始化后执行的回调，参数为当前的值
+ * value：初始值
  * prefix：控件显示文字的前缀
+ * suffix：控件显示文字的后缀
  * 示例：
  * <Radio defaultBlank data=[1,"asaga","根深蒂固"]/>
  */
@@ -35,8 +37,15 @@ class radio extends React.Component {
         if (this.props.url != undefined) {
             http.post(this.props.url).then(d => {
                 let pageData = this.slicePageData(d, 0);
+                let value = "";
+                if (this.props.value == undefined) {
+                    value = (this.props.defaultBlank != undefined) ? "" : d[0];
+                } else {
+                    value = this.props.value;
+                }
+
                 this.setState({
-                    value: (this.props.defaultBlank != undefined) ? "" : d[0],
+                    value: value,
                     sourceData: d,
                     filterData: d,
                     pageData: pageData
@@ -48,8 +57,14 @@ class radio extends React.Component {
         } else {
             let data = this.props.data;
             let pageData = this.slicePageData(data, 0);
+            let value = "";
+            if (this.props.value == undefined) {
+                value = (this.props.defaultBlank != undefined) ? "" : data[0];
+            } else {
+                value = this.props.value;
+            }
             this.setState({
-                value: (this.props.defaultBlank != undefined) ? "" : data[0],
+                value: value,
                 sourceData: data,
                 filterData: data,
                 pageData: pageData
@@ -77,10 +92,12 @@ class radio extends React.Component {
     }
 
     render() {
+        let prefix = (this.props.hasOwnProperty("prefix") ? this.props.prefix : "");
+        let suffix = (this.props.hasOwnProperty("suffix") ? this.props.suffix : "");
         return (
             <div className={css.base + " react-radio"}>
                 <div className={css.display} onClick={this.panelToggle}>
-                    {(this.props.hasOwnProperty("prefix") ? this.props.prefix : "") + " " + this.state.value}
+                    {`${prefix}${this.state.value}${suffix}`}
                     <i className="fa fa-caret-down"></i>
                 </div>
                 <div className={css.panel}
