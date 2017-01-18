@@ -110,14 +110,44 @@ var chart = function (_React$Component) {
             }).map(function (d) {
                 return d[_this2.state.x];
             });
-            var yAxisNumArr = this.getYAxisNumArr(data, this.state.type);
+
+            //根据group属性对data进行分组求和
+            var groupData = [];
+
+            data.forEach(function (d) {
+                var findElement = groupData.find(function (d1) {
+                    var isSameGroup = _this2.props.group ? _this2.props.group.every(function (d2) {
+                        return d1[d2] == d[d2];
+                    }) : true;
+                    return d1[_this2.state.x] == d[_this2.state.x] && isSameGroup;
+                });
+                if (findElement != undefined) {
+                    var _loop = function _loop(k) {
+                        var isSeries = _this2.props.y.some(function (d) {
+                            return k == d.id;
+                        });
+                        if (isSeries) {
+                            findElement[k] += d[k];
+                        }
+                    };
+
+                    //对包含在y中的系列值进行求和
+                    for (var k in findElement) {
+                        _loop(k);
+                    }
+                } else {
+                    groupData.push(d);
+                }
+            });
+
+            var yAxisNumArr = this.getYAxisNumArr(groupData, this.state.type);
             this.setState({
                 xAxisArr: xAxisArr,
                 xUnitLength: 100 * 0.8 / xAxisArr.length,
                 yAxisNumArr: yAxisNumArr,
                 yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1)
             }, function () {
-                var seriesData = _this2.buildSeries(data, _this2.props.y);
+                var seriesData = _this2.buildSeries(groupData, _this2.props.y);
                 _this2.setState({
                     seriesData: seriesData
                 }, function () {
@@ -641,7 +671,7 @@ var chart = function (_React$Component) {
 
             var g = "";
 
-            var _ret3 = function () {
+            var _ret4 = function () {
                 switch (_this11.state.type) {
                     case "curve":
                         g = _react2.default.createElement(
@@ -733,7 +763,7 @@ var chart = function (_React$Component) {
                 }
             }();
 
-            if ((typeof _ret3 === "undefined" ? "undefined" : _typeof(_ret3)) === "object") return _ret3.v;
+            if ((typeof _ret4 === "undefined" ? "undefined" : _typeof(_ret4)) === "object") return _ret4.v;
             return g;
         }
 

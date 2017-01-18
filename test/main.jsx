@@ -9,7 +9,8 @@ let data1 = [
     {date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯"},
     {date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国"},
     {date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国"},
-    {date: "2017-1-15", apple: 8, banana: 6, server: 1, region: "美国"}
+    {date: "2017-1-15", apple: 8, banana: 6, server: 1, region: "美国"},
+    {date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国"},
 ];
 let data2 = [
     {date: "2016-9-11", apple: 1, banana: 2, pear: 3},

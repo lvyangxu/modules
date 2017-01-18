@@ -77,14 +77,41 @@ class chart extends React.Component {
         }).map(d=> {
             return d[this.state.x];
         });
-        let yAxisNumArr = this.getYAxisNumArr(data, this.state.type);
+
+        //根据group属性对data进行分组求和
+        let groupData = [];
+
+        data.forEach(d=> {
+            let findElement = groupData.find(d1=> {
+                let isSameGroup = this.props.group ? (this.props.group.every(d2=> {
+                    return d1[d2] == d[d2];
+                })) : true;
+                return d1[this.state.x] == d[this.state.x] && isSameGroup;
+            });
+            if (findElement != undefined) {
+                //对包含在y中的系列值进行求和
+                for (let k in findElement) {
+                    let isSeries = this.props.y.some(d=> {
+                        return k == d.id;
+                    });
+                    if (isSeries) {
+                        findElement[k] += d[k];
+                    }
+                }
+            } else {
+                groupData.push(d);
+            }
+        });
+
+
+        let yAxisNumArr = this.getYAxisNumArr(groupData, this.state.type);
         this.setState({
                 xAxisArr: xAxisArr,
                 xUnitLength: 100 * 0.8 / xAxisArr.length,
                 yAxisNumArr: yAxisNumArr,
                 yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1),
             }, ()=> {
-                let seriesData = this.buildSeries(data, this.props.y);
+                let seriesData = this.buildSeries(groupData, this.props.y);
                 this.setState({
                     seriesData: seriesData,
                 }, ()=> {

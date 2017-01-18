@@ -3,9 +3,8 @@
   font-size: 12px;
   position: relative; }
   .base .display {
-    width: 150px;
+    padding: 8px 20px;
     height: 16px;
-    padding: 8px;
     border: 1px solid #cccccc;
     background: linear-gradient(to bottom, #fdfdfd, #f4f4f4);
     color: #222222;
@@ -19,7 +18,7 @@
     text-align: center;
     user-select: none; }
     .base .display i {
-      float: right; }
+      margin-left: 10px; }
   .base .display:hover {
     background: linear-gradient(to bottom, #ededed, #dbdbdb);
     box-shadow: inset 0px 0px 2px 2px #c8c8c8; }
@@ -27,6 +26,7 @@
     z-index: 2;
     position: absolute;
     height: 370px;
+    min-width: 200px;
     background: white;
     padding: 5px;
     border: 1px solid #aeaeae;

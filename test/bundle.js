@@ -59,7 +59,7 @@
 	var ReactDom = __webpack_require__(328);
 
 	var Com = __webpack_require__(475);
-	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 21, banana: 2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 8, banana: 6, server: 1, region: "美国" }];
+	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 21, banana: 2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 8, banana: 6, server: 1, region: "美国" }, { date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }];
 	var data2 = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
 
 	var Xx = function (_React$Component) {
@@ -29568,7 +29568,13 @@
 
 	"use strict";
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+	    return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+	} : function (obj) {
+	    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+	};
 
 	var _createClass = function () {
 	    function defineProperties(target, props) {
@@ -29607,12 +29613,12 @@
 	function _possibleConstructorReturn(self, call) {
 	    if (!self) {
 	        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-	    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+	    }return call && ((typeof call === "undefined" ? "undefined" : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
 	    if (typeof superClass !== "function" && superClass !== null) {
-	        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+	        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof2(superClass)));
 	    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
@@ -29700,14 +29706,44 @@
 	            }).map(function (d) {
 	                return d[_this2.state.x];
 	            });
-	            var yAxisNumArr = this.getYAxisNumArr(data, this.state.type);
+
+	            //根据group属性对data进行分组求和
+	            var groupData = [];
+
+	            data.forEach(function (d) {
+	                var findElement = groupData.find(function (d1) {
+	                    var isSameGroup = _this2.props.group ? _this2.props.group.every(function (d2) {
+	                        return d1[d2] == d[d2];
+	                    }) : true;
+	                    return d1[_this2.state.x] == d[_this2.state.x] && isSameGroup;
+	                });
+	                if (findElement != undefined) {
+	                    var _loop = function _loop(k) {
+	                        var isSeries = _this2.props.y.some(function (d) {
+	                            return k == d.id;
+	                        });
+	                        if (isSeries) {
+	                            findElement[k] += d[k];
+	                        }
+	                    };
+
+	                    //对包含在y中的系列值进行求和
+	                    for (var k in findElement) {
+	                        _loop(k);
+	                    }
+	                } else {
+	                    groupData.push(d);
+	                }
+	            });
+
+	            var yAxisNumArr = this.getYAxisNumArr(groupData, this.state.type);
 	            this.setState({
 	                xAxisArr: xAxisArr,
 	                xUnitLength: 100 * 0.8 / xAxisArr.length,
 	                yAxisNumArr: yAxisNumArr,
 	                yUnitLength: 50 * 0.8 / (yAxisNumArr.length - 1)
 	            }, function () {
-	                var seriesData = _this2.buildSeries(data, _this2.props.y);
+	                var seriesData = _this2.buildSeries(groupData, _this2.props.y);
 	                _this2.setState({
 	                    seriesData: seriesData
 	                }, function () {
@@ -30042,7 +30078,7 @@
 
 	            var g = "";
 
-	            (function () {
+	            var _ret4 = function () {
 	                switch (_this11.state.type) {
 	                    case "curve":
 	                        g = _react2.default.createElement("g", { className: _index2.default.curve }, _this11.state.seriesData.map(function (d, i) {
@@ -30087,6 +30123,16 @@
 	                            }
 	                        });
 	                        var barWidth = w / ((baseIdArr.length + 2) * 1.5);
+	                        //react重绘机制导致的问题，如果长度不相等则忽略
+	                        var isErrorData = _this11.state.seriesData.some(function (d) {
+	                            return d.vectors.length != _this11.state.xAxisArr.length;
+	                        });
+	                        if (isErrorData) {
+	                            return {
+	                                v: ""
+	                            };
+	                        }
+
 	                        _this11.state.xAxisArr.map(function (d, i) {
 	                            //找出当前x区间内的数据
 	                            baseIdArr.map(function (d1, j) {
@@ -30114,8 +30160,9 @@
 	                        g = _react2.default.createElement("g", { className: _index2.default.bar }, bars);
 	                        break;
 	                }
-	            })();
+	            }();
 
+	            if ((typeof _ret4 === "undefined" ? "undefined" : _typeof(_ret4)) === "object") return _ret4.v;
 	            return g;
 	        }
 
@@ -30256,6 +30303,7 @@
 	                    });
 	                    if (findData == undefined) {
 	                        (function () {
+	                            //如果该x坐标内没有对应的数据，全部补全为0
 	                            var json = {};
 	                            json[_this14.state.x] = d2;
 	                            y.forEach(function (d3) {
@@ -30264,11 +30312,16 @@
 	                            thisGroupData.push(json);
 	                        })();
 	                    } else {
-	                        //补全未包含的y.id属性
-	                        y.forEach(function (d3) {
-	                            if (!findData.hasOwnProperty(d3.id)) {
-	                                findData[d3.id] = 0;
+	                        //如果该x坐标内的数据未包含的y[id]属性或y[id]为null的值，全部设置为0
+	                        thisGroupData = thisGroupData.map(function (d3) {
+	                            if (d3[_this14.state.x] == d2) {
+	                                y.forEach(function (d4) {
+	                                    if (!d3.hasOwnProperty(d4.id) || d3[d4.id] == null) {
+	                                        d3[d4.id] = 0;
+	                                    }
+	                                });
 	                            }
+	                            return d3;
 	                        });
 	                    }
 	                });
@@ -30293,7 +30346,7 @@
 	                    });
 	                    if (!isAll0) {
 	                        var groupId = d.id;
-	                        groupId = groupId == "-" ? "" : "-" + groupId;
+	                        groupId = groupId == "-" || groupId == "" ? "" : "-" + groupId;
 	                        var name = d1.name + groupId;
 	                        var json = { id: id, name: name, vectors: vectors, groupId: d.id, baseId: d1.id };
 	                        seriesData.push(json);
