@@ -644,6 +644,7 @@ var datepicker = function (_React$Component) {
                 } else {
                     v = _this7.state[d];
                 }
+                v = Number.parseInt(v);
                 v = v < 10 ? "0" + v : v;
                 return v;
             }),

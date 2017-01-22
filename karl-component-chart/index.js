@@ -79,9 +79,10 @@ var chart = function (_React$Component) {
             tipsPaddingLeft: 1,
             tipsPaddingRight: 1,
             viewBoxWidth: 115,
-            viewBoxHeight: 65
+            viewBoxHeight: 65,
+            isInAxis: false
         };
-        var bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTipsBorder", "doUpdate", "setSvgAnimate"];
+        var bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural", "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTipsBorder", "doUpdate", "setSvgAnimate", "mouseLeave"];
         bindArr.forEach(function (d) {
             _this[d] = _this[d].bind(_this);
         });
@@ -111,7 +112,7 @@ var chart = function (_React$Component) {
                 return d[_this2.state.x];
             });
 
-            //根据group属性对data进行分组求和
+            //根据group属性对data进行分组求和,计算正数和负数的最大最小值
             var groupData = [];
 
             data.forEach(function (d) {
@@ -234,7 +235,6 @@ var chart = function (_React$Component) {
             var svgChild = _react2.default.createElement(
                 "g",
                 null,
-                this.setTitle(),
                 this.setXAxis(),
                 this.setYAxis(),
                 this.setXGrid(),
@@ -249,6 +249,7 @@ var chart = function (_React$Component) {
                 { viewBox: "0 0 " + this.state.viewBoxWidth + " " + this.state.viewBoxHeight, width: this.state.svgWidth,
                     height: this.state.svgHeight,
                     onMouseMove: this.setActive,
+                    onMouseLeave: this.mouseLeave,
                     ref: function ref(svg) {
                         _this4.svg = svg;
                     } },
@@ -256,14 +257,44 @@ var chart = function (_React$Component) {
             ) : _react2.default.createElement(
                 "svg",
                 { viewBox: "0 0 " + this.state.viewBoxWidth + " " + this.state.viewBoxHeight, onMouseMove: this.setActive,
+                    onMouseLeave: this.mouseLeave,
                     ref: function ref(svg) {
                         _this4.svg = svg;
                     } },
                 svgChild
             );
+            var titleStyle = {},
+                resetColorStyle = {};
+            if ((0, _jquery2.default)(this.svg).width() != undefined) {
+                var width = (0, _jquery2.default)(this.svg).width() / this.state.viewBoxWidth;
+                titleStyle = { width: width * 80, marginLeft: width * 10 };
+                resetColorStyle = { width: width * 24, marginLeft: width * 1 };
+            }
+
             return _react2.default.createElement(
                 "div",
                 { className: _index2.default.base + " react-chart" },
+                _react2.default.createElement(
+                    "div",
+                    { className: _index2.default.top },
+                    _react2.default.createElement(
+                        "div",
+                        { className: _index2.default.title, style: titleStyle },
+                        this.state.title
+                    ),
+                    _react2.default.createElement(
+                        "div",
+                        { className: _index2.default.resetColor, style: resetColorStyle },
+                        _react2.default.createElement(
+                            "button",
+                            { onClick: function onClick() {
+                                    var seriesData = _this4.setColor();
+                                    _this4.setState({ seriesData: seriesData });
+                                } },
+                            "\u91CD\u65B0\u968F\u673A\u989C\u8272"
+                        )
+                    )
+                ),
                 this.setBarTips(),
                 svgTag
             );
@@ -285,105 +316,139 @@ var chart = function (_React$Component) {
                     var index = _this5.state.xAxisArr.findIndex(function (d) {
                         return d == _this5.state.activeX;
                     });
-                    if (index >= 0) {
-                        var activeSeries = _this5.state.seriesData.filter(function (d) {
-                            return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
-                        });
-                        var _ref = [(0, _jquery2.default)(_this5.svg).height(), (0, _jquery2.default)(_this5.svg).width()],
-                            h = _ref[0],
-                            w = _ref[1];
+                    if (index >= 0 && _this5.state.isInAxis) {
+                        (function () {
+                            var activeSeries = _this5.state.seriesData.filter(function (d) {
+                                return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
+                            });
+                            var _ref = [(0, _jquery2.default)(_this5.svg).height(), (0, _jquery2.default)(_this5.svg).width()],
+                                h = _ref[0],
+                                w = _ref[1];
 
-                        var svgPaddingTop = 5;
-                        var tipsMarginTop = 9 / _this5.state.viewBoxHeight * h + svgPaddingTop;
-                        var tipsMarginLeft = 10 / _this5.state.viewBoxWidth * w;
-                        var unitWidth = _this5.state.xUnitLength / _this5.state.viewBoxWidth * w;
-                        var coverMarginLeft = tipsMarginLeft + index * unitWidth;
-                        var coverMarginTop = 15 / _this5.state.viewBoxHeight * h + svgPaddingTop;
-                        var coverHeight = 40 / _this5.state.viewBoxHeight * h;
-                        var tipsWidth = 80 / _this5.state.viewBoxWidth * w;
-                        dom = _react2.default.createElement(
-                            "div",
-                            null,
-                            _react2.default.createElement(
+                            var tipsMarginTop = 9 / _this5.state.viewBoxHeight * h;
+                            var tipsMarginLeft = 91 / _this5.state.viewBoxWidth * w;
+                            var unitWidth = _this5.state.xUnitLength / _this5.state.viewBoxWidth * w;
+                            var coverMarginLeft = 10 / _this5.state.viewBoxWidth * w + index * unitWidth;
+                            var coverMarginTop = 15 / _this5.state.viewBoxHeight * h;
+                            var coverHeight = 40 / _this5.state.viewBoxHeight * h;
+
+                            //表格列为所有group值的组合
+                            var columns = [];
+                            activeSeries.forEach(function (d) {
+                                var groupName = d.groupId;
+                                if (!columns.includes(groupName)) {
+                                    columns.push(groupName);
+                                }
+                            });
+
+                            //排除掉没有数据的系列
+                            var activeY = _this5.props.y.filter(function (d) {
+                                var isValid = activeSeries.some(function (d1) {
+                                    return d1.baseId == d.id;
+                                });
+                                return isValid;
+                            });
+
+                            var rows = columns.map(function (d, i) {
+                                var tds = activeY.map(function (d1, j) {
+                                    var id = d1.id;
+                                    var findElement = activeSeries.find(function (d2) {
+                                        return d2.baseId == id && d2.groupId == d;
+                                    });
+                                    var td = _react2.default.createElement("td", { key: j, style: { backgroundColor: "rgba(233, 233, 233, 1)" } });
+                                    if (findElement != undefined) {
+                                        td = _react2.default.createElement(
+                                            "td",
+                                            { key: j,
+                                                style: { backgroundColor: findElement.color } },
+                                            findElement.vectors[index].sourceY
+                                        );
+                                    }
+                                    return td;
+                                });
+                                var tr = columns.length == 1 && columns[0] == "" ? _react2.default.createElement(
+                                    "tr",
+                                    { key: i },
+                                    tds
+                                ) : _react2.default.createElement(
+                                    "tr",
+                                    { key: i },
+                                    _react2.default.createElement(
+                                        "td",
+                                        null,
+                                        d
+                                    ),
+                                    tds
+                                );
+                                return tr;
+                            });
+
+                            var thead = columns.length == 1 && columns[0] == "" ? _react2.default.createElement(
+                                "thead",
+                                null,
+                                _react2.default.createElement(
+                                    "tr",
+                                    null,
+                                    activeY.map(function (d, i) {
+                                        return _react2.default.createElement(
+                                            "th",
+                                            { key: i },
+                                            d.name
+                                        );
+                                    })
+                                )
+                            ) : _react2.default.createElement(
+                                "thead",
+                                null,
+                                _react2.default.createElement(
+                                    "tr",
+                                    null,
+                                    _react2.default.createElement(
+                                        "th",
+                                        null,
+                                        "\u7CFB\u5217"
+                                    ),
+                                    activeY.map(function (d, i) {
+                                        return _react2.default.createElement(
+                                            "th",
+                                            { key: i },
+                                            d.name
+                                        );
+                                    })
+                                )
+                            );
+                            dom = _react2.default.createElement(
                                 "div",
-                                { className: _index2.default.barTips, style: { top: tipsMarginTop } },
+                                { className: _index2.default.barTips },
                                 _react2.default.createElement(
                                     "div",
-                                    { style: { width: tipsWidth, marginLeft: tipsMarginLeft } },
+                                    { className: _index2.default.table, style: { top: tipsMarginTop, left: tipsMarginLeft }, onMouseOver: function onMouseOver(e) {
+                                            _this5.setState({
+                                                isInAxis: false
+                                            });
+                                        } },
                                     _react2.default.createElement(
                                         "table",
                                         null,
-                                        _react2.default.createElement(
-                                            "thead",
-                                            null,
-                                            _react2.default.createElement(
-                                                "tr",
-                                                null,
-                                                _react2.default.createElement(
-                                                    "th",
-                                                    null,
-                                                    "\u7CFB\u5217"
-                                                ),
-                                                _react2.default.createElement(
-                                                    "th",
-                                                    null,
-                                                    "\u503C"
-                                                )
-                                            )
-                                        ),
+                                        thead,
                                         _react2.default.createElement(
                                             "tbody",
                                             null,
-                                            activeSeries.map(function (d, i) {
-                                                return _react2.default.createElement(
-                                                    "tr",
-                                                    { style: { backgroundColor: d.color }, key: i },
-                                                    _react2.default.createElement(
-                                                        "td",
-                                                        null,
-                                                        d.name
-                                                    ),
-                                                    _react2.default.createElement(
-                                                        "td",
-                                                        null,
-                                                        d.vectors[index].sourceY
-                                                    )
-                                                );
-                                            })
+                                            rows
                                         )
                                     )
-                                )
-                            ),
-                            _react2.default.createElement("div", { className: _index2.default.barCover, style: {
-                                    left: coverMarginLeft,
-                                    top: coverMarginTop,
-                                    width: unitWidth,
-                                    height: coverHeight
-                                } })
-                        );
+                                ),
+                                _react2.default.createElement("div", { className: _index2.default.cover, style: {
+                                        left: coverMarginLeft,
+                                        top: coverMarginTop,
+                                        width: unitWidth,
+                                        height: coverHeight
+                                    } })
+                            );
+                        })();
                     }
                 })();
             }
-            return dom;
-        }
-
-        /**
-         * 绘制标题
-         * @returns {*}
-         */
-
-    }, {
-        key: "setTitle",
-        value: function setTitle() {
-            var dom = this.state.title ? _react2.default.createElement(
-                "g",
-                { className: _index2.default.title },
-                _react2.default.createElement(
-                    "text",
-                    { x: "50", y: "3" },
-                    this.state.title
-                )
-            ) : "";
             return dom;
         }
 
@@ -671,7 +736,7 @@ var chart = function (_React$Component) {
 
             var g = "";
 
-            var _ret4 = function () {
+            var _ret5 = function () {
                 switch (_this11.state.type) {
                     case "curve":
                         g = _react2.default.createElement(
@@ -738,10 +803,11 @@ var chart = function (_React$Component) {
                                 var seriesArr = _this11.state.seriesData.filter(function (d2) {
                                     return d2.baseId == d1;
                                 });
-                                var stackY = 0;
+                                var stackY = 0,
+                                    minusStackY = 0;
                                 seriesArr.forEach(function (d2, k) {
                                     var barHeight = d2.vectors[i].sourceY;
-                                    if (barHeight != 0) {
+                                    if (barHeight > 0) {
                                         var bar = _react2.default.createElement("path", { key: i + "-" + j + "-" + k, stroke: d2.color, strokeWidth: barWidth,
                                             d: "M" + barX + " " + _this11.yTransformToSvg(stackY) + " L" + barX + " " + _this11.yTransformToSvg(stackY + barHeight),
                                             ref: function ref(bar) {
@@ -749,6 +815,14 @@ var chart = function (_React$Component) {
                                             } });
                                         stackY += barHeight;
                                         bars.push(bar);
+                                    } else if (barHeight < 0) {
+                                        var _bar = _react2.default.createElement("path", { key: i + "-" + j + "-" + k, stroke: d2.color, strokeWidth: barWidth,
+                                            d: "M" + barX + " " + _this11.yTransformToSvg(minusStackY) + " L" + barX + " " + _this11.yTransformToSvg(minusStackY + barHeight),
+                                            ref: function ref(bar) {
+                                                _this11["bar" + d2.id + i] = bar;
+                                            } });
+                                        minusStackY += barHeight;
+                                        bars.push(_bar);
                                     }
                                 });
                             });
@@ -763,7 +837,7 @@ var chart = function (_React$Component) {
                 }
             }();
 
-            if ((typeof _ret4 === "undefined" ? "undefined" : _typeof(_ret4)) === "object") return _ret4.v;
+            if ((typeof _ret5 === "undefined" ? "undefined" : _typeof(_ret5)) === "object") return _ret5.v;
             return g;
         }
 
@@ -801,9 +875,19 @@ var chart = function (_React$Component) {
                             );
                             break;
                         case "bar":
+                            var isValid = true;
+                            if (_this12.state.type == "bar" && _this12.state.activeSeries != undefined) {
+                                //柱状图
+                                var index = _this12.state.xAxisArr.findIndex(function (d) {
+                                    return d == _this12.state.activeX;
+                                });
+                                if (index >= 0) {
+                                    isValid = false;
+                                }
+                            }
                             var offsetX = _this12.state["dot-" + d.id + "-active"] ? 0.2 : 0;
                             var offsetY = _this12.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-                            symbol = _react2.default.createElement(
+                            symbol = isValid ? _react2.default.createElement(
                                 "g",
                                 { key: i },
                                 _react2.default.createElement("rect", { fill: color, x: x - offsetX, y: y - offsetY, width: 3 + offsetX * 2,
@@ -813,31 +897,11 @@ var chart = function (_React$Component) {
                                     { x: "94.5", y: y + 1 },
                                     d.name
                                 )
-                            );
+                            ) : "";
                             break;
                     }
                     return symbol;
                 }),
-                _react2.default.createElement(
-                    "g",
-                    { className: _index2.default.setColor, onClick: function onClick() {
-                            var seriesData = _this12.setColor();
-                            _this12.setState({ seriesData: seriesData });
-                        } },
-                    this.state.seriesData.map(function (d, i) {
-                        var color = d.color;
-                        var x = 80 + i * 1;
-                        var y1 = 5;
-                        var y2 = 7;
-                        return _react2.default.createElement("path", { key: i, strokeWidth: 1, stroke: color,
-                            d: "M" + x + " " + y1 + " L" + x + " " + y2 });
-                    }),
-                    _react2.default.createElement(
-                        "text",
-                        { x: 79.5 + this.state.seriesData.length / 2, y: "4", textAnchor: "middle" },
-                        "reset color"
-                    )
-                ),
                 this.setTypeList()
             );
             return dom;
@@ -1028,21 +1092,27 @@ var chart = function (_React$Component) {
                     //bar需要按分组先堆叠，再进行计算
                     _this15.props.y.forEach(function (d) {
                         xAxisArr.forEach(function (d1) {
-                            var value = 0;
+                            var minValue = 0,
+                                maxValue = 0;
                             data.filter(function (d2) {
                                 return d2.hasOwnProperty(d.id) && d2[_this15.state.x] == d1;
                             }).forEach(function (d2) {
-                                value += d2[d.id];
+                                var v = d2[d.id];
+                                if (v > 0) {
+                                    maxValue += v;
+                                } else {
+                                    minValue += v;
+                                }
                             });
                             if (max == undefined) {
-                                max = value;
+                                max = maxValue;
                             } else {
-                                max = Math.max(value, max);
+                                max = Math.max(maxValue, max);
                             }
                             if (min == undefined) {
-                                min = value;
+                                min = minValue;
                             } else {
-                                min = Math.min(value, min);
+                                min = Math.min(minValue, min);
                             }
                         });
                     });
@@ -1116,7 +1186,7 @@ var chart = function (_React$Component) {
                 yAixsStart = -Math.pow(10, p);
                 yAixsEnd = 0;
             } else if (min < 0 && max >= 0) {
-                yAixsStart = -Math.pow(10, p);
+                yAixsStart = -Math.pow(10, pStart);
                 yAixsEnd = Math.pow(10, p);
                 calibration = calibration * 2;
             } else if (min >= 0 && max >= 0) {
@@ -1415,8 +1485,6 @@ var chart = function (_React$Component) {
     }, {
         key: "setActive",
         value: function setActive(e) {
-            var _this16 = this;
-
             //如果没有数据，则不执行操作
             if (this.state.seriesData.length == 0) {
                 return;
@@ -1432,30 +1500,26 @@ var chart = function (_React$Component) {
                 series = _getNearestSeries.series,
                 tipsX = _getNearestSeries.tipsX,
                 tipsY = _getNearestSeries.tipsY,
-                activeX = _getNearestSeries.activeX;
+                activeX = _getNearestSeries.activeX,
+                isInAxis = _getNearestSeries.isInAxis;
 
+            var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX, isInAxis: isInAxis };
             if (series) {
-                (function () {
-                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-                    json["dot-" + series + "-active"] = true;
-                    json["curve-" + series + "-active"] = true;
-                    _this16.state.seriesData.filter(function (d) {
-                        return d.id != series;
-                    }).forEach(function (d) {
-                        json["dot-" + d.id + "-active"] = false;
-                        json["curve-" + d.id + "-active"] = false;
-                    });
-                    _this16.setState(json);
-                })();
+                json["dot-" + series + "-active"] = true;
+                json["curve-" + series + "-active"] = true;
+                this.state.seriesData.filter(function (d) {
+                    return d.id != series;
+                }).forEach(function (d) {
+                    json["dot-" + d.id + "-active"] = false;
+                    json["curve-" + d.id + "-active"] = false;
+                });
+                this.setState(json);
             } else {
-                (function () {
-                    var json = { tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX };
-                    _this16.state.seriesData.forEach(function (d) {
-                        json["dot-" + d.id + "-active"] = false;
-                        json["curve-" + d.id + "-active"] = false;
-                    });
-                    _this16.setState(json);
-                })();
+                this.state.seriesData.forEach(function (d) {
+                    json["dot-" + d.id + "-active"] = false;
+                    json["curve-" + d.id + "-active"] = false;
+                });
+                this.setState(json);
             }
         }
 
@@ -1469,15 +1533,17 @@ var chart = function (_React$Component) {
     }, {
         key: "getNearestSeries",
         value: function getNearestSeries(x, y) {
-            var _this17 = this;
+            var _this16 = this;
 
-            var series = void 0;
+            var series = void 0,
+                isInAxis = false;
             var tipsX = void 0,
                 tipsY = void 0,
                 index = void 0,
                 activeX = void 0;
             var w = this.state.xUnitLength;
             if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
+                isInAxis = true;
                 switch (this.state.type) {
                     case "curve":
                         //根据x和斜率寻找最近的y
@@ -1503,7 +1569,7 @@ var chart = function (_React$Component) {
                                 //线条中间部分根据斜率进行计算
                                 var startIndex = void 0,
                                     endIndex = void 0;
-                                for (var i = 0; i < _this17.state.xAxisArr.length - 1; i++) {
+                                for (var i = 0; i < _this16.state.xAxisArr.length - 1; i++) {
                                     var startX = 10 + i * w + w / 2;
                                     var endX = 10 + (i + 1) * w + w / 2;
                                     if (x >= startX && x <= endX) {
@@ -1522,7 +1588,7 @@ var chart = function (_React$Component) {
                                     index = endIndex;
                                 }
                                 //根据斜率算出鼠标x点的各系列y数组
-                                yMap = _this17.state.seriesData.map(function (d) {
+                                yMap = _this16.state.seriesData.map(function (d) {
                                     var y1 = d.vectors[startIndex].y;
                                     var y2 = d.vectors[endIndex].y;
                                     var slope = (y2 - y1) / (x2 - x1);
@@ -1575,7 +1641,7 @@ var chart = function (_React$Component) {
                         break;
                 }
             }
-            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX };
+            return { series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX, isInAxis: isInAxis };
         }
 
         /**
@@ -1611,7 +1677,7 @@ var chart = function (_React$Component) {
     }, {
         key: "setTipsText",
         value: function setTipsText() {
-            var _this18 = this;
+            var _this17 = this;
 
             var startX = this.state.tipsX;
             var startY = this.state.tipsY - this.state.tipsMarginBottom - this.state.tipsRaisedY - this.state.tipsPaddingBottom;
@@ -1619,26 +1685,26 @@ var chart = function (_React$Component) {
                 color = void 0;
             if (this.state.type != "bar") {
                 (function () {
-                    var findSeries = _this18.state.seriesData.find(function (d) {
-                        return d.id == _this18.state.activeSeries;
+                    var findSeries = _this17.state.seriesData.find(function (d) {
+                        return d.id == _this17.state.activeSeries;
                     });
                     color = findSeries.color;
-                    var xText = _this18.state.activeX;
-                    var xIndex = _this18.state.xAxisArr.findIndex(function (d) {
+                    var xText = _this17.state.activeX;
+                    var xIndex = _this17.state.xAxisArr.findIndex(function (d) {
                         return d == xText;
                     });
                     var yText = findSeries.vectors[xIndex].sourceY;
-                    var activeText = _this18.state.seriesData.find(function (d) {
-                        return d.id == _this18.state.activeSeries;
+                    var activeText = _this17.state.seriesData.find(function (d) {
+                        return d.id == _this17.state.activeSeries;
                     }).name;
                     text = _react2.default.createElement(
                         "text",
                         { color: color, x: startX, y: startY, ref: function ref(d) {
-                                _this18.tipsText = d;
+                                _this17.tipsText = d;
                             } },
                         activeText,
                         " : ",
-                        yText + "" + (_this18.props.tipsSuffix ? _this18.props.tipsSuffix : "")
+                        yText + "" + (_this17.props.tipsSuffix ? _this17.props.tipsSuffix : "")
                     );
                 })();
             }
@@ -1653,7 +1719,7 @@ var chart = function (_React$Component) {
     }, {
         key: "setTipsBorder",
         value: function setTipsBorder() {
-            var _this19 = this;
+            var _this18 = this;
 
             var path = "";
             if (this.state.type != "bar") {
@@ -1662,12 +1728,34 @@ var chart = function (_React$Component) {
                 var startX = this.state.tipsX;
                 var startY = this.state.tipsY - this.state.tipsMarginBottom;
                 var color = this.state.seriesData.find(function (d) {
-                    return d.id == _this19.state.activeSeries;
+                    return d.id == _this18.state.activeSeries;
                 }).color;
                 path = this.state.tipsWidth ? _react2.default.createElement("path", { stroke: color,
                     d: "M" + startX + " " + startY + " l" + -this.state.tipsRaisedX + " " + -this.state.tipsRaisedY + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingLeft) + " 0\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + -arcRy + "\n                  l0 " + -(this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  l" + (this.state.tipsWidth + this.state.tipsPaddingLeft + this.state.tipsPaddingRight + arcRx * 2) + " 0\n                  l0 " + (this.state.tipsHeight + this.state.tipsPaddingBottom + this.state.tipsPaddingTop - arcRy) + "\n                  a" + arcRx + " " + arcRy + " 0 0 1 " + -arcRx + " " + arcRy + "\n                  l" + -(this.state.tipsWidth / 2 - this.state.tipsRaisedX + this.state.tipsPaddingRight) + " 0 z" }) : "";
             }
             return path;
+        }
+
+        /**
+         * 鼠标离开svg元素时的判断
+         * @param e
+         */
+
+    }, {
+        key: "mouseLeave",
+        value: function mouseLeave(e) {
+            var isInAxis = false;
+            var offset = (0, _jquery2.default)(this.svg).offset();
+            var x = e.pageX - offset.left;
+            var y = e.pageY - offset.top;
+            x = x / (0, _jquery2.default)(this.svg).width() * this.state.viewBoxWidth;
+            y = y / (0, _jquery2.default)(this.svg).height() * this.state.viewBoxHeight;
+            if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
+                isInAxis = true;
+            }
+            this.setState({
+                isInAxis: isInAxis
+            });
         }
     }]);
 

@@ -491,6 +491,7 @@ class datepicker extends React.Component {
             } else {
                 v = this.state[d];
             }
+            v = Number.parseInt(v);
             v = v < 10 ? ("0" + v) : v;
             return v;
         });

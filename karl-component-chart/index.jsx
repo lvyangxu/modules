@@ -51,10 +51,11 @@ class chart extends React.Component {
             tipsPaddingLeft: 1,
             tipsPaddingRight: 1,
             viewBoxWidth: 115,
-            viewBoxHeight: 65
+            viewBoxHeight: 65,
+            isInAxis: false
         };
         let bindArr = ["sortData", "vectorTransformToSvg", "xTransformToSvg", "yTransformToSvg", "yTransformToNatural",
-            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTipsBorder", "doUpdate", "setSvgAnimate"];
+            "getYAxisNumArr", "setActive", "getNearestSeries", "setColor", "setTipsBorder", "doUpdate", "setSvgAnimate", "mouseLeave"];
         bindArr.forEach(d => {
             this[d] = this[d].bind(this);
         });
@@ -78,7 +79,7 @@ class chart extends React.Component {
             return d[this.state.x];
         });
 
-        //根据group属性对data进行分组求和
+        //根据group属性对data进行分组求和,计算正数和负数的最大最小值
         let groupData = [];
 
         data.forEach(d=> {
@@ -189,9 +190,6 @@ class chart extends React.Component {
         let svgChild =
             <g>
                 {
-                    this.setTitle()
-                }
-                {
                     this.setXAxis()
                 }
                 {
@@ -219,6 +217,7 @@ class chart extends React.Component {
             <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} width={this.state.svgWidth}
                  height={this.state.svgHeight}
                  onMouseMove={this.setActive}
+                 onMouseLeave={this.mouseLeave}
                  ref={(svg) => {
                      this.svg = svg;
                  }}>
@@ -227,6 +226,7 @@ class chart extends React.Component {
                 }
             </svg> :
             <svg viewBox={`0 0 ${this.state.viewBoxWidth} ${this.state.viewBoxHeight}`} onMouseMove={this.setActive}
+                 onMouseLeave={this.mouseLeave}
                  ref={(svg) => {
                      this.svg = svg;
                  }}>
@@ -234,16 +234,31 @@ class chart extends React.Component {
                     svgChild
                 }
             </svg>;
-        return (
-            <div className={css.base + " react-chart"}>
-                {
-                    this.setBarTips()
-                }
-                {
-                    svgTag
-                }
+        let titleStyle = {}, resetColorStyle = {};
+        if ($(this.svg).width() != undefined) {
+            let width = $(this.svg).width() / this.state.viewBoxWidth;
+            titleStyle = {width: width * 80, marginLeft: width * 10};
+            resetColorStyle = {width: width * 24, marginLeft: width * 1};
+        }
+
+        return <div className={css.base + " react-chart"}>
+            <div className={css.top}>
+                <div className={css.title} style={titleStyle}>{this.state.title}</div>
+                <div className={css.resetColor} style={resetColorStyle}>
+                    <button onClick={()=> {
+                        let seriesData = this.setColor();
+                        this.setState({seriesData: seriesData});
+                    }}>重新随机颜色
+                    </button>
+                </div>
             </div>
-        );
+            {
+                this.setBarTips()
+            }
+            {
+                svgTag
+            }
+        </div>;
     }
 
     /**
@@ -256,43 +271,102 @@ class chart extends React.Component {
             let index = this.state.xAxisArr.findIndex(d=> {
                 return d == this.state.activeX;
             });
-            if (index >= 0) {
+            if (index >= 0 && this.state.isInAxis) {
                 let activeSeries = this.state.seriesData.filter(d=> {
                     return d.vectors[index].sourceY != 0 && d.vectors[index].sourceY != undefined;
                 });
                 let [h,w] = [$(this.svg).height(), $(this.svg).width()];
-                let svgPaddingTop = 5;
-                let tipsMarginTop = 9 / this.state.viewBoxHeight * h + svgPaddingTop;
-                let tipsMarginLeft = 10 / this.state.viewBoxWidth * w;
+                let tipsMarginTop = 9 / this.state.viewBoxHeight * h;
+                let tipsMarginLeft = 91 / this.state.viewBoxWidth * w;
                 let unitWidth = this.state.xUnitLength / this.state.viewBoxWidth * w;
-                let coverMarginLeft = tipsMarginLeft + index * unitWidth;
-                let coverMarginTop = 15 / this.state.viewBoxHeight * h + svgPaddingTop;
+                let coverMarginLeft = 10 / this.state.viewBoxWidth * w + index * unitWidth;
+                let coverMarginTop = 15 / this.state.viewBoxHeight * h;
                 let coverHeight = 40 / this.state.viewBoxHeight * h;
-                let tipsWidth = 80 / this.state.viewBoxWidth * w;
-                dom = <div>
-                    <div className={css.barTips} style={{top: tipsMarginTop}}>
-                        <div style={{width: tipsWidth, marginLeft: tipsMarginLeft}}>
-                            <table>
-                                <thead>
-                                <tr>
-                                    <th>系列</th>
-                                    <th>值</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {
-                                    activeSeries.map((d, i)=> {
-                                        return <tr style={{backgroundColor: d.color}} key={i}>
-                                            <td>{d.name}</td>
-                                            <td>{d.vectors[index].sourceY}</td>
-                                        </tr>;
-                                    })
-                                }
-                                </tbody>
-                            </table>
-                        </div>
+
+                //表格列为所有group值的组合
+                let columns = [];
+                activeSeries.forEach(d=> {
+                    let groupName = d.groupId;
+                    if (!columns.includes(groupName)) {
+                        columns.push(groupName);
+                    }
+                });
+
+                //排除掉没有数据的系列
+                let activeY = this.props.y.filter(d=> {
+                    let isValid = activeSeries.some(d1=> {
+                        return d1.baseId == d.id;
+                    });
+                    return isValid;
+                });
+
+                let rows = columns.map((d, i)=> {
+                    let tds = activeY.map((d1, j)=> {
+                        let id = d1.id;
+                        let findElement = activeSeries.find(d2=> {
+                            return d2.baseId == id && d2.groupId == d;
+                        });
+                        let td = <td key={j} style={{backgroundColor: "rgba(233, 233, 233, 1)"}}></td>;
+                        if (findElement != undefined) {
+                            td = <td key={j}
+                                     style={{backgroundColor: findElement.color}}>{findElement.vectors[index].sourceY}</td>;
+                        }
+                        return td;
+                    });
+                    let tr = (columns.length == 1 && columns[0] == "") ?
+                        <tr key={i}>
+                            {
+                                tds
+                            }
+                        </tr>
+                        :
+                        <tr key={i}>
+                            {
+                                <td>{d}</td>
+                            }
+                            {
+                                tds
+                            }
+                        </tr>;
+                    return tr;
+                });
+
+                let thead = (columns.length == 1 && columns[0] == "") ?
+                    <thead>
+                    <tr>
+                        {
+                            activeY.map((d, i)=> {
+                                return <th key={i}>{d.name}</th>
+                            })
+                        }
+                    </tr>
+                    </thead> :
+                    <thead>
+                    <tr>
+                        <th>系列</th>
+                        {
+                            activeY.map((d, i)=> {
+                                return <th key={i}>{d.name}</th>
+                            })
+                        }
+                    </tr>
+                    </thead>;
+                dom = <div className={css.barTips}>
+                    <div className={css.table} style={{top: tipsMarginTop, left: tipsMarginLeft}} onMouseOver={e=> {
+                        this.setState({
+                            isInAxis: false
+                        });
+                    }}>
+                        <table>
+                            {thead}
+                            <tbody>
+                            {
+                                rows
+                            }
+                            </tbody>
+                        </table>
                     </div>
-                    <div className={css.barCover} style={{
+                    <div className={css.cover} style={{
                         left: coverMarginLeft,
                         top: coverMarginTop,
                         width: unitWidth,
@@ -301,17 +375,6 @@ class chart extends React.Component {
                 </div>;
             }
         }
-        return dom;
-    }
-
-    /**
-     * 绘制标题
-     * @returns {*}
-     */
-    setTitle() {
-        let dom = this.state.title ? <g className={css.title}>
-            <text x="50" y="3">{this.state.title}</text>
-        </g> : "";
         return dom;
     }
 
@@ -575,16 +638,24 @@ class chart extends React.Component {
                         let seriesArr = this.state.seriesData.filter(d2=> {
                             return d2.baseId == d1;
                         });
-                        let stackY = 0;
+                        let stackY = 0, minusStackY = 0;
                         seriesArr.forEach((d2, k)=> {
                             let barHeight = d2.vectors[i].sourceY;
-                            if (barHeight != 0) {
+                            if (barHeight > 0) {
                                 let bar = <path key={i + "-" + j + "-" + k} stroke={d2.color} strokeWidth={barWidth}
                                                 d={`M${barX} ${this.yTransformToSvg(stackY)} L${barX} ${this.yTransformToSvg(stackY + barHeight)}`}
                                                 ref={bar => {
                                                     this["bar" + d2.id + i] = bar;
                                                 }}/>;
                                 stackY += barHeight;
+                                bars.push(bar);
+                            } else if (barHeight < 0) {
+                                let bar = <path key={i + "-" + j + "-" + k} stroke={d2.color} strokeWidth={barWidth}
+                                                d={`M${barX} ${this.yTransformToSvg(minusStackY)} L${barX} ${this.yTransformToSvg(minusStackY + barHeight)}`}
+                                                ref={bar => {
+                                                    this["bar" + d2.id + i] = bar;
+                                                }}/>;
+                                minusStackY += barHeight;
                                 bars.push(bar);
                             }
                         });
@@ -625,34 +696,28 @@ class chart extends React.Component {
                             </g>;
                             break;
                         case "bar":
+                            let isValid = true;
+                            if (this.state.type == "bar" && this.state.activeSeries != undefined) {
+                                //柱状图
+                                let index = this.state.xAxisArr.findIndex(d=> {
+                                    return d == this.state.activeX;
+                                });
+                                if (index >= 0) {
+                                    isValid = false;
+                                }
+                            }
                             let offsetX = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
                             let offsetY = this.state["dot-" + d.id + "-active"] ? 0.2 : 0;
-                            symbol = <g key={i}>
+                            symbol = isValid ? <g key={i}>
                                 <rect fill={color} x={x - offsetX} y={y - offsetY} width={3 + offsetX * 2}
                                       height={1 + offsetY * 2}/>
                                 <text x="94.5" y={y + 1}>{d.name}</text>
-                            </g>;
+                            </g> : "";
                             break;
                     }
                     return symbol;
                 })
             }
-            <g className={css.setColor} onClick={() => {
-                let seriesData = this.setColor();
-                this.setState({seriesData: seriesData});
-            }}>
-                {
-                    this.state.seriesData.map((d, i) => {
-                        let color = d.color;
-                        let x = 80 + i * 1;
-                        let y1 = 5;
-                        let y2 = 7;
-                        return <path key={i} strokeWidth={1} stroke={color}
-                                     d={`M${x} ${y1} L${x} ${y2}`}/>
-                    })
-                }
-                <text x={79.5 + this.state.seriesData.length / 2} y="4" textAnchor="middle">reset color</text>
-            </g>
             {
                 this.setTypeList()
             }
@@ -828,21 +893,26 @@ class chart extends React.Component {
             //bar需要按分组先堆叠，再进行计算
             this.props.y.forEach(d=> {
                 xAxisArr.forEach(d1=> {
-                    let value = 0;
+                    let minValue = 0, maxValue = 0;
                     data.filter(d2=> {
                         return d2.hasOwnProperty(d.id) && d2[this.state.x] == d1;
                     }).forEach(d2=> {
-                        value += d2[d.id];
+                        let v = d2[d.id];
+                        if (v > 0) {
+                            maxValue += v;
+                        } else {
+                            minValue += v;
+                        }
                     });
                     if (max == undefined) {
-                        max = value;
+                        max = maxValue;
                     } else {
-                        max = Math.max(value, max);
+                        max = Math.max(maxValue, max);
                     }
                     if (min == undefined) {
-                        min = value;
+                        min = minValue;
                     } else {
-                        min = Math.min(value, min);
+                        min = Math.min(minValue, min);
                     }
                 })
             });
@@ -914,7 +984,7 @@ class chart extends React.Component {
             yAixsStart = -Math.pow(10, p);
             yAixsEnd = 0;
         } else if (min < 0 && max >= 0) {
-            yAixsStart = -Math.pow(10, p);
+            yAixsStart = -Math.pow(10, pStart);
             yAixsEnd = Math.pow(10, p);
             calibration = calibration * 2;
         } else if (min >= 0 && max >= 0) {
@@ -1191,9 +1261,9 @@ class chart extends React.Component {
         let y = e.pageY - offset.top;
         x = x / $(this.svg).width() * this.state.viewBoxWidth;
         y = y / $(this.svg).height() * this.state.viewBoxHeight;
-        let {series, tipsX, tipsY, activeX} = this.getNearestSeries(x, y);
+        let {series, tipsX, tipsY, activeX, isInAxis} = this.getNearestSeries(x, y);
+        let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX, isInAxis: isInAxis};
         if (series) {
-            let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             json["dot-" + series + "-active"] = true;
             json["curve-" + series + "-active"] = true;
             this.state.seriesData.filter(d => {
@@ -1204,7 +1274,6 @@ class chart extends React.Component {
             });
             this.setState(json);
         } else {
-            let json = {tipsX: tipsX, tipsY: tipsY, activeSeries: series, activeX: activeX};
             this.state.seriesData.forEach(d => {
                 json["dot-" + d.id + "-active"] = false;
                 json["curve-" + d.id + "-active"] = false;
@@ -1220,10 +1289,11 @@ class chart extends React.Component {
      * @returns {*} series
      */
     getNearestSeries(x, y) {
-        let series;
+        let series, isInAxis = false;
         let tipsX, tipsY, index, activeX;
         let w = this.state.xUnitLength;
         if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
+            isInAxis = true;
             switch (this.state.type) {
                 case "curve":
                     //根据x和斜率寻找最近的y
@@ -1319,7 +1389,7 @@ class chart extends React.Component {
             }
 
         }
-        return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX};
+        return {series: series, tipsX: tipsX, tipsY: tipsY, activeX: activeX, isInAxis: isInAxis};
     }
 
 
@@ -1403,6 +1473,25 @@ class chart extends React.Component {
         return path;
     }
 
+
+    /**
+     * 鼠标离开svg元素时的判断
+     * @param e
+     */
+    mouseLeave(e) {
+        let isInAxis = false;
+        let offset = $(this.svg).offset();
+        let x = e.pageX - offset.left;
+        let y = e.pageY - offset.top;
+        x = x / $(this.svg).width() * this.state.viewBoxWidth;
+        y = y / $(this.svg).height() * this.state.viewBoxHeight;
+        if (x >= 10 && x <= 90 && y >= 15 && y <= 55) {
+            isInAxis = true;
+        }
+        this.setState({
+            isInAxis: isInAxis
+        });
+    }
 }
 
 module.exports = chart;
