@@ -32,6 +32,7 @@ class chart extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            data: this.props.data,
             x: this.props.x,
             xAxisArr: [],
             y: [],
@@ -62,11 +63,15 @@ class chart extends React.Component {
     }
 
     componentWillMount() {
-        this.doUpdate(this.props.data);
+
     }
 
-    doUpdate(data) {
-        data = this.sortData(data);
+    componentDidMount() {
+        this.doUpdate();
+    }
+
+    doUpdate() {
+        let data = this.sortData(this.state.data);
         let xValueArr = [];
         let xAxisArr = data.filter(d=> {
             if (xValueArr.includes(d[this.state.x])) {
@@ -81,26 +86,34 @@ class chart extends React.Component {
 
         //根据group属性对data进行分组求和,计算正数和负数的最大最小值
         let groupData = [];
-
         data.forEach(d=> {
-            let findElement = groupData.find(d1=> {
+            let hasSameGroup = groupData.some(d1=> {
                 let isSameGroup = this.props.group ? (this.props.group.every(d2=> {
                     return d1[d2] == d[d2];
                 })) : true;
                 return d1[this.state.x] == d[this.state.x] && isSameGroup;
             });
-            if (findElement != undefined) {
+            if (hasSameGroup) {
                 //对包含在y中的系列值进行求和
-                for (let k in findElement) {
-                    let isSeries = this.props.y.some(d=> {
-                        return k == d.id;
+                for (let k in d) {
+                    let isSeries = this.props.y.some(d2=> {
+                        return k == d2.id;
                     });
                     if (isSeries) {
-                        findElement[k] += d[k];
+                        groupData = groupData.map(d1=> {
+                            let isSameGroup = this.props.group ? (this.props.group.every(d2=> {
+                                return d1[d2] == d[d2];
+                            })) : true;
+                            if (d1[this.state.x] == d[this.state.x] && isSameGroup) {
+                                d1[k] = d1[k] + d[k];
+                            }
+                            return d1;
+                        });
                     }
                 }
             } else {
-                groupData.push(d);
+                let json = Object.assign({},d);
+                groupData.push(json);
             }
         });
 
@@ -151,11 +164,25 @@ class chart extends React.Component {
                             let barRef = this["bar" + d.id + i];
                             if (barRef) {
                                 let length = barRef.getTotalLength();
+                                //计算bar的宽度
+                                let w = this.state.xUnitLength;
+                                let baseIdArr = [];
+                                this.state.seriesData.forEach(d=> {
+                                    if (!baseIdArr.includes(d.baseId)) {
+                                        baseIdArr.push(d.baseId);
+                                    }
+                                });
+                                let barWidth = w / ((baseIdArr.length + 2) * 1.5);
+
                                 $(barRef).css({
                                     "stroke-dasharray": length,
-                                    "stroke-dashoffset": length
+                                    "stroke-dashoffset": length,
+                                    "stroke-width": "0px"
                                 });
-                                $(barRef).animate({"stroke-dashoffset": "0px"}, 1000, "linear");
+                                $(barRef).animate({
+                                    "stroke-dashoffset": "0px",
+                                    "stroke-width": barWidth+"px"
+                                }, 1000, "linear");
                             }
                         });
                     });
@@ -166,7 +193,11 @@ class chart extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (this.props.data != nextProps.data) {
-            this.doUpdate(nextProps.data);
+            this.setState({
+                data: nextProps.data
+            }, ()=> {
+                this.doUpdate();
+            });
         }
     }
 
@@ -551,7 +582,7 @@ class chart extends React.Component {
                 this.setState({
                     type: "curve"
                 }, ()=> {
-                    this.doUpdate(this.props.data);
+                    this.doUpdate();
                 });
             }}>
                 <path className={css.iconBackground} d={`M91 1 h3 v3 h-3 z`}></path>
@@ -562,7 +593,7 @@ class chart extends React.Component {
                 this.setState({
                     type: "bar"
                 }, ()=> {
-                    this.doUpdate(this.props.data);
+                    this.doUpdate();
                 });
             }}>
                 <path className={css.iconBackground} d={`M95 1 h3 v3 h-3 z`}></path>

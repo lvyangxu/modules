@@ -1,7 +1,7 @@
 require("babel-polyfill");
 let React = require("react");
 let ReactDom = require("react-dom");
-let Datepicker = require("../karl-component-datepicker/index")
+let Datepicker = require("../karl-component-datepicker/index");
 let Com = require("../karl-component-chart/index");
 let data1 = [
     {date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国"},
