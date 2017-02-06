@@ -13,6 +13,7 @@ import $ from "jquery";
  * y: 代表y轴的json，例如{id:id,name:name}
  * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
  * group：柱状图的分组id数组,例如["a","b"]
+ * xAxisGroupNum：x轴数字分组的基数，较小的轴求余，较大的轴求除，对日期无效
  *
  * 示例：
  * <Chart title="chart" yAxisText="kg" x="date" group={["region","server"]} y={[
@@ -112,7 +113,7 @@ class chart extends React.Component {
                     }
                 }
             } else {
-                let json = Object.assign({},d);
+                let json = Object.assign({}, d);
                 groupData.push(json);
             }
         });
@@ -181,7 +182,7 @@ class chart extends React.Component {
                                 });
                                 $(barRef).animate({
                                     "stroke-dashoffset": "0px",
-                                    "stroke-width": barWidth+"px"
+                                    "stroke-width": barWidth + "px"
                                 }, 1000, "linear");
                             }
                         });
@@ -414,9 +415,13 @@ class chart extends React.Component {
      */
     setXAxis() {
         //判断是否需要细分x轴文字
-        let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+        let dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+        let numberRegex = /^\d+$/;
         let isDate = this.state.xAxisArr.every(d => {
-            return regex.test(d);
+            return dateRegex.test(d);
+        });
+        let isNumber = this.state.xAxisArr.every(d=> {
+            return numberRegex.test(d);
         });
         let textPaddingBottom = 2;
         let textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
@@ -424,6 +429,9 @@ class chart extends React.Component {
         let textY3 = this.state.viewBoxHeight - textPaddingBottom;
         let monthXAxisArr = [];
         let yearXAxisArr = [];
+        let numberSmallXAxisArr = [];
+        let numberBigXAxisArr = [];
+
         if (isDate) {
             let data = this.state.xAxisArr.map(d=> {
                 let arr = d.split("-");
@@ -455,7 +463,28 @@ class chart extends React.Component {
                     yearXAxisArr.push(yearJson);
                 }
             });
+        } else if (this.props.xAxisGroupNum && isNumber) {
+            this.state.xAxisArr.forEach((d, i)=> {
+                let hasNumberSmall = numberSmallXAxisArr.some(d1=> {
+                    return d1.value == d;
+                });
+                if (!hasNumberSmall) {
+                    let value = d % 10;
+                    numberSmallXAxisArr.push({value: value, index: i});
+                }
+                let hasNumberBig = numberBigXAxisArr.some(d1=> {
+                    return d1.value == Math.floor(d / this.props.xAxisGroupNum);
+                });
+                if (!hasNumberBig) {
+                    let length = this.state.xAxisArr.filter(d1=> {
+                        return Math.floor(d1 / this.props.xAxisGroupNum) == Math.floor(d / this.props.xAxisGroupNum);
+                    }).length;
+                    let value = Math.floor(d / this.props.xAxisGroupNum);
+                    numberBigXAxisArr.push({value: value, index: i, length: length});
+                }
+            });
         }
+
         let dom = <g className={css.xAxis}>
             <path d="M10 55 h 80"/>
             {
@@ -492,6 +521,30 @@ class chart extends React.Component {
                                         <path d={`M${startX} ${textY3 - 2} v1`}/>
                                         <path d={`M${endX} ${textY3 - 2} v1`}/>
                                         <text x={startX + d1.length * w / 2} y={textY3}>{d1.year}</text>
+                                    </g>;
+                                })
+                            }
+                        </g>;
+                    } else if (this.props.xAxisGroupNum && isNumber && this.state.xAxisArr.length > 1) {
+                        textDom = <g>
+                            <text x="94.5" y={textY2}>x {this.props.xAxisGroupNum}</text>
+                            {
+                                numberSmallXAxisArr.map((d, i)=> {
+                                    let startX = d.index * w + 10;
+                                    return <g key={i}>
+                                        <text x={startX + w / 2} y={textY1}>{d.value}</text>
+                                    </g>;
+                                })
+                            }
+                            {
+                                numberBigXAxisArr.map((d, i)=> {
+                                    let startX = d.index * w + 10;
+                                    let endX = startX + d.length * w;
+                                    return <g key={i}>
+                                        <path d={`M${startX} ${textY2 - 2} h${d.length * w}`}/>
+                                        <path d={`M${startX} ${textY2 - 2} v1`}/>
+                                        <path d={`M${endX} ${textY2 - 2} v1`}/>
+                                        <text x={startX + d.length * w / 2} y={textY2}>{d.value}</text>
                                     </g>;
                                 })
                             }
@@ -775,16 +828,21 @@ class chart extends React.Component {
     }
 
     /**
-     * 如果x坐标类型为日期，则自动根据日期大小对x轴进行排序
+     * 如果x坐标类型为日期或数字，则自动根据大小对x轴进行排序
      * @param d
      * @returns {Array.<T>|*|{options, browsertest, dist, rhino, rhinolessc}|string}
      */
     sortData(d) {
         let data = d.concat();
-        let regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+        let dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+        let numberRegex = new RegExp(/^\d+$/);
         let isDate = data.every(d1 => {
-            return regex.test(d1[this.props.x]);
+            return dateRegex.test(d1[this.props.x]);
         });
+        let isNumber = data.every(d1=> {
+            return numberRegex.test(d1[this.props.x]);
+        });
+
         if (isDate) {
             data.sort((a, b) => {
                 let arr1 = a[this.props.x].split("-");
@@ -800,6 +858,12 @@ class chart extends React.Component {
                 }
             });
         }
+        if (isNumber) {
+            data.sort((a, b) => {
+                return a[this.props.x] - b[this.props.x];
+            });
+        }
+
         return data;
     }
 

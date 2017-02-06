@@ -59,8 +59,8 @@
 	var ReactDom = __webpack_require__(341);
 	var Datepicker = __webpack_require__(488);
 	var Com = __webpack_require__(505);
-	var data1 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 32, banana: -20, pear: 34, server: 2, region: "中国" }, { date: "2016-9-11", apple: 21, banana: -2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 8, pear: 6, server: 1, region: "美国" }, { date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }];
-	var data2 = [{ date: "2016-9-11", apple: 1, banana: 2, pear: 3 }, { date: "2016-9-13", apple: 0.03, banana: 13, pear: 2 }, { date: "2016-9-12", apple: 5, banana: 27 }, { date: "2016-9-14", apple: 0.05, banana: 7, pear: 3 }, { date: "2016-9-15", apple: 0.08, banana: 6 }];
+	var data1 = [{ date: 3, apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: 5, apple: 32, banana: -20, pear: 34, server: 2, region: "中国" }, { date: 4, apple: 21, banana: -2, pear: 3, server: 2, region: "美国" }, { date: 11, apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: 12, apple: 5, banana: 47, server: 1, region: "中国" }, { date: 22, apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: 13, apple: 8, pear: 6, server: 1, region: "美国" }, { date: 14, apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }];
+	var data2 = [{ date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }, { date: "2016-9-11", apple: 32, banana: -20, pear: 34, server: 2, region: "中国" }, { date: "2016-9-11", apple: 21, banana: -2, pear: 3, server: 2, region: "美国" }, { date: "2016-9-13", apple: 3, banana: 3, pear: 2, server: 1, region: "阿拉伯" }, { date: "2016-9-12", apple: 5, banana: 47, server: 1, region: "中国" }, { date: "2016-10-14", apple: 5, banana: 7, pear: 4, server: 1, region: "美国" }, { date: "2017-1-15", apple: 8, pear: 6, server: 1, region: "美国" }, { date: "2016-9-11", apple: 32, banana: 33, pear: 34, server: 1, region: "中国" }];
 
 	var Xx = function (_React$Component) {
 	    _inherits(Xx, _React$Component);
@@ -31231,6 +31231,7 @@
 	 * y: 代表y轴的json，例如{id:id,name:name}
 	 * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
 	 * group：柱状图的分组id数组,例如["a","b"]
+	 * xAxisGroupNum：x轴数字分组的基数，较小的轴求余，较大的轴求除，对日期无效
 	 *
 	 * 示例：
 	 * <Chart title="chart" yAxisText="kg" x="date" group={["region","server"]} y={[
@@ -31586,9 +31587,9 @@
 	            var _this7 = this;
 
 	            //判断是否需要细分x轴文字
-	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+	            var dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
 	            var isDate = this.state.xAxisArr.every(function (d) {
-	                return regex.test(d);
+	                return dateRegex.test(d);
 	            });
 	            var textPaddingBottom = 2;
 	            var textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
@@ -31596,6 +31597,8 @@
 	            var textY3 = this.state.viewBoxHeight - textPaddingBottom;
 	            var monthXAxisArr = [];
 	            var yearXAxisArr = [];
+	            var numberSmallXAxisArr = [];
+	            var numberBigXAxisArr = [];
 	            if (isDate) {
 	                (function () {
 	                    var data = _this7.state.xAxisArr.map(function (d) {
@@ -31629,7 +31632,28 @@
 	                        }
 	                    });
 	                })();
+	            } else if (this.props.hasOwnProperty("xAxisGroupNum")) {
+	                this.state.xAxisArr.forEach(function (d, i) {
+	                    var hasNumberSmall = numberSmallXAxisArr.some(function (d1) {
+	                        return d1.value == d;
+	                    });
+	                    if (!hasNumberSmall) {
+	                        var value = d % 10;
+	                        numberSmallXAxisArr.push({ value: value, index: i });
+	                    }
+	                    var hasNumberBig = numberBigXAxisArr.some(function (d1) {
+	                        return d1.value == Math.floor(d / _this7.props.xAxisGroupNum);
+	                    });
+	                    if (!hasNumberBig) {
+	                        var length = _this7.state.xAxisArr.filter(function (d1) {
+	                            return Math.floor(d1 / _this7.props.xAxisGroupNum) == Math.floor(d / _this7.props.xAxisGroupNum);
+	                        }).length;
+	                        var _value = Math.floor(d / _this7.props.xAxisGroupNum);
+	                        numberBigXAxisArr.push({ value: _value, index: i, length: length });
+	                    }
+	                });
 	            }
+
 	            var dom = _react2.default.createElement("g", { className: _index2.default.xAxis }, _react2.default.createElement("path", { d: "M10 55 h 80" }), this.state.xUnitLength == Infinity ? "" : this.state.xAxisArr.map(function (d, i) {
 	                var w = _this7.state.xUnitLength;
 	                var x = i * w + 10;
@@ -31645,6 +31669,15 @@
 	                        var startX = d1.index * w + 10;
 	                        var endX = startX + d1.length * w;
 	                        return _react2.default.createElement("g", { key: j }, _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " h" + d1.length * w }), _react2.default.createElement("path", { d: "M" + startX + " " + (textY3 - 2) + " v1" }), _react2.default.createElement("path", { d: "M" + endX + " " + (textY3 - 2) + " v1" }), _react2.default.createElement("text", { x: startX + d1.length * w / 2, y: textY3 }, d1.year));
+	                    }));
+	                } else if (_this7.props.hasOwnProperty("xAxisGroupNum") && _this7.state.xAxisArr.length > 1) {
+	                    textDom = _react2.default.createElement("g", null, _react2.default.createElement("text", { x: "94.5", y: textY2 }, "x ", _this7.props.xAxisGroupNum), numberSmallXAxisArr.map(function (d, i) {
+	                        var startX = d.index * w + 10;
+	                        return _react2.default.createElement("g", { key: i }, _react2.default.createElement("text", { x: startX + w / 2, y: textY1 }, d.value));
+	                    }), numberBigXAxisArr.map(function (d, i) {
+	                        var startX = d.index * w + 10;
+	                        var endX = startX + d.length * w;
+	                        return _react2.default.createElement("g", { key: i }, _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " h" + d.length * w }), _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " v1" }), _react2.default.createElement("path", { d: "M" + endX + " " + (textY2 - 2) + " v1" }), _react2.default.createElement("text", { x: startX + d.length * w / 2, y: textY2 }, d.value));
 	                    }));
 	                } else {
 	                    textDom = _react2.default.createElement("text", { x: x + w / 2, y: textY1 }, d);
@@ -31907,7 +31940,7 @@
 	        }
 
 	        /**
-	         * 如果x坐标类型为日期，则自动根据日期大小对x轴进行排序
+	         * 如果x坐标类型为日期或数字，则自动根据大小对x轴进行排序
 	         * @param d
 	         * @returns {Array.<T>|*|{options, browsertest, dist, rhino, rhinolessc}|string}
 	         */
@@ -31918,10 +31951,15 @@
 	            var _this14 = this;
 
 	            var data = d.concat();
-	            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+	            var dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+	            var numberRegex = new RegExp(/^\d+$/);
 	            var isDate = data.every(function (d1) {
-	                return regex.test(d1[_this14.props.x]);
+	                return dateRegex.test(d1[_this14.props.x]);
 	            });
+	            var isNumber = data.every(function (d1) {
+	                return numberRegex.test(d1[_this14.props.x]);
+	            });
+
 	            if (isDate) {
 	                data.sort(function (a, b) {
 	                    var arr1 = a[_this14.props.x].split("-");
@@ -31937,6 +31975,12 @@
 	                    }
 	                });
 	            }
+	            if (isNumber) {
+	                data.sort(function (a, b) {
+	                    return a[_this14.props.x] - b[_this14.props.x];
+	                });
+	            }
+
 	            return data;
 	        }
 

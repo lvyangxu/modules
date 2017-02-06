@@ -36,6 +36,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * y: 代表y轴的json，例如{id:id,name:name}
  * data: 包含x轴id和y轴所有或部分id的json(未被包含的id值默认为0)，例如{"x":1,"y1":4,"y2":5}
  * group：柱状图的分组id数组,例如["a","b"]
+ * xAxisGroupNum：x轴数字分组的基数，较小的轴求余，较大的轴求除，对日期无效
  *
  * 示例：
  * <Chart title="chart" yAxisText="kg" x="date" group={["region","server"]} y={[
@@ -496,9 +497,13 @@ var chart = function (_React$Component) {
             var _this7 = this;
 
             //判断是否需要细分x轴文字
-            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+            var dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+            var numberRegex = /^\d+$/;
             var isDate = this.state.xAxisArr.every(function (d) {
-                return regex.test(d);
+                return dateRegex.test(d);
+            });
+            var isNumber = this.state.xAxisArr.every(function (d) {
+                return numberRegex.test(d);
             });
             var textPaddingBottom = 2;
             var textY1 = (this.state.viewBoxHeight - textPaddingBottom - 55) / 3 + 55;
@@ -506,6 +511,9 @@ var chart = function (_React$Component) {
             var textY3 = this.state.viewBoxHeight - textPaddingBottom;
             var monthXAxisArr = [];
             var yearXAxisArr = [];
+            var numberSmallXAxisArr = [];
+            var numberBigXAxisArr = [];
+
             if (isDate) {
                 (function () {
                     var data = _this7.state.xAxisArr.map(function (d) {
@@ -539,7 +547,28 @@ var chart = function (_React$Component) {
                         }
                     });
                 })();
+            } else if (this.props.xAxisGroupNum && isNumber) {
+                this.state.xAxisArr.forEach(function (d, i) {
+                    var hasNumberSmall = numberSmallXAxisArr.some(function (d1) {
+                        return d1.value == d;
+                    });
+                    if (!hasNumberSmall) {
+                        var value = d % 10;
+                        numberSmallXAxisArr.push({ value: value, index: i });
+                    }
+                    var hasNumberBig = numberBigXAxisArr.some(function (d1) {
+                        return d1.value == Math.floor(d / _this7.props.xAxisGroupNum);
+                    });
+                    if (!hasNumberBig) {
+                        var length = _this7.state.xAxisArr.filter(function (d1) {
+                            return Math.floor(d1 / _this7.props.xAxisGroupNum) == Math.floor(d / _this7.props.xAxisGroupNum);
+                        }).length;
+                        var _value = Math.floor(d / _this7.props.xAxisGroupNum);
+                        numberBigXAxisArr.push({ value: _value, index: i, length: length });
+                    }
+                });
             }
+
             var dom = _react2.default.createElement(
                 "g",
                 { className: _index2.default.xAxis },
@@ -603,6 +632,45 @@ var chart = function (_React$Component) {
                                         "text",
                                         { x: startX + d1.length * w / 2, y: textY3 },
                                         d1.year
+                                    )
+                                );
+                            })
+                        );
+                    } else if (_this7.props.xAxisGroupNum && isNumber && _this7.state.xAxisArr.length > 1) {
+                        textDom = _react2.default.createElement(
+                            "g",
+                            null,
+                            _react2.default.createElement(
+                                "text",
+                                { x: "94.5", y: textY2 },
+                                "x ",
+                                _this7.props.xAxisGroupNum
+                            ),
+                            numberSmallXAxisArr.map(function (d, i) {
+                                var startX = d.index * w + 10;
+                                return _react2.default.createElement(
+                                    "g",
+                                    { key: i },
+                                    _react2.default.createElement(
+                                        "text",
+                                        { x: startX + w / 2, y: textY1 },
+                                        d.value
+                                    )
+                                );
+                            }),
+                            numberBigXAxisArr.map(function (d, i) {
+                                var startX = d.index * w + 10;
+                                var endX = startX + d.length * w;
+                                return _react2.default.createElement(
+                                    "g",
+                                    { key: i },
+                                    _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " h" + d.length * w }),
+                                    _react2.default.createElement("path", { d: "M" + startX + " " + (textY2 - 2) + " v1" }),
+                                    _react2.default.createElement("path", { d: "M" + endX + " " + (textY2 - 2) + " v1" }),
+                                    _react2.default.createElement(
+                                        "text",
+                                        { x: startX + d.length * w / 2, y: textY2 },
+                                        d.value
                                     )
                                 );
                             })
@@ -959,7 +1027,7 @@ var chart = function (_React$Component) {
         }
 
         /**
-         * 如果x坐标类型为日期，则自动根据日期大小对x轴进行排序
+         * 如果x坐标类型为日期或数字，则自动根据大小对x轴进行排序
          * @param d
          * @returns {Array.<T>|*|{options, browsertest, dist, rhino, rhinolessc}|string}
          */
@@ -970,10 +1038,15 @@ var chart = function (_React$Component) {
             var _this14 = this;
 
             var data = d.concat();
-            var regex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+            var dateRegex = new RegExp(/^[1-2]\d{3}-((0[1-9])|(1[0-2])|[1-9])-((0[1-9])|([1-2]\d)|(3[0-1])|[1-9])$/);
+            var numberRegex = new RegExp(/^\d+$/);
             var isDate = data.every(function (d1) {
-                return regex.test(d1[_this14.props.x]);
+                return dateRegex.test(d1[_this14.props.x]);
             });
+            var isNumber = data.every(function (d1) {
+                return numberRegex.test(d1[_this14.props.x]);
+            });
+
             if (isDate) {
                 data.sort(function (a, b) {
                     var arr1 = a[_this14.props.x].split("-");
@@ -989,6 +1062,12 @@ var chart = function (_React$Component) {
                     }
                 });
             }
+            if (isNumber) {
+                data.sort(function (a, b) {
+                    return a[_this14.props.x] - b[_this14.props.x];
+                });
+            }
+
             return data;
         }
 
