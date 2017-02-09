@@ -10,3 +10,18 @@ var value = [{
 }];
 // let data = excel.read("./12.xlsx", value);
 excel.write("./12.xlsx", value);
+
+var fs = require("fs");
+var text = fs.readFileSync("./module_type.txt", "utf-8");
+var arr = text.replace(/\r\n/g, "\n").split("\n");
+arr = arr.map(function (d) {
+    var arr1 = d.split(",");
+    var id = arr1.filter(function (d1, i) {
+        return i != arr1.length - 1;
+    }).join("-");
+    var json = { id: id, name: arr1[arr1.length - 1] };
+    // return JSON.stringify(json);
+    return json.name;
+});
+
+fs.writeFileSync("./1.txt", arr.join("|"));

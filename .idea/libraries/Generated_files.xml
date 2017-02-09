@@ -6,6 +6,7 @@
         <item url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-login/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
         <item url="file://$PROJECT_DIR$/test/test.js" />
         <item url="file://$PROJECT_DIR$/karl-component-select/index.js" />
@@ -23,6 +24,7 @@
       <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-login/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
       <root url="file://$PROJECT_DIR$/test/test.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/index.js" />

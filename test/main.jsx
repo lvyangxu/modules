@@ -1,8 +1,9 @@
 require("babel-polyfill");
 let React = require("react");
 let ReactDom = require("react-dom");
-let Datepicker = require("../karl-component-datepicker/index");
-let Com = require("../karl-component-chart/index");
+// let Datepicker = require("../karl-component-datepicker/index");
+// let Chart = require("../karl-component-chart/index");
+let Scroll = require("../karl-component-scroll/index");
 let data1 = [
     {date: 3, apple: 32, banana: 33, pear: 34, server: 1, region: "中国"},
     {date: 5, apple: 32, banana: -20, pear: 34, server: 2, region: "中国"},
@@ -39,11 +40,11 @@ class Xx extends React.Component {
                 <Datepicker type="second" callback={d=> {
                     console.log(d);
                 }}/>
-                <Com title="chart" xAxisGroupNum={10} yAxisText="kg" x="date" y={[
+                <Chart title="chart" xAxisGroupNum={10} yAxisText="kg" x="date" y={[
                     {id: "apple", name: "apple"},
                     {id: "banana", name: "banana"},
                     {id: "pear", name: "pear"}
-                ]} data={this.state.data} group={["server","region"]} type="bar"/>
+                ]} data={this.state.data} group={["server", "region"]} type="bar"/>
                 <button onClick={()=> {
                     let data = data2;
                     this.setState({data: data});
@@ -55,9 +56,14 @@ class Xx extends React.Component {
 }
 
 
+
 ReactDom.render(
     <div>
-        <Xx/>
+        <Scroll>
+            <div style={{backgroundColor: "yellow"}}>1</div>
+            <div style={{backgroundColor: "red"}}>2</div>
+            <div style={{backgroundColor: "blue"}}>3</div>
+        </Scroll>
 
     </div>
     , document.getElementById("test"));
