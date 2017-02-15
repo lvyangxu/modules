@@ -29637,16 +29637,15 @@
 	}
 
 	/**
-	 * react轮播组件,组件第一级子元素为进行轮播的dom
+	 * react全屏滚动组件,组件第一级子元素每一页的dom
 	 * dots：为false或"false"时不显示，默认显示
-	 * auto：为false或"false"时不自动播放，默认自动播放，间隔为5秒
 	 *
 	 * 示例：
-	 * <Carousel>
-	 *     <img src="1.png"/>
-	 *     <img src="2.png"/>
-	 *     <img src="3.png"/>
-	 * </Carousel>
+	 * <Scroll>
+	 *     <div>1</div>
+	 *     <div>2</div>
+	 *     <div>3</div>
+	 * </Scroll>
 	 */
 	var scroll = function (_React$Component) {
 	    _inherits(scroll, _React$Component);
@@ -29659,10 +29658,9 @@
 	        _this.state = {
 	            content: [],
 	            index: 0,
-	            isMouseDown: false,
 	            isScrolling: false
 	        };
-	        var bindArr = ["delegateScroll", "delegateTouch", "animateTo", "cssTo", "startMove", "doMove", "endMove", "autoPlay"];
+	        var bindArr = ["delegateScroll", "delegateTouch", "animateTo", "startMove", "doMove", "endMove"];
 	        bindArr.forEach(function (d) {
 	            _this[d] = _this[d].bind(_this);
 	        });
@@ -29672,209 +29670,157 @@
 	    _createClass(scroll, [{
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
-	            // this.delegateTouch();
+	            var _this2 = this;
+
+	            this.delegateTouch();
 	            this.delegateScroll();
 	            var content = this.props.children.concat();
 	            this.setState({
 	                content: content,
-	                dots: !(this.props.dots == false || this.props.dots == "false"),
-	                auto: !(this.props.auto == false || this.props.auto == "false")
+	                dots: !(this.props.dots == false || this.props.dots == "false")
 	            });
-
-	            if (this.props.auto == true || this.props.auto == "true") {
-	                this.autoPlay();
-	            }
+	            (0, _jquery2.default)(window).resize(function () {
+	                _this2.setState({
+	                    height: (0, _jquery2.default)(window).height()
+	                });
+	            });
 	        }
 	    }, {
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {}
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.setState({
+	                height: (0, _jquery2.default)(window).height()
+	            });
+	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 
 	            return _react2.default.createElement("div", { className: _index2.default.base + " react-scroll" }, _react2.default.createElement("div", { className: _index2.default.container, ref: function ref(d) {
-	                    _this2.container = d;
+	                    _this3.container = d;
 	                } }, this.state.content.map(function (d, i) {
-	                var style = Object.assign({
-	                    height: (0, _jquery2.default)(window).height()
-	                }, d.props.style);
-	                var json = {
-	                    style: style,
-	                    className: _index2.default.item,
-	                    key: i
+	                var style = {
+	                    height: _this3.state.height
 	                };
-	                var dom = _react2.default.cloneElement(d, json);
-	                return dom;
+	                return _react2.default.createElement("div", { className: _index2.default.item, key: i, style: style, ref: function ref(d1) {
+	                        _this3["item" + i] = d1;
+	                    } }, d);
 	            })), _react2.default.createElement("div", { className: _index2.default.dots, style: this.state.dots ? {} : { display: "none" } }, this.state.content.map(function (d, i) {
 	                return _react2.default.createElement("div", { key: i,
-	                    className: _this2.state.index == i ? _index2.default.dot + " " + _index2.default.active : _index2.default.dot,
+	                    className: _this3.state.index == i ? _index2.default.dot + " " + _index2.default.active : _index2.default.dot,
 	                    onClick: function onClick() {
-	                        _this2.animateTo(i);
+	                        _this3.animateTo(i);
 	                    } });
 	            })));
 	        }
-	    }, {
-	        key: "autoPlay",
-	        value: function autoPlay() {
-	            var _this3 = this;
 
-	            setTimeout(function () {
-	                if (_this3.state.manual) {
-	                    return;
-	                }
-	                if (!_this3.state.isHover) {
-	                    if (_this3.state.index == _this3.state.content.length - 2) {
-	                        _this3.cssTo(0);
-	                        _this3.animateTo(1);
-	                    } else {
-	                        _this3.animateTo(_this3.state.index + 1);
-	                    }
-	                }
-	                _this3.autoPlay();
-	            }, 5000);
-	        }
+	        /**
+	         * 滚动到某一页
+	         * @param i
+	         */
+
 	    }, {
 	        key: "animateTo",
 	        value: function animateTo(i) {
-	            // $(this.container).animate({marginLeft: -i * 100 + "%"});
-	            // this.setState({
-	            //     index: i,
-	            //     isMouseDown: false
-	            // });
-	        }
-	    }, {
-	        key: "cssTo",
-	        value: function cssTo(i, offset) {
-	            // offset = (offset == undefined) ? 0 : offset;
-	            // $(this.container).css({marginLeft: -i * 100 + offset + "%"});
-	            // this.setState({
-	            //     index: i
-	            // });
+	            var _this4 = this;
+
+	            this.setState({
+	                isScrolling: true,
+	                index: i
+	            }, function () {
+	                (0, _jquery2.default)(_this4.container).animate({
+	                    "margin-top": -(0, _jquery2.default)(window).height() * _this4.state.index
+	                }, 800, "linear", function () {
+	                    _this4.setState({ isScrolling: false });
+	                });
+	            });
 	        }
 	    }, {
 	        key: "startMove",
-	        value: function startMove(x) {
+	        value: function startMove(y) {
 	            this.setState({
-	                startX: x,
-	                isMouseDown: true,
-	                manual: true
+	                start: y
 	            });
 	        }
 	    }, {
 	        key: "doMove",
-	        value: function doMove(x) {
-	            if (this.state.startX && this.state.isMouseDown) {
-	                this.setState({
-	                    endX: x
-	                });
-
-	                var deltaX = x - this.state.startX;
-	                if ((0, _jquery2.default)(this.container).is(":animated")) {
-	                    (0, _jquery2.default)(this.container).stop();
-	                }
-	                var endMarginLeft = void 0;
-	                var deltaXPercent = deltaX * this.state.content.length / (0, _jquery2.default)(this.container).width();
-	                endMarginLeft = (-this.state.index + deltaXPercent) * 100 + "%";
-	                (0, _jquery2.default)(this.container).css({ marginLeft: endMarginLeft });
-	            }
+	        value: function doMove(y) {
+	            this.setState({
+	                end: y
+	            });
 	        }
 	    }, {
 	        key: "endMove",
 	        value: function endMove() {
-	            var deltaX = this.state.endX - this.state.startX;
-	            this.setState({
-	                startX: undefined,
-	                endX: undefined
-	            });
-
-	            if (Math.abs(deltaX) < 30) {
-	                this.animateTo(this.state.index);
+	            var delta = this.state.end - this.state.start;
+	            if (Math.abs(delta) < 30) {
 	                return;
 	            }
-	            var endIndex = void 0;
-	            var endMin = 0;
-	            var endMax = this.state.content.length - 1;
-
-	            if (deltaX >= 30) {
-	                //drag right
-	                endIndex = this.state.index - 1;
-	                endIndex = Math.max(endIndex, endMin);
-	                if (endIndex == 0) {
-	                    endIndex = this.state.content.length - 1;
-	                    var offset = (0, _jquery2.default)(this.container).css("marginLeft");
-	                    offset = Number.parseFloat(offset) * this.state.content.length / (0, _jquery2.default)(this.container).width();
-	                    offset = offset + 1;
-	                    offset = offset * 100;
-	                    this.cssTo(endIndex, offset);
-	                    endIndex--;
-	                }
-	            } else if (deltaX <= -30) {
-	                //drag left
-	                endIndex = this.state.index + 1;
-	                endIndex = Math.min(endIndex, endMax);
-	                if (endIndex == this.state.content.length - 1) {
-	                    endIndex = 0;
-	                    var _offset = (0, _jquery2.default)(this.container).css("marginLeft");
-	                    _offset = Number.parseFloat(_offset) * this.state.content.length / (0, _jquery2.default)(this.container).width();
-	                    _offset = _offset + this.state.content.length - 2;
-	                    _offset = _offset * 100;
-	                    this.cssTo(endIndex, _offset);
-	                    endIndex++;
-	                }
-	            }
-	            endIndex = endIndex == undefined ? this.state.index : endIndex;
-	            this.animateTo(endIndex);
+	            this.doScroll(delta);
 	        }
+
+	        /**
+	         * 监听触摸事件
+	         */
+
 	    }, {
 	        key: "delegateTouch",
 	        value: function delegateTouch() {
-	            var _this4 = this;
+	            var _this5 = this;
 
 	            this.container.addEventListener('touchstart', function (e) {
 	                e.preventDefault();
-	                _this4.startMove(e.touches[0].pageX);
+	                if (_this5.state.isScrolling) {
+	                    return;
+	                }
+	                _this5.startMove(e.touches[0].pageY);
 	            }, false);
 	            this.container.addEventListener('touchmove', function (e) {
 	                e.preventDefault();
-	                _this4.doMove(e.touches[0].pageX);
+	                if (_this5.state.isScrolling) {
+	                    return;
+	                }
+	                _this5.doMove(e.touches[0].pageY);
 	            }, false);
 	            this.container.addEventListener('touchend', function (e) {
 	                e.preventDefault();
-	                _this4.endMove();
+	                if (_this5.state.isScrolling) {
+	                    return;
+	                }
+	                _this5.endMove();
 	            });
 	        }
-	    }, {
-	        key: "delegateMouse",
-	        value: function delegateMouse() {
-	            var _this5 = this;
 
-	            this.container.addEventListener('mouseover', function (e) {
-	                e.preventDefault();
-	                _this5.setState({
-	                    isHover: true
-	                });
-	            }, false);
-	            this.container.addEventListener('mousedown', function (e) {
-	                e.preventDefault();
-	                _this5.startMove(e.pageX);
-	            }, false);
-	            this.container.addEventListener('mousemove', function (e) {
-	                e.preventDefault();
-	                _this5.doMove(e.pageX);
-	            }, false);
-	            this.container.addEventListener('mouseleave', function (e) {
-	                e.preventDefault();
-	                _this5.setState({
-	                    isHover: false
-	                });
-	                _this5.endMove();
-	            }, false);
-	            this.container.addEventListener('mouseup', function (e) {
-	                e.preventDefault();
-	                _this5.endMove();
-	            }, false);
+	        /**
+	         * 执行滚动
+	         * @param delta
+	         */
+
+	    }, {
+	        key: "doScroll",
+	        value: function doScroll(delta) {
+	            var index = this.state.index;
+	            if (delta > 0) {
+	                //朝前滚动
+	                if (index == 0) {
+	                    return;
+	                }
+	                index--;
+	            } else {
+	                //朝后滚动
+	                if (index == this.state.content.length - 1) {
+	                    return;
+	                }
+	                index++;
+	            }
+	            this.animateTo(index);
 	        }
+
+	        /**
+	         * 监听鼠标滚动事件
+	         */
+
 	    }, {
 	        key: "delegateScroll",
 	        value: function delegateScroll() {
@@ -29886,28 +29832,7 @@
 	                    return;
 	                }
 	                var delta = event.originalEvent.wheelDelta || -event.originalEvent.detail;
-	                var index = _this6.state.index;
-	                if (delta > 0) {
-	                    //朝上
-	                    if (index != 0) {
-	                        index--;
-	                    }
-	                } else {
-	                    if (index != _this6.state.content.length - 1) {
-	                        index++;
-	                    }
-	                }
-
-	                _this6.setState({
-	                    isScrolling: true,
-	                    index: index
-	                }, function () {
-	                    (0, _jquery2.default)(_this6.container).animate({
-	                        "margin-top": -(0, _jquery2.default)(window).height() * _this6.state.index
-	                    }, 800, "linear", function () {
-	                        _this6.setState({ isScrolling: false });
-	                    });
-	                });
+	                _this6.doScroll(delta);
 	            });
 	        }
 	    }]);
@@ -29952,7 +29877,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\r\n  overflow: hidden; }\r\n\r\n._1KMybMsoX_2EtaKIt9Cl6k ._2F0jo_JiWG7GMQz_dVXQNL ._2KvbUh4wXk0FAaJatxrn95 {\r\n  -webkit-user-select: none;\r\n     -moz-user-select: none;\r\n      -ms-user-select: none;\r\n          user-select: none;\r\n  background-color: transparent; }\r\n._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg {\r\n  position: absolute;\r\n  right: 10px;\r\n  top: 50%;\r\n  background-color: transparent; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h {\r\n    cursor: pointer;\r\n    margin-top: 20px;\r\n    width: 10px;\r\n    height: 10px;\r\n    border-radius: 5px;\r\n    background-color: #d6d6d6; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h:first-child {\r\n    margin-top: 0; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h:hover {\r\n    background-color: #869791; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h._2vsGhOavC9SIff7uW9wPRn {\r\n    background-color: #869791; }\r\n", ""]);
+	exports.push([module.id, "body {\r\n  overflow: hidden; }\r\n\r\n._1KMybMsoX_2EtaKIt9Cl6k ._2F0jo_JiWG7GMQz_dVXQNL ._2KvbUh4wXk0FAaJatxrn95 {\r\n  -webkit-user-select: none;\r\n     -moz-user-select: none;\r\n      -ms-user-select: none;\r\n          user-select: none;\r\n  overflow: hidden; }\r\n._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg {\r\n  position: absolute;\r\n  right: 10px;\r\n  top: 50%;\r\n  background-color: transparent; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h {\r\n    cursor: pointer;\r\n    margin-top: 20px;\r\n    width: 10px;\r\n    height: 10px;\r\n    border-radius: 5px;\r\n    background-color: #d6d6d6; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h:first-child {\r\n    margin-top: 0; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h:hover {\r\n    background-color: #869791; }\r\n  ._1KMybMsoX_2EtaKIt9Cl6k ._1UBCOucSwqu5knUQnkZngg ._2kWajnkEQyQqmrAMHxza6h._2vsGhOavC9SIff7uW9wPRn {\r\n    background-color: #869791; }\r\n", ""]);
 
 	// exports
 	exports.locals = {

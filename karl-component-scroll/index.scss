@@ -6,9 +6,8 @@ body {
     .container {
         .item {
             user-select: none;
-            background-color: transparent;
+            overflow: hidden;
         }
-
     }
 
     .dots {

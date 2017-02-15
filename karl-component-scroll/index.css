@@ -3,7 +3,7 @@ body {
 
 .base .container .item {
   user-select: none;
-  background-color: transparent; }
+  overflow: hidden; }
 .base .dots {
   position: absolute;
   right: 10px;
