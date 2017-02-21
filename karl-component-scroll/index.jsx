@@ -5,7 +5,9 @@ import $ from "jquery";
 /**
  * react全屏滚动组件,组件第一级子元素每一页的dom
  * dots：为false或"false"时不显示，默认显示
- *
+ * index：初始位置，默认为0
+ * animateWillMount：动画执行前的回调
+ * animateDidMount：动画执行后的回调
  * 示例：
  * <Scroll>
  *     <div>1</div>
@@ -18,7 +20,7 @@ class scroll extends React.Component {
         super(props);
         this.state = {
             content: [],
-            index: 0,
+            index: this.props.index ? this.props.index : 0,
             isScrolling: false
         };
         let bindArr = ["delegateScroll", "delegateTouch", "animateTo", "startMove", "doMove", "endMove"];
@@ -49,9 +51,13 @@ class scroll extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            content: nextProps.children
-        })
+        let state = {};
+        if (nextProps.children != this.props.children) {
+            state.content = nextProps.children;
+        }
+        if (Object.keys(state).length != 0) {
+            this.setState(state);
+        }
     }
 
     render() {
@@ -89,6 +95,9 @@ class scroll extends React.Component {
      * @param i
      */
     animateTo(i) {
+        if (this.props.animateWillMount) {
+            this.props.animateWillMount(i);
+        }
         this.setState({
             isScrolling: true,
             index: i
@@ -96,9 +105,13 @@ class scroll extends React.Component {
             $(this.container).animate({
                 "margin-top": -$(window).height() * this.state.index
             }, 800, "linear", ()=> {
+                if (this.props.animateDidMount) {
+                    this.props.animateDidMount(i);
+                }
                 this.setState({isScrolling: false});
             });
         });
+
     }
 
     startMove(y) {

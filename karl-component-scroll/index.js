@@ -25,7 +25,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * react全屏滚动组件,组件第一级子元素每一页的dom
  * dots：为false或"false"时不显示，默认显示
- *
+ * index：初始位置，默认为0
+ * animateWillMount：动画执行前的回调
+ * animateDidMount：动画执行后的回调
  * 示例：
  * <Scroll>
  *     <div>1</div>
@@ -43,7 +45,7 @@ var scroll = function (_React$Component) {
 
         _this.state = {
             content: [],
-            index: 0,
+            index: _this.props.index ? _this.props.index : 0,
             isScrolling: false
         };
         var bindArr = ["delegateScroll", "delegateTouch", "animateTo", "startMove", "doMove", "endMove"];
@@ -81,9 +83,13 @@ var scroll = function (_React$Component) {
     }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {
-            this.setState({
-                content: nextProps.children
-            });
+            var state = {};
+            if (nextProps.children != this.props.children) {
+                state.content = nextProps.children;
+            }
+            if (Object.keys(state).length != 0) {
+                this.setState(state);
+            }
         }
     }, {
         key: "render",
@@ -135,6 +141,9 @@ var scroll = function (_React$Component) {
         value: function animateTo(i) {
             var _this4 = this;
 
+            if (this.props.animateWillMount) {
+                this.props.animateWillMount(i);
+            }
             this.setState({
                 isScrolling: true,
                 index: i
@@ -142,6 +151,9 @@ var scroll = function (_React$Component) {
                 (0, _jquery2.default)(_this4.container).animate({
                     "margin-top": -(0, _jquery2.default)(window).height() * _this4.state.index
                 }, 800, "linear", function () {
+                    if (_this4.props.animateDidMount) {
+                        _this4.props.animateDidMount(i);
+                    }
                     _this4.setState({ isScrolling: false });
                 });
             });
