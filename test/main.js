@@ -58,26 +58,28 @@ var Xx = function (_React$Component) {
     return Xx;
 }(React.Component);
 
-ReactDom.render(React.createElement(
-    "div",
-    null,
-    React.createElement(
-        Scroll,
-        null,
-        React.createElement(
-            "div",
-            { style: { backgroundColor: "yellow" } },
-            "1"
-        ),
-        React.createElement(
-            "div",
-            { style: { backgroundColor: "red" } },
-            "2"
-        ),
-        React.createElement(
-            "div",
-            { style: { backgroundColor: "blue" } },
-            "3"
-        )
-    )
-), document.getElementById("test"));
+var Radio = require("../karl-react-radio/index");
+
+// ReactDom.render(
+//     <div>
+//         <Radio/>
+//     </div>
+//     , document.getElementById("test"));
+
+require("../karl-vue-radio/index.vue");
+var Vue = require("vue");
+
+// 创建根实例
+new Vue({
+    el: '#test'
+});
+
+// ReactDom.render(
+//     <div>
+//         <Scroll>
+//             <div style={{backgroundColor: "yellow"}}>1</div>
+//             <div style={{backgroundColor: "red"}}>2</div>
+//             <div style={{backgroundColor: "blue"}}>3</div>
+//         </Scroll>
+//     </div>
+//     , document.getElementById("test"));

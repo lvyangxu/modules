@@ -1,0 +1,4 @@
+*.scss
+*.log
+.npmignore
+.gitignore

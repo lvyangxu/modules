@@ -41,7 +41,7 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         margin-top: 4px;
 
-        .allCheck {
+        .checkAll {
             font-size: 14px;
             padding: 5px;
             input[type=checkbox] {
@@ -54,7 +54,7 @@
                 vertical-align: middle;
             }
         }
-        .allCheck:hover {
+        .checkAll:hover {
             background-color: rgba(238, 238, 238, 1);
         }
 

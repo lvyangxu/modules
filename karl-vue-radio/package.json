@@ -1,0 +1,13 @@
+{
+  "name": "karl-vue-radio",
+  "version": "0.1.0",
+  "description": "react vue radio",
+  "main": "index.js",
+  "author": "lvyangxu",
+  "license": "ISC",
+  "devDependencies": {
+
+  },
+  "dependencies": {
+  }
+}

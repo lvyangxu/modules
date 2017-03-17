@@ -20,7 +20,7 @@ class tcpServer {
             socket.on("error", (err) => {
                 console.log("socket err:" + err);
                 socket.end();
-            })
+            });
 
             if (this.param.hasOwnProperty("connectCallback")) {
                 this.param.connectCallback(socket);

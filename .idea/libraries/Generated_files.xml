@@ -8,31 +8,39 @@
         <item url="file://$PROJECT_DIR$/karl-component-login/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
-        <item url="file://$PROJECT_DIR$/test/test.js" />
+        <item url="file://$PROJECT_DIR$/karl-vue-radio/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-select/index.js" />
         <item url="file://$PROJECT_DIR$/karl-date/index.js" />
         <item url="file://$PROJECT_DIR$/test/main.js" />
         <item url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
         <item url="file://$PROJECT_DIR$/karl-jwt/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-table/index.js" />
+        <item url="file://$PROJECT_DIR$/test/test.js" />
         <item url="file://$PROJECT_DIR$/karl-http/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
+      <root url="file://$PROJECT_DIR$/karl-component-select/container/app.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-select/data/dispatcher.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-select/views/view.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-select/data/action.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-select/containers/container.js" />
       <root url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/index1.js" />
       <root url="file://$PROJECT_DIR$/karl-component-login/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
-      <root url="file://$PROJECT_DIR$/test/test.js" />
+      <root url="file://$PROJECT_DIR$/karl-vue-radio/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/index.js" />
       <root url="file://$PROJECT_DIR$/karl-date/index.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
       <root url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
       <root url="file://$PROJECT_DIR$/karl-jwt/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-table/index.js" />
+      <root url="file://$PROJECT_DIR$/test/test.js" />
       <root url="file://$PROJECT_DIR$/karl-http/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
     </CLASSES>
