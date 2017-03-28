@@ -37,7 +37,7 @@ class Xx extends React.Component {
     render() {
         return (
             <div>
-                <Datepicker type="second" callback={d=> {
+                <Datepicker type="second" callback={d => {
                     console.log(d);
                 }}/>
                 <Chart title="chart" xAxisGroupNum={10} yAxisText="kg" x="date" y={[
@@ -45,7 +45,7 @@ class Xx extends React.Component {
                     {id: "banana", name: "banana"},
                     {id: "pear", name: "pear"}
                 ]} data={this.state.data} group={["server", "region"]} type="bar"/>
-                <button onClick={()=> {
+                <button onClick={() => {
                     let data = data2;
                     this.setState({data: data});
                 }}>1
@@ -55,21 +55,26 @@ class Xx extends React.Component {
 
 }
 
-let Radio = require("../karl-react-radio/index");
+let Radio = require("karl-react-radio");
 
-// ReactDom.render(
-//     <div>
-//         <Radio/>
-//     </div>
-//     , document.getElementById("test"));
+ReactDom.render(
+    <div>
+        <Radio data={[1, 2, "a", 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16]} prefix="刀山敢上" suffix="af" initValue="bb"
+               initCallback={d => {
+                   console.log(d)
+               }} callback={d => {
+            console.log(d)
+        }}/>
+    </div>
+    , document.getElementById("test"));
 
-require("../karl-vue-radio/index.vue");
-let Vue = require("vue");
-
-// 创建根实例
-new Vue({
-    el: '#test'
-});
+// require("../karl-vue-radio/index.vue");
+// let Vue = require("vue");
+//
+// // 创建根实例
+// new Vue({
+//     el: '#test'
+// });
 
 // ReactDom.render(
 //     <div>

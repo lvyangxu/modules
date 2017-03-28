@@ -2,7 +2,7 @@
     display: inline-block;
     font-size: 12px;
     position: relative;
-    .display {
+    .button {
         padding: 8px 20px;
         height: 16px;
         border: 1px solid rgba(204, 204, 204, 1);
@@ -22,7 +22,7 @@
         }
     }
 
-    .display:hover {
+    .button:hover {
         background: linear-gradient(to bottom, rgba(237, 237, 237, 1), rgba(219, 219, 219, 1));
         box-shadow: inset 0px 0px 2px 2px rgba(200, 200, 200, 1);
     }
@@ -37,61 +37,67 @@
         border: 1px solid rgba(174, 174, 174, 1);
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         margin-top: 4px;
-    }
 
-    .filter {
-        border: 1px solid rgba(204, 204, 204, 1);
-        i {
-            margin-left: 5px;
-        }
-        input {
-            padding: 5px 4px 5px 4px;
-            border: none;
-            outline: none;
-        }
-    }
-
-    .options {
-        div {
-            height: 30px;
-            line-height: 30px;
-        }
-        .option {
-            padding-left: 5px;
-            padding-right: 5px;
-            cursor: pointer;
-        }
-        .option:hover {
-            background-color: rgba(238, 238, 238, 1);
-        }
-        .page {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-select: none;
-            button {
-                border: none;
-                outline: none;
-                background-color: transparent;
-                font-weight: bolder;
-                font-size: 14px;
-                cursor: pointer;
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-            button:hover {
-                background-color: rgba(238, 238, 238, 1);
-            }
-            button.page-left {
-                margin-right: 5px;
-            }
-            button.page-right {
+        .filter {
+            border: 1px solid rgba(204, 204, 204, 1);
+            i {
                 margin-left: 5px;
             }
+            input {
+                padding: 5px 4px 5px 4px;
+                border: none;
+                outline: none;
+            }
+        }
+
+        .options {
+            div {
+                height: 30px;
+                line-height: 30px;
+            }
+            .option {
+                padding-left: 5px;
+                padding-right: 5px;
+                cursor: pointer;
+            }
+            .option:hover {
+                background-color: rgba(238, 238, 238, 1);
+            }
+            .page {
+                position: absolute;
+                left: 0;
+                bottom: 10px;
+                width: 100%;
+                text-align: center;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                button {
+                    border: none;
+                    outline: none;
+                    background-color: transparent;
+                    font-weight: bolder;
+                    font-size: 14px;
+                    cursor: pointer;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                }
+                button:hover {
+                    background-color: rgba(238, 238, 238, 1);
+                }
+                button.page-left {
+                    margin-right: 5px;
+                }
+                button.page-right {
+                    margin-left: 5px;
+                }
+            }
         }
     }
+
+    .panel.hide {
+        display: none;
+    }
+
 }
 

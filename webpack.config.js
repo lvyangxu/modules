@@ -21,7 +21,7 @@ module.exports = {
                 exclude: /(node_modules|bower_components)/,
                 query: {
                     presets: ['es2015', 'react'],
-                    "plugins": ["syntax-async-functions", "transform-regenerator"]
+                    plugins: ["syntax-async-functions", "transform-regenerator", "transform-class-properties"]
                 }
             }
         ]
@@ -33,7 +33,7 @@ module.exports = {
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: '"production"'
+                // NODE_ENV: '"production"'
             }
         })
     ],

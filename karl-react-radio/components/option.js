@@ -34,11 +34,17 @@ var MyComponent = function (_Component) {
     _createClass(MyComponent, [{
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 "div",
-                { className: _index2.default.button, onClick: this.props.onClick },
-                this.props.buttonValue,
-                _react2.default.createElement("i", { className: "fa fa-caret-down" })
+                { className: _index2.default.options },
+                this.props.data.map(function (d, i) {
+                    return _react2.default.createElement("div", { className: _index2.default.option, key: i, onClick: function onClick() {
+                            _this2.props.onClick(d.value);
+                        }, dangerouslySetInnerHTML: d.html });
+                }),
+                this.props.children
             );
         }
     }]);
@@ -47,7 +53,7 @@ var MyComponent = function (_Component) {
 }(_react.Component);
 
 MyComponent.propTypes = {
-    onClick: _react.PropTypes.func.isRequired,
-    buttonValue: _react.PropTypes.string.isRequired
+    data: _react.PropTypes.array.isRequired,
+    filterValue: _react.PropTypes.string.isRequired
 };
 exports.default = MyComponent;

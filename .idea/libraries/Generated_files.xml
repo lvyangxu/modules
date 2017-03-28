@@ -2,9 +2,24 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
+        <item url="file://$PROJECT_DIR$/karl-jwt/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-component-table/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-http/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
+        <item url="file://$PROJECT_DIR$/test/test.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/actions/action.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/components/button.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/components/filter.js" />
         <item url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/components/option.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/components/page.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/components/panel.js" />
         <item url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/containers/app.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/reducers/reducer.js" />
         <item url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
+        <item url="file://$PROJECT_DIR$/karl-react-radio/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-login/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
         <item url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
@@ -12,12 +27,6 @@
         <item url="file://$PROJECT_DIR$/karl-component-select/index.js" />
         <item url="file://$PROJECT_DIR$/karl-date/index.js" />
         <item url="file://$PROJECT_DIR$/test/main.js" />
-        <item url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
-        <item url="file://$PROJECT_DIR$/karl-jwt/index.js" />
-        <item url="file://$PROJECT_DIR$/karl-component-table/index.js" />
-        <item url="file://$PROJECT_DIR$/test/test.js" />
-        <item url="file://$PROJECT_DIR$/karl-http/index.js" />
-        <item url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -26,10 +35,26 @@
       <root url="file://$PROJECT_DIR$/karl-component-select/views/view.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/data/action.js" />
       <root url="file://$PROJECT_DIR$/karl-component-select/containers/container.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
       <root url="file://$PROJECT_DIR$/karl-react-radio/index1.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/index1.js" />
+      <root url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
+      <root url="file://$PROJECT_DIR$/karl-jwt/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-table/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-http/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
+      <root url="file://$PROJECT_DIR$/test/test.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/actions/action.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/components/button.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/components/filter.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-nav/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/components/option.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/components/page.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/components/panel.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-datepicker/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/containers/app.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/reducers/reducer.js" />
+      <root url="file://$PROJECT_DIR$/karl-component-chart/index.js" />
+      <root url="file://$PROJECT_DIR$/karl-react-radio/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-login/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-scroll/index.js" />
       <root url="file://$PROJECT_DIR$/karl-component-radio/index.js" />
@@ -37,12 +62,6 @@
       <root url="file://$PROJECT_DIR$/karl-component-select/index.js" />
       <root url="file://$PROJECT_DIR$/karl-date/index.js" />
       <root url="file://$PROJECT_DIR$/test/main.js" />
-      <root url="file://$PROJECT_DIR$/karl-jwt/index.es6" />
-      <root url="file://$PROJECT_DIR$/karl-jwt/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-table/index.js" />
-      <root url="file://$PROJECT_DIR$/test/test.js" />
-      <root url="file://$PROJECT_DIR$/karl-http/index.js" />
-      <root url="file://$PROJECT_DIR$/karl-component-slider/index.js" />
     </CLASSES>
     <SOURCES />
   </library>

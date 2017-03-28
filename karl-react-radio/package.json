@@ -1,15 +1,15 @@
 {
-  "name": "karl-component-radio",
-  "version": "4.1.4",
-  "description": "react component radio",
+  "name": "karl-react-radio",
+  "version": "1.0.0",
+  "description": "react component radio with redux",
   "main": "index.js",
   "author": "lvyangxu",
   "license": "ISC",
   "devDependencies": {
-    "react": "latest",
-    "font-awesome-webpack": "latest",
-    "karl-http": "latest"
   },
   "dependencies": {
+    "karl-http": "latest",
+    "font-awesome-webpack": "latest",
+    "font-awesome": "latest"
   }
 }

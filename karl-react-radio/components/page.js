@@ -36,9 +36,28 @@ var MyComponent = function (_Component) {
         value: function render() {
             return _react2.default.createElement(
                 "div",
-                { className: _index2.default.button, onClick: this.props.onClick },
-                this.props.buttonValue,
-                _react2.default.createElement("i", { className: "fa fa-caret-down" })
+                { className: _index2.default.page },
+                _react2.default.createElement(
+                    "button",
+                    { className: _index2.default.pageLeft, onClick: this.props.doPageStart },
+                    _react2.default.createElement("i", { className: "fa fa-angle-double-left" })
+                ),
+                _react2.default.createElement(
+                    "button",
+                    { className: _index2.default.pageLeft, onClick: this.props.doPageLeft },
+                    _react2.default.createElement("i", { className: "fa fa-angle-left" })
+                ),
+                this.props.pageIndex + 1 + "/" + (this.props.pageEndIndex + 1),
+                _react2.default.createElement(
+                    "button",
+                    { className: _index2.default.pageRight, onClick: this.props.doPageRight },
+                    _react2.default.createElement("i", { className: "fa fa-angle-right" })
+                ),
+                _react2.default.createElement(
+                    "button",
+                    { className: _index2.default.pageRight, onClick: this.props.doPageEnd },
+                    _react2.default.createElement("i", { className: "fa fa-angle-double-right" })
+                )
             );
         }
     }]);
@@ -47,7 +66,11 @@ var MyComponent = function (_Component) {
 }(_react.Component);
 
 MyComponent.propTypes = {
-    onClick: _react.PropTypes.func.isRequired,
-    buttonValue: _react.PropTypes.string.isRequired
+    doPageStart: _react.PropTypes.func.isRequired,
+    doPageLeft: _react.PropTypes.func.isRequired,
+    doPageRight: _react.PropTypes.func.isRequired,
+    doPageEnd: _react.PropTypes.func.isRequired,
+    pageIndex: _react.PropTypes.number.isRequired,
+    pageEndIndex: _react.PropTypes.number.isRequired
 };
 exports.default = MyComponent;

@@ -36,9 +36,8 @@ var MyComponent = function (_Component) {
         value: function render() {
             return _react2.default.createElement(
                 "div",
-                { className: _index2.default.button, onClick: this.props.onClick },
-                this.props.buttonValue,
-                _react2.default.createElement("i", { className: "fa fa-caret-down" })
+                { className: _index2.default.filter },
+                _react2.default.createElement("input", { onChange: this.props.onFilterChange, value: this.props.filterValue, placeholder: "\u8FC7\u6EE4\u5668" })
             );
         }
     }]);
@@ -47,7 +46,7 @@ var MyComponent = function (_Component) {
 }(_react.Component);
 
 MyComponent.propTypes = {
-    onClick: _react.PropTypes.func.isRequired,
-    buttonValue: _react.PropTypes.string.isRequired
+    filterValue: _react.PropTypes.string.isRequired,
+    onFilterChange: _react.PropTypes.func.isRequired
 };
 exports.default = MyComponent;
